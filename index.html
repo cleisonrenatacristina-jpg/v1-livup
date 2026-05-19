@@ -7,617 +7,238 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green: #00C853;
-    --green-dim: #00a844;
-    --green-glow: rgba(0,200,83,0.15);
-    --orange: #FF6D00;
-    --orange-dim: #e06000;
-    --red: #FF1744;
-    --yellow: #FFD600;
-    --bg: #0a0e0a;
-    --bg2: #111611;
-    --bg3: #182018;
-    --card: #1a201a;
-    --card2: #202820;
-    --border: #2a342a;
-    --border2: #334033;
-    --text: #e8f0e8;
-    --text2: #9aaa9a;
-    --text3: #5a6a5a;
+    --green:#00C853; --green-dim:#00a844; --green-glow:rgba(0,200,83,0.15);
+    --orange:#FF6D00; --red:#FF1744; --yellow:#FFD600; --blue:#2979FF;
+    --bg:#0a0e0a; --bg2:#111611; --bg3:#182018;
+    --card:#1a201a; --card2:#202820;
+    --border:#2a342a; --border2:#334033;
+    --text:#e8f0e8; --text2:#9aaa9a; --text3:#5a6a5a;
   }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000;}
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+  header{background:var(--bg2);border-bottom:2px solid var(--green);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 0 30px rgba(0,200,83,0.1);}
+  .logo-badge{background:var(--green);color:#000;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;padding:4px 12px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .header-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:3px;text-transform:uppercase;}
+  .header-title span{color:var(--green);}
+  .clock{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--green);letter-spacing:2px;}
+  .date-display{font-size:12px;color:var(--text2);letter-spacing:1px;}
 
-  body {
-    font-family: 'Barlow', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;}
+  nav::-webkit-scrollbar{display:none;}
+  .nav-btn{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);background:transparent;border:none;border-bottom:3px solid transparent;padding:14px 20px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+  .nav-btn:hover{color:var(--text);background:var(--bg3);}
+  .nav-btn.active{color:var(--green);border-bottom-color:var(--green);background:var(--green-glow);}
 
-  /* SCANLINE OVERLAY */
-  body::before {
-    content:'';
-    position:fixed;
-    inset:0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-    pointer-events:none;
-    z-index:1000;
-  }
+  main{padding:24px;max-width:1500px;margin:0 auto;}
 
-  /* HEADER */
-  header {
-    background: var(--bg2);
-    border-bottom: 2px solid var(--green);
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 60px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 0 30px rgba(0,200,83,0.1);
-  }
+  .section-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+  .section-title::before{content:'';width:4px;height:26px;background:var(--green);display:inline-block;}
+  .section-title .sub{font-size:13px;font-weight:400;color:var(--text2);letter-spacing:1px;}
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+  .card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;position:relative;overflow:hidden;margin-bottom:16px;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent);}
+  .card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:16px;}
 
-  .logo-badge {
-    background: var(--green);
-    color: #000;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    padding: 4px 12px;
-    letter-spacing: 2px;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  }
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
 
-  .header-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: 3px;
-    color: var(--text);
-    text-transform: uppercase;
-  }
+  .form-group{margin-bottom:14px;}
+  .form-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px;}
+  .form-control{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:9px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);transition:border-color .2s,box-shadow .2s;outline:none;}
+  .form-control:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow);}
+  .form-control option{background:var(--bg3);}
+  textarea.form-control{resize:vertical;min-height:70px;}
 
-  .header-title span { color: var(--green); }
+  .btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:3px;padding:11px 22px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary{background:var(--green);color:#000;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .btn-primary:hover{background:#00e065;transform:translateY(-1px);}
+  .btn-secondary{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+  .btn-secondary:hover{border-color:var(--green);color:var(--green);}
+  .btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);}
+  .btn-danger:hover{background:rgba(255,23,68,0.1);}
+  .btn-warning{background:var(--orange);color:#000;}
+  .btn-sm{padding:7px 14px;font-size:11px;}
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+  .badge{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:2px;}
+  .badge-green{background:rgba(0,200,83,0.15);color:var(--green);border:1px solid rgba(0,200,83,0.3);}
+  .badge-orange{background:rgba(255,109,0,0.15);color:var(--orange);border:1px solid rgba(255,109,0,0.3);}
+  .badge-red{background:rgba(255,23,68,0.15);color:var(--red);border:1px solid rgba(255,23,68,0.3);}
+  .badge-yellow{background:rgba(255,214,0,0.15);color:var(--yellow);border:1px solid rgba(255,214,0,0.3);}
+  .badge-blue{background:rgba(41,121,255,0.15);color:var(--blue);border:1px solid rgba(41,121,255,0.3);}
+  .badge-gray{background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--border);}
 
-  .clock {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--green);
-    letter-spacing: 2px;
-  }
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;position:relative;overflow:hidden;}
+  .kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+  .kpi-card.green::after{background:var(--green);}
+  .kpi-card.orange::after{background:var(--orange);}
+  .kpi-card.red::after{background:var(--red);}
+  .kpi-card.yellow::after{background:var(--yellow);}
+  .kpi-card.blue::after{background:var(--blue);}
+  .kpi-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+  .kpi-value{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;line-height:1;color:var(--text);}
+  .kpi-sub{font-size:11px;color:var(--text2);margin-top:4px;}
 
-  .date-display {
-    font-size: 12px;
-    color: var(--text2);
-    letter-spacing: 1px;
-  }
+  .prod-table{width:100%;border-collapse:collapse;}
+  .prod-table thead tr{border-bottom:2px solid var(--green);}
+  .prod-table th{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px;text-align:center;}
+  .prod-table th:first-child{text-align:left;}
+  .prod-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+  .prod-table tbody tr:hover{background:var(--card2);}
+  .prod-table td{padding:10px;font-size:13px;color:var(--text);text-align:center;vertical-align:middle;}
+  .prod-table td:first-child{text-align:left;font-weight:600;}
+  .prod-table .total-row td{color:var(--green);font-weight:700;background:rgba(0,200,83,0.05);}
 
-  /* NAV */
-  nav {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  nav::-webkit-scrollbar { display:none; }
+  .parada-item{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:3px;padding:14px;margin-bottom:10px;}
+  .dificuldade-item{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--yellow);border-radius:3px;padding:14px;margin-bottom:10px;}
 
-  .nav-btn {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text2);
-    background: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    padding: 14px 20px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all .2s;
-  }
-  .nav-btn:hover { color: var(--text); background: var(--bg3); }
-  .nav-btn.active { color: var(--green); border-bottom-color: var(--green); background: var(--green-glow); }
+  .op-row{display:grid;grid-template-columns:160px 80px 120px 110px 110px 110px 110px 70px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+  .op-unid{font-size:11px;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;}
 
-  /* MAIN */
-  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  .divider{height:1px;background:var(--border);margin:20px 0;}
+  .table-wrap{overflow-x:auto;}
 
-  /* SECTION TITLE */
-  .section-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--text);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .section-title::before {
-    content:'';
-    width: 4px;
-    height: 28px;
-    background: var(--green);
-    display: inline-block;
-  }
-  .section-title .sub {
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--text2);
-    letter-spacing: 1px;
-  }
+  table.hist{width:100%;border-collapse:collapse;}
+  table.hist thead tr{border-bottom:2px solid var(--green);}
+  table.hist th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:9px 10px;text-align:left;}
+  table.hist tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+  table.hist tbody tr:hover{background:var(--card2);}
+  table.hist td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
 
-  /* CARDS */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content:'';
-    position:absolute;
-    top:0; left:0; right:0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--green), transparent);
-  }
+  .progress-bar-wrap{background:var(--bg3);border-radius:2px;height:5px;overflow:hidden;margin-top:5px;}
+  .progress-bar{height:100%;border-radius:2px;transition:width .5s;}
+  .progress-bar.green{background:var(--green);}
+  .progress-bar.orange{background:var(--orange);}
+  .progress-bar.red{background:var(--red);}
 
-  .card-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text2);
-    margin-bottom: 16px;
-  }
+  .empty-state{text-align:center;padding:40px 24px;color:var(--text3);}
+  .empty-state .icon{font-size:40px;margin-bottom:10px;}
 
-  /* GRID */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .col-span-2 { grid-column: span 2; }
-  .col-span-3 { grid-column: span 3; }
-  .col-span-full { grid-column: 1/-1; }
+  .hidden{display:none!important;}
 
-  /* FORM ELEMENTS */
-  .form-group { margin-bottom: 16px; }
-  .form-label {
-    display: block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text2);
-    margin-bottom: 6px;
-  }
+  #toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+  .toast-msg{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:12px 20px;font-size:13px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:slideIn .3s ease;}
+  .toast-msg.error{border-left-color:var(--red);}
+  .toast-msg.warning{border-left-color:var(--orange);}
+  @keyframes slideIn{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 
-  .form-control {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    padding: 10px 14px;
-    font-family: 'Barlow', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    transition: border-color .2s, box-shadow .2s;
-    outline: none;
-  }
-  .form-control:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 0 3px var(--green-glow);
-  }
-  .form-control option { background: var(--bg3); }
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;}
+  .modal-box{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--green);border-radius:4px;padding:24px;max-width:800px;width:92%;max-height:88vh;overflow-y:auto;}
 
-  textarea.form-control { resize: vertical; min-height: 80px; }
-
-  /* BUTTONS */
-  .btn {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border: none;
-    border-radius: 3px;
-    padding: 12px 24px;
-    cursor: pointer;
-    transition: all .2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .btn-primary {
-    background: var(--green);
-    color: #000;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  }
-  .btn-primary:hover { background: #00e065; transform: translateY(-1px); }
-  .btn-secondary {
-    background: transparent;
-    color: var(--text2);
-    border: 1px solid var(--border2);
-  }
-  .btn-secondary:hover { border-color: var(--green); color: var(--green); }
-  .btn-danger {
-    background: transparent;
-    color: var(--red);
-    border: 1px solid var(--red);
-  }
-  .btn-danger:hover { background: rgba(255,23,68,0.1); }
-  .btn-warning {
-    background: var(--orange);
-    color: #000;
-  }
-  .btn-sm { padding: 7px 14px; font-size: 12px; }
-
-  /* STATUS BADGES */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 2px;
-  }
-  .badge-green { background: rgba(0,200,83,0.15); color: var(--green); border: 1px solid rgba(0,200,83,0.3); }
-  .badge-orange { background: rgba(255,109,0,0.15); color: var(--orange); border: 1px solid rgba(255,109,0,0.3); }
-  .badge-red { background: rgba(255,23,68,0.15); color: var(--red); border: 1px solid rgba(255,23,68,0.3); }
-  .badge-yellow { background: rgba(255,214,0,0.15); color: var(--yellow); border: 1px solid rgba(255,214,0,0.3); }
-  .badge-gray { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border); }
-
-  /* KPI CARDS */
-  .kpi-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 18px;
-    position: relative;
-    overflow: hidden;
-  }
-  .kpi-card::after {
-    content:'';
-    position:absolute;
-    bottom:0; left:0; right:0;
-    height:3px;
-  }
-  .kpi-card.green::after { background: var(--green); }
-  .kpi-card.orange::after { background: var(--orange); }
-  .kpi-card.red::after { background: var(--red); }
-  .kpi-card.yellow::after { background: var(--yellow); }
-
-  .kpi-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-bottom: 8px;
-  }
-  .kpi-value {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 36px;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--text);
-  }
-  .kpi-sub {
-    font-size: 12px;
-    color: var(--text2);
-    margin-top: 4px;
-  }
-
-  /* TABLE */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { border-bottom: 2px solid var(--green); }
-  th {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text3);
-    padding: 10px 12px;
-    text-align: left;
-  }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background .15s;
-  }
-  tbody tr:hover { background: var(--card2); }
-  td {
-    padding: 12px;
-    font-size: 14px;
-    color: var(--text);
-    vertical-align: middle;
-  }
-
-  /* PARADA ITEM */
-  .parada-item {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--orange);
-    border-radius: 3px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
-  }
-
-  .dificuldade-item {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--yellow);
-    border-radius: 3px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
-  }
-
-  /* DIVIDER */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 24px 0;
-  }
-
-  /* ALERT */
-  .alert {
-    border-radius: 3px;
-    padding: 12px 16px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .alert-success { background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.3); color: var(--green); }
-  .alert-warning { background: rgba(255,109,0,0.1); border: 1px solid rgba(255,109,0,0.3); color: var(--orange); }
-  .alert-error { background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.3); color: var(--red); }
-
-  /* TABS inside section */
-  .tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
-    gap: 0;
-  }
-  .tab {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text2);
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 10px 18px;
-    cursor: pointer;
-    transition: all .2s;
-    margin-bottom: -1px;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--green); border-bottom-color: var(--green); }
-
-  /* SETOR SELECTOR */
-  .setor-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .setor-btn {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 14px 10px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .2s;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text2);
-  }
-  .setor-btn:hover { border-color: var(--green); color: var(--text); }
-  .setor-btn.selected { border-color: var(--green); color: var(--green); background: var(--green-glow); }
-  .setor-btn .setor-icon { font-size: 22px; display: block; margin-bottom: 6px; }
-
-  /* PROGRESS BAR */
-  .progress-bar-wrap {
-    background: var(--bg3);
-    border-radius: 2px;
-    height: 6px;
-    overflow: hidden;
-    margin-top: 8px;
-  }
-  .progress-bar {
-    height: 100%;
-    border-radius: 2px;
-    transition: width .5s ease;
-  }
-  .progress-bar.green { background: var(--green); }
-  .progress-bar.orange { background: var(--orange); }
-  .progress-bar.red { background: var(--red); }
-
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--text3);
-  }
-  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; }
-
-  /* GLOW LINE */
-  .glow-line {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--green), transparent);
-    margin: 24px 0;
-    opacity: 0.4;
-  }
-
-  /* HIDDEN */
-  .hidden { display: none !important; }
-
-  /* TOAST */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .toast-msg {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--green);
-    border-radius: 3px;
-    padding: 12px 20px;
-    font-size: 14px;
-    color: var(--text);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    animation: slideIn .3s ease;
-  }
-  .toast-msg.error { border-left-color: var(--red); }
-  .toast-msg.warning { border-left-color: var(--orange); }
-
-  @keyframes slideIn {
-    from { transform: translateX(40px); opacity:0; }
-    to { transform: translateX(0); opacity:1; }
-  }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: 1fr 1fr; }
-    .parada-item { grid-template-columns: 1fr 1fr; }
-    .dificuldade-item { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 600px) {
-    main { padding: 12px; }
-    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-    .col-span-2 { grid-column: span 1; }
-  }
+  @media(max-width:1100px){.op-row{grid-template-columns:130px 70px repeat(5,95px) 60px;}}
+  @media(max-width:900px){.grid-4,.grid-5{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr 1fr;}}
+  @media(max-width:600px){main{padding:12px;}.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
-  <div class="header-left">
+  <div style="display:flex;align-items:center;gap:16px;">
     <div class="logo-badge">LIV UP</div>
     <div>
       <div class="header-title">V<span>1</span> — APONTAMENTOS</div>
       <div class="date-display" id="dateDisplay"></div>
     </div>
   </div>
-  <div class="header-right">
-    <div>
-      <div class="clock" id="clock">--:--:--</div>
-    </div>
+  <div style="text-align:right;">
+    <div class="clock" id="clock">--:--:--</div>
   </div>
 </header>
 
-<!-- NAV -->
 <nav>
-  <button class="nav-btn active" onclick="showPage('apontamento')">📋 Novo Apontamento</button>
-  <button class="nav-btn" onclick="showPage('historico')">📁 Histórico</button>
-  <button class="nav-btn" onclick="showPage('dashboard')">📊 Dashboard</button>
-  <button class="nav-btn" onclick="showPage('config')">⚙️ Configurações</button>
+  <button class="nav-btn active" onclick="showPage('op',this)">📋 OP do Dia</button>
+  <button class="nav-btn" onclick="showPage('apontamento',this)">✏️ Apontamento</button>
+  <button class="nav-btn" onclick="showPage('consolidado',this)">📊 Consolidado</button>
+  <button class="nav-btn" onclick="showPage('historico',this)">📁 Histórico</button>
+  <button class="nav-btn" onclick="showPage('dashboard',this)">📈 Dashboard</button>
+  <button class="nav-btn" onclick="showPage('config',this)">⚙️ Config</button>
 </nav>
 
 <main>
 
-<!-- ====== PÁGINA: APONTAMENTO ====== -->
-<div id="page-apontamento">
+<!-- OP DO DIA -->
+<div id="page-op">
+  <div class="section-title">OP do Dia <span class="sub">Defina a quantidade planejada por setor</span></div>
 
-  <div class="section-title">
-    Novo Apontamento
-    <span class="sub">Registre turno, produção, paradas e dificuldades</span>
-  </div>
-
-  <!-- STEP 1: IDENTIFICAÇÃO -->
-  <div class="card" style="margin-bottom:16px;">
-    <div class="card-title">⬡ Identificação do Turno</div>
+  <div class="card">
     <div class="grid-3">
       <div class="form-group">
         <label class="form-label">Data</label>
-        <input type="date" id="apt-data" class="form-control">
+        <input type="date" id="op-data" class="form-control" onchange="renderOPRows()">
       </div>
       <div class="form-group">
-        <label class="form-label">Turno</label>
-        <select id="apt-turno" class="form-control">
-          <option value="">— Selecione —</option>
-          <option value="T1">Turno 1</option>
-          <option value="T2">Turno 2</option>
-          <option value="T3">Turno 3</option>
-        </select>
+        <label class="form-label">Nº da OP / Referência</label>
+        <input type="text" id="op-ref" class="form-control" placeholder="Ex: OP-2026-001">
       </div>
       <div class="form-group">
-        <label class="form-label">Responsável</label>
-        <input type="text" id="apt-responsavel" class="form-control" placeholder="Nome do supervisor">
+        <label class="form-label">Responsável / Planejador</label>
+        <input type="text" id="op-resp" class="form-control" placeholder="Nome">
       </div>
     </div>
   </div>
 
-  <!-- STEP 2: SETOR -->
-  <div class="card" style="margin-bottom:16px;">
-    <div class="card-title">⬡ Setor</div>
-    <div class="setor-grid" id="setorGrid"></div>
-    <input type="hidden" id="apt-setor">
+  <div class="card">
+    <div class="card-title">📦 Planejamento por Setor</div>
+    <div class="op-row" style="border-bottom:2px solid var(--green);margin-bottom:4px;">
+      <div class="form-label" style="margin:0;">Setor</div>
+      <div class="form-label" style="margin:0;">Unid.</div>
+      <div class="form-label" style="margin:0;text-align:center;">Meta Total</div>
+      <div class="form-label" style="margin:0;text-align:center;">Meta T1</div>
+      <div class="form-label" style="margin:0;text-align:center;">Meta T2</div>
+      <div class="form-label" style="margin:0;text-align:center;">Meta T3</div>
+      <div class="form-label" style="margin:0;text-align:center;">Cap. Máxima</div>
+      <div class="form-label" style="margin:0;text-align:center;">Ativo</div>
+    </div>
+    <div id="opSetoresRows"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="salvarOP()">✓ Salvar OP</button>
+      <button class="btn btn-secondary btn-sm" onclick="carregarOPData()">↺ Carregar Salvo</button>
+    </div>
+  </div>
+</div>
+
+<!-- APONTAMENTO -->
+<div id="page-apontamento" class="hidden">
+  <div class="section-title">Apontamento de Turno <span class="sub">Produção, paradas e dificuldades</span></div>
+
+  <div class="card">
+    <div class="card-title">⬡ Identificação</div>
+    <div class="grid-4">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" id="apt-data" class="form-control" onchange="renderAptProd()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Turno</label>
+        <select id="apt-turno" class="form-control" onchange="renderAptProd()">
+          <option value="">— Selecione —</option>
+          <option value="T1">Turno 1 — Manhã</option>
+          <option value="T2">Turno 2 — Tarde</option>
+          <option value="T3">Turno 3 — Noite</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Setor</label>
+        <select id="apt-setor" class="form-control" onchange="renderAptProd()">
+          <option value="">— Selecione —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Responsável</label>
+        <input type="text" id="apt-resp" class="form-control" placeholder="Supervisor">
+      </div>
+    </div>
   </div>
 
-  <!-- STEP 3: PRODUÇÃO -->
-  <div class="card" style="margin-bottom:16px;" id="cardProducao">
+  <div class="card" id="cardAptProd">
     <div class="card-title">⬡ Produção do Turno</div>
-    <div class="grid-3" id="producaoFields"></div>
+    <div id="aptProdFields"><p style="color:var(--text2);font-size:13px;">Selecione data, turno e setor acima.</p></div>
   </div>
 
-  <!-- STEP 4: PESSOAS -->
-  <div class="card" style="margin-bottom:16px;">
+  <div class="card">
     <div class="card-title">⬡ Pessoas</div>
     <div class="grid-4">
       <div class="form-group">
@@ -630,75 +251,98 @@
       </div>
       <div class="form-group">
         <label class="form-label">Receitas Atrasadas</label>
-        <input type="number" id="apt-rec-atrasadas" class="form-control" min="0" placeholder="0">
+        <input type="number" id="apt-rec-at" class="form-control" min="0" placeholder="0">
       </div>
       <div class="form-group">
         <label class="form-label">Receitas Adiantadas</label>
-        <input type="number" id="apt-rec-adiantadas" class="form-control" min="0" placeholder="0">
+        <input type="number" id="apt-rec-ad" class="form-control" min="0" placeholder="0">
       </div>
     </div>
   </div>
 
-  <!-- STEP 5: PARADAS -->
-  <div class="card" style="margin-bottom:16px;">
+  <div class="card">
     <div class="card-title">⬡ Paradas de Maquinário</div>
     <div id="paradasList"></div>
     <button class="btn btn-warning btn-sm" onclick="addParada()">+ Adicionar Parada</button>
   </div>
 
-  <!-- STEP 6: DIFICULDADES -->
-  <div class="card" style="margin-bottom:16px;">
+  <div class="card">
     <div class="card-title">⬡ Dificuldades do Turno</div>
-    <div class="grid-3" style="margin-bottom:16px;">
+    <div class="grid-3" style="margin-bottom:14px;">
       <div class="form-group">
         <label class="form-label">Desvio de Matéria Prima?</label>
-        <select id="apt-desvio" class="form-control">
-          <option value="Não">Não</option>
-          <option value="Sim">Sim</option>
-        </select>
+        <select id="apt-desvio" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select>
       </div>
       <div class="form-group">
         <label class="form-label">Falta de Utensílio?</label>
-        <select id="apt-utensilio" class="form-control">
-          <option value="Não">Não</option>
-          <option value="Sim">Sim</option>
-        </select>
+        <select id="apt-utensilio" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select>
       </div>
       <div class="form-group">
         <label class="form-label">Falta de Recurso?</label>
-        <select id="apt-recurso" class="form-control">
-          <option value="Não">Não</option>
-          <option value="Sim">Sim</option>
-        </select>
+        <select id="apt-recurso" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select>
       </div>
     </div>
     <div id="dificuldadesList"></div>
     <button class="btn btn-secondary btn-sm" onclick="addDificuldade()">+ Adicionar Dificuldade</button>
-    <div class="form-group" style="margin-top:16px;">
+    <div class="form-group" style="margin-top:14px;">
       <label class="form-label">Comentários Gerais</label>
-      <textarea id="apt-comentarios" class="form-control" placeholder="Observações adicionais do turno..."></textarea>
+      <textarea id="apt-obs" class="form-control" placeholder="Observações do turno..."></textarea>
     </div>
   </div>
 
-  <!-- SALVAR -->
-  <div style="display:flex; gap:12px; justify-content:flex-end;">
-    <button class="btn btn-secondary" onclick="limparForm()">Limpar</button>
-    <button class="btn btn-primary" onclick="salvarApontamento()">✓ Salvar Apontamento</button>
+  <div style="display:flex;gap:12px;justify-content:flex-end;">
+    <button class="btn btn-secondary" onclick="limparApt()">Limpar</button>
+    <button class="btn btn-primary" onclick="salvarApt()">✓ Salvar Apontamento</button>
   </div>
 </div>
 
-<!-- ====== PÁGINA: HISTÓRICO ====== -->
-<div id="page-historico" class="hidden">
-  <div class="section-title">
-    Histórico
-    <span class="sub">Todos os apontamentos registrados</span>
+<!-- CONSOLIDADO -->
+<div id="page-consolidado" class="hidden">
+  <div class="section-title">Consolidado do Dia <span class="sub">Visão geral igual à planilha V1</span></div>
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Data</label>
+        <input type="date" id="cons-data" class="form-control" style="width:180px;">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="renderConsolidado()">Gerar</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportConsolidadoCSV()">⬇ Exportar CSV</button>
+    </div>
   </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="prod-table">
+        <thead>
+          <tr>
+            <th>Setor</th>
+            <th>T1 Manhã</th>
+            <th>T2 Tarde</th>
+            <th>T3 Noite</th>
+            <th>Total Prod.</th>
+            <th>Meta (OP)</th>
+            <th>Unid.</th>
+            <th>Eficiência</th>
+            <th>Absenteísmo</th>
+            <th>Paradas</th>
+          </tr>
+        </thead>
+        <tbody id="consolidadoBody"></tbody>
+      </table>
+    </div>
+    <div id="consolidadoEmpty" class="empty-state hidden">
+      <div class="icon">📊</div><p>Selecione a data e clique em Gerar</p>
+    </div>
+  </div>
+</div>
 
-  <div class="card" style="margin-bottom:16px;">
+<!-- HISTÓRICO -->
+<div id="page-historico" class="hidden">
+  <div class="section-title">Histórico <span class="sub">Todos os apontamentos</span></div>
+  <div class="card">
     <div class="grid-4">
       <div class="form-group">
         <label class="form-label">Data Início</label>
-        <input type="date" id="filt-inicio" class="form-control">
+        <input type="date" id="filt-ini" class="form-control">
       </div>
       <div class="form-group">
         <label class="form-label">Data Fim</label>
@@ -706,769 +350,731 @@
       </div>
       <div class="form-group">
         <label class="form-label">Setor</label>
-        <select id="filt-setor" class="form-control">
-          <option value="">Todos</option>
-        </select>
+        <select id="filt-setor" class="form-control"><option value="">Todos</option></select>
       </div>
       <div class="form-group">
         <label class="form-label">Turno</label>
         <select id="filt-turno" class="form-control">
           <option value="">Todos</option>
-          <option value="T1">Turno 1</option>
-          <option value="T2">Turno 2</option>
-          <option value="T3">Turno 3</option>
+          <option value="T1">T1 — Manhã</option>
+          <option value="T2">T2 — Tarde</option>
+          <option value="T3">T3 — Noite</option>
         </select>
       </div>
     </div>
-    <div style="display:flex; gap:10px;">
-      <button class="btn btn-primary btn-sm" onclick="filtrarHistorico()">Filtrar</button>
-      <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">Limpar Filtros</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary btn-sm" onclick="filtrarHist()">Filtrar</button>
+      <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">Limpar</button>
     </div>
   </div>
-
   <div class="card">
     <div class="table-wrap">
-      <table>
+      <table class="hist">
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Turno</th>
-            <th>Setor</th>
-            <th>Responsável</th>
-            <th>Produção</th>
-            <th>Presentes</th>
-            <th>Ausências</th>
-            <th>Paradas</th>
-            <th>Status</th>
-            <th>Ações</th>
+            <th>Data</th><th>Turno</th><th>Setor</th><th>Responsável</th>
+            <th>Produzido</th><th>Meta</th><th>Efic%</th>
+            <th>Presentes</th><th>Ausências</th><th>Paradas</th><th>Ações</th>
           </tr>
         </thead>
-        <tbody id="historicoBody"></tbody>
+        <tbody id="histBody"></tbody>
       </table>
     </div>
-    <div id="historicoEmpty" class="empty-state hidden">
-      <div class="icon">📂</div>
-      <p>Nenhum apontamento encontrado</p>
+    <div id="histEmpty" class="empty-state hidden">
+      <div class="icon">📂</div><p>Nenhum apontamento encontrado</p>
     </div>
   </div>
 </div>
 
-<!-- ====== PÁGINA: DASHBOARD ====== -->
+<!-- DASHBOARD -->
 <div id="page-dashboard" class="hidden">
-  <div class="section-title">
-    Dashboard
-    <span class="sub">Visão geral de produção e paradas</span>
-  </div>
-
-  <div class="grid-4" style="margin-bottom:20px;">
-    <div class="kpi-card green">
-      <div class="kpi-label">Apontamentos Hoje</div>
-      <div class="kpi-value" id="kpi-hoje">0</div>
-      <div class="kpi-sub">registros do dia</div>
-    </div>
-    <div class="kpi-card orange">
-      <div class="kpi-label">Paradas Hoje</div>
-      <div class="kpi-value" id="kpi-paradas">0</div>
-      <div class="kpi-sub">ocorrências</div>
-    </div>
-    <div class="kpi-card yellow">
-      <div class="kpi-label">Total Ausências</div>
-      <div class="kpi-value" id="kpi-ausencias">0</div>
-      <div class="kpi-sub">no período</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Setores Ativos</div>
-      <div class="kpi-value" id="kpi-setores">0</div>
-      <div class="kpi-sub">com apontamento</div>
+  <div class="section-title">Dashboard <span class="sub">Visão geral operacional</span></div>
+  <div style="display:flex;gap:10px;align-items:end;margin-bottom:20px;">
+    <div>
+      <label class="form-label">Data</label>
+      <input type="date" id="dash-data" class="form-control" style="width:170px;" onchange="renderDash()">
     </div>
   </div>
-
+  <div class="grid-5" style="margin-bottom:20px;">
+    <div class="kpi-card green"><div class="kpi-label">Apontamentos</div><div class="kpi-value" id="kpi-apt">0</div><div class="kpi-sub">do dia</div></div>
+    <div class="kpi-card orange"><div class="kpi-label">Paradas</div><div class="kpi-value" id="kpi-par">0</div><div class="kpi-sub">ocorrências</div></div>
+    <div class="kpi-card yellow"><div class="kpi-label">Absenteísmo</div><div class="kpi-value" id="kpi-abs">0</div><div class="kpi-sub">ausências</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Efic. Média</div><div class="kpi-value" id="kpi-efic">—</div><div class="kpi-sub">do dia</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Setores</div><div class="kpi-value" id="kpi-set">0</div><div class="kpi-sub">ativos hoje</div></div>
+  </div>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">📊 Produção por Setor (Hoje)</div>
-      <div id="dashProducao">
-        <div class="empty-state"><div class="icon">📊</div><p>Sem dados de hoje</p></div>
-      </div>
+      <div class="card-title">📊 Eficiência por Setor</div>
+      <div id="dashEfic"><div class="empty-state"><div class="icon">📊</div><p>Sem dados</p></div></div>
     </div>
     <div class="card">
-      <div class="card-title">🔴 Paradas Recentes</div>
-      <div id="dashParadas">
-        <div class="empty-state"><div class="icon">✅</div><p>Sem paradas registradas</p></div>
-      </div>
+      <div class="card-title">⚠ Paradas do Dia</div>
+      <div id="dashPar"><div class="empty-state"><div class="icon">✅</div><p>Sem paradas</p></div></div>
     </div>
   </div>
-
-  <div class="glow-line"></div>
-
   <div class="card">
-    <div class="card-title">📋 Resumo por Turno — Hoje</div>
-    <div id="dashTurnos">
-      <div class="empty-state"><div class="icon">📋</div><p>Sem apontamentos hoje</p></div>
-    </div>
+    <div class="card-title">📋 Resumo por Turno</div>
+    <div id="dashTurnos"><div class="empty-state"><div class="icon">📋</div><p>Sem dados</p></div></div>
   </div>
 </div>
 
-<!-- ====== PÁGINA: CONFIG ====== -->
+<!-- CONFIG -->
 <div id="page-config" class="hidden">
-  <div class="section-title">
-    Configurações
-    <span class="sub">Setores, equipamentos e integração</span>
-  </div>
-
+  <div class="section-title">Configurações</div>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">🏭 Setores & Equipamentos</div>
+      <div class="card-title">🏭 Setores</div>
       <div id="configSetores"></div>
       <div class="divider"></div>
-      <div style="display:flex; gap:10px; align-items:end;">
-        <div class="form-group" style="flex:1; margin:0;">
-          <label class="form-label">Novo Setor</label>
-          <input type="text" id="novoSetor" class="form-control" placeholder="Nome do setor">
+      <div style="display:flex;gap:8px;align-items:end;">
+        <div class="form-group" style="flex:1;margin:0;">
+          <label class="form-label">Nome</label>
+          <input type="text" id="novo-setor-nome" class="form-control" placeholder="Ex: Embalagem">
         </div>
-        <button class="btn btn-primary btn-sm" onclick="adicionarSetor()">+ Adicionar</button>
+        <div class="form-group" style="flex:1;margin:0;">
+          <label class="form-label">Unidade</label>
+          <select id="novo-setor-unid" class="form-control">
+            <option>KG</option><option>UNIDADES</option><option>CICLO</option><option>RECEITAS</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addSetor()">+</button>
       </div>
     </div>
-
     <div class="card">
-      <div class="card-title">🔗 Integração Google Sheets</div>
+      <div class="card-title">🔗 Integrações</div>
       <div class="form-group">
-        <label class="form-label">URL do Apps Script (Web App)</label>
-        <input type="text" id="cfg-sheets-url" class="form-control" placeholder="https://script.google.com/macros/s/...">
+        <label class="form-label">URL Apps Script (Google Sheets)</label>
+        <input type="text" id="cfg-sheets" class="form-control" placeholder="https://script.google.com/macros/s/...">
       </div>
       <div class="form-group">
-        <label class="form-label">URL do Demanda Flow (para enviar paradas)</label>
-        <input type="text" id="cfg-demanda-url" class="form-control" placeholder="URL do Apps Script do Demanda Flow">
+        <label class="form-label">URL Demanda Flow (enviar paradas)</label>
+        <input type="text" id="cfg-demanda" class="form-control" placeholder="URL do Apps Script Demanda Flow">
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary btn-sm" onclick="salvarConfig()">✓ Salvar Config</button>
-        <button class="btn btn-secondary btn-sm" onclick="testarConexao()">Testar Conexão</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary btn-sm" onclick="salvarConfig()">✓ Salvar</button>
+        <button class="btn btn-secondary btn-sm" onclick="testarConn()">Testar</button>
       </div>
-      <div id="cfg-status" style="margin-top:12px;"></div>
+      <div id="cfg-status" style="margin-top:10px;font-size:13px;"></div>
     </div>
   </div>
-
-  <div class="card" style="margin-top:16px;">
-    <div class="card-title">⚠️ Dados Locais</div>
-    <p style="font-size:14px; color:var(--text2); margin-bottom:16px;">Os dados ficam salvos no navegador. Exporte regularmente para não perder.</p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn btn-secondary btn-sm" onclick="exportarJSON()">⬇ Exportar JSON</button>
-      <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
-      <button class="btn btn-danger btn-sm" onclick="limparTodos()">🗑 Limpar Todos os Dados</button>
+  <div class="card">
+    <div class="card-title">⚠ Dados Locais</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="expJSON()">⬇ JSON</button>
+      <button class="btn btn-secondary btn-sm" onclick="expCSV()">⬇ CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="limparTudo()">🗑 Limpar Tudo</button>
     </div>
   </div>
 </div>
 
 </main>
 
-<!-- MODAL DETALHE -->
-<div id="modalDetalhe" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:500; align-items:center; justify-content:center;">
-  <div style="background:var(--card); border:1px solid var(--border); border-top:2px solid var(--green); border-radius:4px; padding:24px; max-width:700px; width:90%; max-height:85vh; overflow-y:auto;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <div class="section-title" style="margin:0; font-size:20px;">Detalhe do Apontamento</div>
-      <button class="btn btn-secondary btn-sm" onclick="fecharModal()">✕ Fechar</button>
+<div class="modal-overlay" id="modalDet">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="section-title" style="margin:0;font-size:18px;">Detalhe</div>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modalDet').style.display='none'">✕ Fechar</button>
     </div>
     <div id="modalContent"></div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
-// ===== STATE =====
-let apontamentos = JSON.parse(localStorage.getItem('v1_apontamentos') || '[]');
-let config = JSON.parse(localStorage.getItem('v1_config') || '{}');
-let setores = JSON.parse(localStorage.getItem('v1_setores') || JSON.stringify([
-  { id:'flv', nome:'FLV', icon:'🥦', campos:[{nome:'Qtd Produzida (kg)', tipo:'number'}] },
-  { id:'acougue', nome:'Açougue', icon:'🥩', campos:[{nome:'Qtd Produzida (kg)', tipo:'number'}] },
-  { id:'forno', nome:'Forno', icon:'🔥', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'vario', nome:'Vário', icon:'🍱', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'caldeirao', nome:'Caldeirão', icon:'🫕', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'marmitas', nome:'Marmitas', icon:'📦', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'saquinhos', nome:'Saquinhos', icon:'🛍', campos:[{nome:'Qtd Selada', tipo:'number'}] },
-  { id:'coccao', nome:'Cocção', icon:'♨️', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'porcionamento', nome:'Porcionamento', icon:'⚖️', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'sd', nome:'Salgados & Doces', icon:'🍡', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
-  { id:'apoio', nome:'Áreas de Apoio', icon:'🧹', campos:[{nome:'Etiquetas Internas', tipo:'number'},{nome:'Etiquetas Terceiros', tipo:'number'},{nome:'Bandejas Abertas', tipo:'number'},{nome:'Grãos Separados (kg)', tipo:'number'}] },
+let apts = JSON.parse(localStorage.getItem('v1_apts')||'[]');
+let ops  = JSON.parse(localStorage.getItem('v1_ops')||'[]');
+let cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{}');
+let setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
+  {id:'acougue',   nome:'Açougue',         unid:'KG'},
+  {id:'flv',       nome:'FLV',             unid:'KG'},
+  {id:'forno',     nome:'Forno',           unid:'CICLO'},
+  {id:'vario',     nome:'Vário',           unid:'CICLO'},
+  {id:'caldeira',  nome:'Caldeira',        unid:'CICLO'},
+  {id:'sd',        nome:'S&D',             unid:'RECEITAS'},
+  {id:'saquinhos', nome:'Saquinhos',       unid:'UNIDADES'},
+  {id:'marmitas',  nome:'Marmitas',        unid:'UNIDADES'},
+  {id:'coccao',    nome:'Cocção',          unid:'KG'},
+  {id:'porcionamento',nome:'Porcionamento',unid:'KG'},
+  {id:'apoio',     nome:'Áreas de Apoio',  unid:'UNIDADES'},
 ]));
 
-let paradaCount = 0;
-let dificuldadeCount = 0;
-let currentPage = 'apontamento';
+let pCount=0, dCount=0;
 
-// ===== CLOCK =====
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR');
-  document.getElementById('dateDisplay').textContent = now.toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+const TIPOS_PARADA=['Manutenção Corretiva','Manutenção Preventiva','Falta de Material','Setup / Troca','Aguardando Time','Problema Elétrico','Problema Mecânico','Congestionamento','Por Falta de Sub','Troca de Turno','Outro'];
+const TIPOS_DIFIC=['Falta de Receita','Treinamento de Pessoa','Absenteísmo','Falta de Insumo','Problema de Qualidade','Comunicação','Logística Interna','Outro'];
+
+// CLOCK
+function updClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleTimeString('pt-BR');
+  document.getElementById('dateDisplay').textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updClock,1000); updClock();
 
-// ===== INIT =====
-function init() {
-  // set today's date
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('apt-data').value = today;
-  document.getElementById('filt-inicio').value = today;
-  document.getElementById('filt-fim').value = today;
-
-  // restore config
-  if (config.sheetsUrl) document.getElementById('cfg-sheets-url').value = config.sheetsUrl;
-  if (config.demandaUrl) document.getElementById('cfg-demanda-url').value = config.demandaUrl;
-
-  renderSetorGrid();
+// INIT
+function init(){
+  const td=today();
+  ['op-data','apt-data','cons-data','dash-data','filt-ini','filt-fim'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value=td;
+  });
+  if(cfg.sheets) document.getElementById('cfg-sheets').value=cfg.sheets;
+  if(cfg.demanda) document.getElementById('cfg-demanda').value=cfg.demanda;
+  renderOPRows();
+  renderAptSetor();
   renderConfigSetores();
   populateFiltroSetor();
 }
 
-// ===== NAVIGATION =====
-function showPage(page) {
-  document.querySelectorAll('[id^=page-]').forEach(p => p.classList.add('hidden'));
-  document.getElementById('page-' + page).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  currentPage = page;
-  if (page === 'historico') renderHistorico(apontamentos);
-  if (page === 'dashboard') renderDashboard();
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtD(d){if(!d)return'—';const[y,m,v]=d.split('-');return`${v}/${m}/${y}`;}
+
+// NAV
+function showPage(p,btn){
+  document.querySelectorAll('[id^=page-]').forEach(x=>x.classList.add('hidden'));
+  document.getElementById('page-'+p).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(p==='historico') renderHist(apts);
+  if(p==='dashboard') renderDash();
+  if(p==='consolidado') renderConsolidado();
 }
 
-// ===== SETOR GRID =====
-function renderSetorGrid() {
-  const grid = document.getElementById('setorGrid');
-  grid.innerHTML = setores.map(s => `
-    <div class="setor-btn" id="setor-btn-${s.id}" onclick="selecionarSetor('${s.id}')">
-      <span class="setor-icon">${s.icon}</span>
-      ${s.nome}
-    </div>
-  `).join('');
-}
-
-function selecionarSetor(id) {
-  document.querySelectorAll('.setor-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('setor-btn-' + id).classList.add('selected');
-  document.getElementById('apt-setor').value = id;
-  renderProducaoFields(id);
-}
-
-function renderProducaoFields(id) {
-  const setor = setores.find(s => s.id === id);
-  if (!setor) return;
-  const container = document.getElementById('producaoFields');
-  container.innerHTML = setor.campos.map((c, i) => `
-    <div class="form-group">
-      <label class="form-label">${c.nome}</label>
-      <input type="${c.tipo}" class="form-control prod-field" data-campo="${c.nome}" placeholder="0" min="0">
-    </div>
-  `).join('');
-}
-
-// ===== PARADAS =====
-const tiposParada = ['Manutenção Corretiva','Manutenção Preventiva','Falta de Material','Setup / Troca','Aguardando Time','Problema Elétrico','Problema Mecânico','Congestionamento','Outro'];
-
-function addParada() {
-  paradaCount++;
-  const id = paradaCount;
-  const div = document.createElement('div');
-  div.className = 'parada-item';
-  div.id = 'parada-' + id;
-  div.innerHTML = `
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Equipamento</label>
-      <input type="text" class="form-control" id="p-equip-${id}" placeholder="Ex: CUB 10, Esteira...">
-    </div>
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Tipo de Parada</label>
-      <select class="form-control" id="p-tipo-${id}">
-        ${tiposParada.map(t => `<option value="${t}">${t}</option>`).join('')}
-      </select>
-    </div>
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Tempo Parado</label>
-      <div style="display:flex; gap:6px;">
-        <input type="time" class="form-control" id="p-inicio-${id}" style="flex:1;" placeholder="Início">
-        <input type="time" class="form-control" id="p-fim-${id}" style="flex:1;" placeholder="Fim">
-      </div>
-    </div>
-    <div style="padding-bottom:2px;">
-      <button class="btn btn-danger btn-sm" onclick="removeParada(${id})">✕</button>
-    </div>
-    <div class="form-group col-span-full" style="margin:0; grid-column:1/-1; margin-top:8px;">
-      <label class="form-label">Descrição / Causa</label>
-      <input type="text" class="form-control" id="p-desc-${id}" placeholder="Descreva o problema e causa...">
-    </div>
-  `;
-  document.getElementById('paradasList').appendChild(div);
-}
-
-function removeParada(id) {
-  document.getElementById('parada-' + id).remove();
-}
-
-// ===== DIFICULDADES =====
-const tiposDific = ['Falta de Receita','Treinamento de Pessoa','Absenteísmo','Falta de Insumo','Problema de Qualidade','Comunicação','Logística Interna','Outro'];
-
-function addDificuldade() {
-  dificuldadeCount++;
-  const id = dificuldadeCount;
-  const div = document.createElement('div');
-  div.className = 'dificuldade-item';
-  div.id = 'dif-' + id;
-  div.innerHTML = `
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Tipo de Dificuldade</label>
-      <select class="form-control" id="d-tipo-${id}">
-        ${tiposDific.map(t => `<option value="${t}">${t}</option>`).join('')}
-      </select>
-    </div>
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Descrição</label>
-      <input type="text" class="form-control" id="d-desc-${id}" placeholder="Descreva a dificuldade...">
-    </div>
-    <div style="padding-bottom:2px;">
-      <button class="btn btn-danger btn-sm" onclick="removeDificuldade(${id})">✕</button>
-    </div>
-  `;
-  document.getElementById('dificuldadesList').appendChild(div);
-}
-
-function removeDificuldade(id) {
-  document.getElementById('dif-' + id).remove();
-}
-
-// ===== COLETA PARADAS =====
-function coletarParadas() {
-  const paradas = [];
-  document.querySelectorAll('[id^=parada-]').forEach(el => {
-    const id = el.id.split('-')[1];
-    paradas.push({
-      equipamento: document.getElementById('p-equip-' + id)?.value || '',
-      tipo: document.getElementById('p-tipo-' + id)?.value || '',
-      inicio: document.getElementById('p-inicio-' + id)?.value || '',
-      fim: document.getElementById('p-fim-' + id)?.value || '',
-      descricao: document.getElementById('p-desc-' + id)?.value || '',
-      tempoMinutos: calcularTempo(document.getElementById('p-inicio-' + id)?.value, document.getElementById('p-fim-' + id)?.value)
-    });
-  });
-  return paradas;
-}
-
-function coletarDificuldades() {
-  const difs = [];
-  document.querySelectorAll('[id^=dif-]').forEach(el => {
-    const id = el.id.split('-')[1];
-    difs.push({
-      tipo: document.getElementById('d-tipo-' + id)?.value || '',
-      descricao: document.getElementById('d-desc-' + id)?.value || ''
-    });
-  });
-  return difs;
-}
-
-function calcularTempo(inicio, fim) {
-  if (!inicio || !fim) return 0;
-  const [hi, mi] = inicio.split(':').map(Number);
-  const [hf, mf] = fim.split(':').map(Number);
-  return Math.max(0, (hf * 60 + mf) - (hi * 60 + mi));
-}
-
-function coletarProducao() {
-  const dados = {};
-  document.querySelectorAll('.prod-field').forEach(f => {
-    dados[f.dataset.campo] = Number(f.value) || 0;
-  });
-  return dados;
-}
-
-// ===== SALVAR =====
-function salvarApontamento() {
-  const data = document.getElementById('apt-data').value;
-  const turno = document.getElementById('apt-turno').value;
-  const setor = document.getElementById('apt-setor').value;
-  const responsavel = document.getElementById('apt-responsavel').value;
-
-  if (!data || !turno || !setor) {
-    toast('Preencha Data, Turno e Setor!', 'error');
-    return;
-  }
-
-  const setorObj = setores.find(s => s.id === setor);
-  const apt = {
-    id: Date.now(),
-    data,
-    turno,
-    setor,
-    setorNome: setorObj?.nome || setor,
-    responsavel,
-    presentes: Number(document.getElementById('apt-presentes').value) || 0,
-    ausencias: Number(document.getElementById('apt-ausencias').value) || 0,
-    recAtrasadas: Number(document.getElementById('apt-rec-atrasadas').value) || 0,
-    recAdiantadas: Number(document.getElementById('apt-rec-adiantadas').value) || 0,
-    producao: coletarProducao(),
-    paradas: coletarParadas(),
-    dificuldades: coletarDificuldades(),
-    desvioMP: document.getElementById('apt-desvio').value,
-    faltaUtensilio: document.getElementById('apt-utensilio').value,
-    faltaRecurso: document.getElementById('apt-recurso').value,
-    comentarios: document.getElementById('apt-comentarios').value,
-    timestamp: new Date().toISOString()
-  };
-
-  apontamentos.push(apt);
-  localStorage.setItem('v1_apontamentos', JSON.stringify(apontamentos));
-
-  // enviar para Google Sheets se configurado
-  if (config.sheetsUrl) enviarParaSheets(apt);
-
-  toast('Apontamento salvo com sucesso!');
-  limparForm();
-}
-
-// ===== ENVIAR SHEETS =====
-async function enviarParaSheets(apt) {
-  try {
-    await fetch(config.sheetsUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo: 'apontamento', dados: apt })
-    });
-  } catch(e) { console.log('Sheets offline:', e); }
-}
-
-// ===== LIMPAR FORM =====
-function limparForm() {
-  document.getElementById('apt-turno').value = '';
-  document.getElementById('apt-responsavel').value = '';
-  document.getElementById('apt-presentes').value = '';
-  document.getElementById('apt-ausencias').value = '';
-  document.getElementById('apt-rec-atrasadas').value = '';
-  document.getElementById('apt-rec-adiantadas').value = '';
-  document.getElementById('apt-desvio').value = 'Não';
-  document.getElementById('apt-utensilio').value = 'Não';
-  document.getElementById('apt-recurso').value = 'Não';
-  document.getElementById('apt-comentarios').value = '';
-  document.getElementById('apt-setor').value = '';
-  document.getElementById('producaoFields').innerHTML = '';
-  document.getElementById('paradasList').innerHTML = '';
-  document.getElementById('dificuldadesList').innerHTML = '';
-  document.querySelectorAll('.setor-btn').forEach(b => b.classList.remove('selected'));
-  paradaCount = 0;
-  dificuldadeCount = 0;
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('apt-data').value = today;
-}
-
-// ===== HISTÓRICO =====
-function renderHistorico(lista) {
-  const tbody = document.getElementById('historicoBody');
-  const empty = document.getElementById('historicoEmpty');
-  if (!lista.length) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-  tbody.innerHTML = lista.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map(apt => {
-    const prodTotal = Object.values(apt.producao || {}).reduce((s,v) => s + v, 0);
-    const paradasCount = apt.paradas?.length || 0;
-    const temParada = paradasCount > 0;
-    return `
-      <tr>
-        <td>${formatDate(apt.data)}</td>
-        <td><span class="badge badge-gray">${apt.turno}</span></td>
-        <td>${apt.setorNome}</td>
-        <td>${apt.responsavel || '—'}</td>
-        <td>${prodTotal > 0 ? prodTotal.toLocaleString('pt-BR') : '—'}</td>
-        <td>${apt.presentes}</td>
-        <td>${apt.ausencias > 0 ? `<span style="color:var(--orange)">${apt.ausencias}</span>` : apt.ausencias}</td>
-        <td>${temParada ? `<span class="badge badge-red">⚠ ${paradasCount}</span>` : '<span class="badge badge-green">✓ 0</span>'}</td>
-        <td><span class="badge badge-green">Salvo</span></td>
-        <td>
-          <button class="btn btn-secondary btn-sm" onclick="verDetalhe(${apt.id})">Ver</button>
-          <button class="btn btn-danger btn-sm" onclick="deletarApontamento(${apt.id})">✕</button>
-        </td>
-      </tr>
-    `;
+// OP
+function renderOPRows(){
+  const data=document.getElementById('op-data').value;
+  const op=ops.find(o=>o.data===data)||{s:{}};
+  document.getElementById('opSetoresRows').innerHTML=setores.map(s=>{
+    const d=op.s?.[s.id]||{};
+    return `<div class="op-row">
+      <div style="font-size:13px;font-weight:600;">${s.nome}</div>
+      <div class="op-unid">${s.unid}</div>
+      <input type="number" class="form-control" id="op-tot-${s.id}" placeholder="Total" min="0" value="${d.tot||''}" oninput="distrib('${s.id}')">
+      <input type="number" class="form-control" id="op-t1-${s.id}"  placeholder="T1"    min="0" value="${d.t1||''}">
+      <input type="number" class="form-control" id="op-t2-${s.id}"  placeholder="T2"    min="0" value="${d.t2||''}">
+      <input type="number" class="form-control" id="op-t3-${s.id}"  placeholder="T3"    min="0" value="${d.t3||''}">
+      <input type="number" class="form-control" id="op-cap-${s.id}" placeholder="Cap."  min="0" value="${d.cap||''}">
+      <div style="text-align:center;"><input type="checkbox" id="op-at-${s.id}" ${d.ativo!==false?'checked':''} style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;"></div>
+    </div>`;
   }).join('');
 }
 
-function filtrarHistorico() {
-  const inicio = document.getElementById('filt-inicio').value;
-  const fim = document.getElementById('filt-fim').value;
-  const setor = document.getElementById('filt-setor').value;
-  const turno = document.getElementById('filt-turno').value;
-
-  let lista = [...apontamentos];
-  if (inicio) lista = lista.filter(a => a.data >= inicio);
-  if (fim) lista = lista.filter(a => a.data <= fim);
-  if (setor) lista = lista.filter(a => a.setor === setor);
-  if (turno) lista = lista.filter(a => a.turno === turno);
-  renderHistorico(lista);
+function distrib(id){
+  const tot=Number(document.getElementById('op-tot-'+id).value)||0;
+  const p=Math.round(tot/3);
+  document.getElementById('op-t1-'+id).value=p;
+  document.getElementById('op-t2-'+id).value=p;
+  document.getElementById('op-t3-'+id).value=tot-p*2;
 }
 
-function limparFiltros() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('filt-inicio').value = today;
-  document.getElementById('filt-fim').value = today;
-  document.getElementById('filt-setor').value = '';
-  document.getElementById('filt-turno').value = '';
-  renderHistorico(apontamentos);
+function salvarOP(){
+  const data=document.getElementById('op-data').value;
+  if(!data){toast('Selecione a data!','error');return;}
+  const s={};
+  setores.forEach(x=>{
+    s[x.id]={
+      tot: Number(document.getElementById('op-tot-'+x.id)?.value)||0,
+      t1:  Number(document.getElementById('op-t1-'+x.id)?.value)||0,
+      t2:  Number(document.getElementById('op-t2-'+x.id)?.value)||0,
+      t3:  Number(document.getElementById('op-t3-'+x.id)?.value)||0,
+      cap: Number(document.getElementById('op-cap-'+x.id)?.value)||0,
+      ativo: document.getElementById('op-at-'+x.id)?.checked!==false
+    };
+  });
+  ops=ops.filter(o=>o.data!==data);
+  ops.push({data,ref:document.getElementById('op-ref').value,resp:document.getElementById('op-resp').value,s,ts:new Date().toISOString()});
+  localStorage.setItem('v1_ops',JSON.stringify(ops));
+  toast('OP salva!');
 }
 
-function deletarApontamento(id) {
-  if (!confirm('Deletar este apontamento?')) return;
-  apontamentos = apontamentos.filter(a => a.id !== id);
-  localStorage.setItem('v1_apontamentos', JSON.stringify(apontamentos));
-  renderHistorico(apontamentos);
-  toast('Apontamento removido');
+function carregarOPData(){
+  const data=document.getElementById('op-data').value;
+  const op=ops.find(o=>o.data===data);
+  if(op){document.getElementById('op-ref').value=op.ref||'';document.getElementById('op-resp').value=op.resp||'';}
+  renderOPRows();
+  toast(op?'OP carregada!':'Sem OP para esta data','warning');
 }
 
-function populateFiltroSetor() {
-  const sel = document.getElementById('filt-setor');
-  setores.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.textContent = s.nome;
-    sel.appendChild(opt);
+function getMetaTurno(data,sid,turno){
+  const op=ops.find(o=>o.data===data);
+  const d=op?.s?.[sid]||{};
+  return turno==='T1'?d.t1||0:turno==='T2'?d.t2||0:turno==='T3'?d.t3||0:d.tot||0;
+}
+function getMetaTot(data,sid){return(ops.find(o=>o.data===data)?.s?.[sid]||{}).tot||0;}
+
+// APT SETOR SELECT
+function renderAptSetor(){
+  const sel=document.getElementById('apt-setor');
+  sel.innerHTML='<option value="">— Selecione —</option>';
+  setores.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.nome;sel.appendChild(o);});
+}
+
+function renderAptProd(){
+  const sid=document.getElementById('apt-setor').value;
+  const turno=document.getElementById('apt-turno').value;
+  const data=document.getElementById('apt-data').value;
+  const s=setores.find(x=>x.id===sid);
+  const c=document.getElementById('aptProdFields');
+  if(!s){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno acima.</p>';return;}
+  const meta=getMetaTurno(data,sid,turno);
+  c.innerHTML=`
+    <div class="grid-3">
+      <div class="form-group">
+        <label class="form-label">Qtd. Produzida (${s.unid})</label>
+        <input type="number" id="apt-prod" class="form-control" min="0" placeholder="0" oninput="calcEfic()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Meta do Turno (OP)</label>
+        <input type="number" id="apt-meta" class="form-control" value="${meta}" placeholder="${meta||'Sem OP'}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Eficiência Calculada</label>
+        <div id="eficVal" style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;color:var(--text2);padding:4px 0;">—</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observação de Produção</label>
+      <input type="text" id="apt-prod-obs" class="form-control" placeholder="Ex: produto X não foi produzido por falta de MP...">
+    </div>`;
+}
+
+function calcEfic(){
+  const prod=Number(document.getElementById('apt-prod')?.value)||0;
+  const meta=Number(document.getElementById('apt-meta')?.value)||0;
+  const el=document.getElementById('eficVal');
+  if(!el)return;
+  if(!meta){el.textContent='—';el.style.color='var(--text2)';return;}
+  const p=Math.round(prod/meta*100);
+  el.textContent=p+'%';
+  el.style.color=p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
+}
+
+// PARADAS
+function addParada(){
+  pCount++;const id=pCount;
+  const div=document.createElement('div');
+  div.className='parada-item';div.id='par-'+id;
+  div.innerHTML=`
+    <div class="grid-3" style="margin-bottom:10px;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Equipamento</label>
+        <input type="text" class="form-control" id="p-eq-${id}" placeholder="Ex: CUB 10, Esteira...">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Tipo de Parada</label>
+        <select class="form-control" id="p-tp-${id}">${TIPOS_PARADA.map(t=>`<option>${t}</option>`).join('')}</select>
+      </div>
+      <div style="display:flex;gap:6px;align-items:end;">
+        <div class="form-group" style="margin:0;flex:1;">
+          <label class="form-label">Início</label>
+          <input type="time" class="form-control" id="p-in-${id}">
+        </div>
+        <div class="form-group" style="margin:0;flex:1;">
+          <label class="form-label">Fim</label>
+          <input type="time" class="form-control" id="p-fi-${id}">
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-bottom:2px;" onclick="document.getElementById('par-${id}').remove()">✕</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Descrição / Causa</label>
+      <input type="text" class="form-control" id="p-ds-${id}" placeholder="Descreva o problema e causa...">
+    </div>`;
+  document.getElementById('paradasList').appendChild(div);
+}
+
+function addDificuldade(){
+  dCount++;const id=dCount;
+  const div=document.createElement('div');
+  div.className='dificuldade-item';div.id='dif-'+id;
+  div.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Tipo</label>
+        <select class="form-control" id="d-tp-${id}">${TIPOS_DIFIC.map(t=>`<option>${t}</option>`).join('')}</select>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Descrição</label>
+        <input type="text" class="form-control" id="d-ds-${id}" placeholder="Descreva...">
+      </div>
+      <button class="btn btn-danger btn-sm" style="margin-bottom:2px;" onclick="document.getElementById('dif-${id}').remove()">✕</button>
+    </div>`;
+  document.getElementById('dificuldadesList').appendChild(div);
+}
+
+function colParadas(){
+  return[...document.querySelectorAll('[id^=par-]')].map(el=>{
+    const id=el.id.split('-')[1];
+    const ini=document.getElementById('p-in-'+id)?.value||'';
+    const fim=document.getElementById('p-fi-'+id)?.value||'';
+    return{eq:document.getElementById('p-eq-'+id)?.value||'',tp:document.getElementById('p-tp-'+id)?.value||'',ini,fim,min:calcMin(ini,fim),ds:document.getElementById('p-ds-'+id)?.value||''};
   });
 }
 
-// ===== DETALHE MODAL =====
-function verDetalhe(id) {
-  const apt = apontamentos.find(a => a.id === id);
-  if (!apt) return;
+function colDifs(){
+  return[...document.querySelectorAll('[id^=dif-]')].map(el=>{
+    const id=el.id.split('-')[1];
+    return{tp:document.getElementById('d-tp-'+id)?.value||'',ds:document.getElementById('d-ds-'+id)?.value||''};
+  });
+}
 
-  const prodHTML = Object.entries(apt.producao || {}).map(([k,v]) =>
-    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
-      <span style="color:var(--text2)">${k}</span>
-      <span style="font-weight:600">${v.toLocaleString('pt-BR')}</span>
-    </div>`
-  ).join('') || '<p style="color:var(--text2)">Sem dados</p>';
+function calcMin(a,b){
+  if(!a||!b)return 0;
+  const[ha,ma]=a.split(':').map(Number);
+  const[hb,mb]=b.split(':').map(Number);
+  return Math.max(0,(hb*60+mb)-(ha*60+ma));
+}
 
-  const paradasHTML = (apt.paradas || []).map(p =>
-    `<div style="background:var(--bg3);border-left:3px solid var(--orange);padding:10px;margin-bottom:8px;border-radius:2px;">
-      <strong>${p.equipamento}</strong> — ${p.tipo}<br>
-      <span style="color:var(--text2);font-size:13px;">${p.inicio} → ${p.fim} (${p.tempoMinutos} min) | ${p.descricao}</span>
-    </div>`
-  ).join('') || '<p style="color:var(--text2)">Sem paradas</p>';
+// SALVAR APT
+function salvarApt(){
+  const data=document.getElementById('apt-data').value;
+  const turno=document.getElementById('apt-turno').value;
+  const sid=document.getElementById('apt-setor').value;
+  const resp=document.getElementById('apt-resp').value;
+  if(!data||!turno||!sid){toast('Preencha Data, Turno e Setor!','error');return;}
+  const s=setores.find(x=>x.id===sid);
+  const prod=Number(document.getElementById('apt-prod')?.value)||0;
+  const meta=Number(document.getElementById('apt-meta')?.value)||0;
+  const efic=meta>0?Math.round(prod/meta*100):null;
+  const apt={
+    id:Date.now(),data,turno,sid,setorNome:s?.nome||sid,unid:s?.unid||'',resp,
+    prod,meta,efic,prodObs:document.getElementById('apt-prod-obs')?.value||'',
+    presentes:Number(document.getElementById('apt-presentes').value)||0,
+    ausencias:Number(document.getElementById('apt-ausencias').value)||0,
+    recAt:Number(document.getElementById('apt-rec-at').value)||0,
+    recAd:Number(document.getElementById('apt-rec-ad').value)||0,
+    paradas:colParadas(),difs:colDifs(),
+    desvio:document.getElementById('apt-desvio').value,
+    utensilio:document.getElementById('apt-utensilio').value,
+    recurso:document.getElementById('apt-recurso').value,
+    obs:document.getElementById('apt-obs').value,
+    ts:new Date().toISOString()
+  };
+  apts.push(apt);
+  localStorage.setItem('v1_apts',JSON.stringify(apts));
+  if(cfg.sheets) envSheets(apt);
+  toast('Apontamento salvo!');
+  limparApt();
+}
 
-  const difsHTML = (apt.dificuldades || []).map(d =>
-    `<div style="background:var(--bg3);border-left:3px solid var(--yellow);padding:10px;margin-bottom:8px;border-radius:2px;">
-      <strong>${d.tipo}</strong><br>
-      <span style="color:var(--text2);font-size:13px;">${d.descricao}</span>
-    </div>`
-  ).join('') || '<p style="color:var(--text2)">Sem dificuldades</p>';
+function limparApt(){
+  ['apt-turno','apt-setor','apt-resp','apt-presentes','apt-ausencias','apt-rec-at','apt-rec-ad','apt-obs'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?'':'';
+  });
+  ['apt-desvio','apt-utensilio','apt-recurso'].forEach(id=>document.getElementById(id).value='Não');
+  document.getElementById('aptProdFields').innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione data, turno e setor acima.</p>';
+  document.getElementById('paradasList').innerHTML='';
+  document.getElementById('dificuldadesList').innerHTML='';
+  pCount=0;dCount=0;
+  document.getElementById('apt-data').value=today();
+}
 
-  document.getElementById('modalContent').innerHTML = `
-    <div class="grid-2" style="margin-bottom:16px;">
-      <div><span class="badge badge-gray">${apt.turno}</span> &nbsp; ${formatDate(apt.data)}</div>
-      <div style="text-align:right;"><strong>${apt.setorNome}</strong> — ${apt.responsavel || 'Sem responsável'}</div>
+// CONSOLIDADO
+function renderConsolidado(){
+  const data=document.getElementById('cons-data').value;
+  const lista=apts.filter(a=>a.data===data);
+  const tbody=document.getElementById('consolidadoBody');
+  const empty=document.getElementById('consolidadoEmpty');
+  empty.classList.add('hidden');
+
+  tbody.innerHTML=setores.map(s=>{
+    const t1=lista.find(a=>a.sid===s.id&&a.turno==='T1');
+    const t2=lista.find(a=>a.sid===s.id&&a.turno==='T2');
+    const t3=lista.find(a=>a.sid===s.id&&a.turno==='T3');
+    const totProd=(t1?.prod||0)+(t2?.prod||0)+(t3?.prod||0);
+    const meta=getMetaTot(data,s.id);
+    const efic=meta>0?Math.round(totProd/meta*100):null;
+    const aus=(t1?.ausencias||0)+(t2?.ausencias||0)+(t3?.ausencias||0);
+    const par=(t1?.paradas?.length||0)+(t2?.paradas?.length||0)+(t3?.paradas?.length||0);
+    const ec=efic===null?'var(--text2)':efic>=100?'var(--green)':efic>=80?'var(--yellow)':'var(--red)';
+    return `<tr>
+      <td>${s.nome}</td>
+      <td>${t1?t1.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>'}</td>
+      <td>${t2?t2.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>'}</td>
+      <td>${t3?t3.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>'}</td>
+      <td style="font-weight:700;">${totProd.toLocaleString('pt-BR')}</td>
+      <td>${meta>0?meta.toLocaleString('pt-BR'):'<span style="color:var(--text3)">Sem OP</span>'}</td>
+      <td><span style="font-size:11px;color:var(--text2);letter-spacing:1px;">${s.unid}</span></td>
+      <td style="font-weight:700;color:${ec}">${efic!==null?efic+'%':'—'}</td>
+      <td>${aus>0?`<span style="color:var(--orange);font-weight:600;">${aus}</span>`:aus}</td>
+      <td>${par>0?`<span class="badge badge-orange">⚠ ${par}</span>`:`<span class="badge badge-green">✓ 0</span>`}</td>
+    </tr>`;
+  }).join('');
+
+  // total geral
+  const tProd=lista.reduce((s,a)=>s+a.prod,0);
+  const tAus=lista.reduce((s,a)=>s+a.ausencias,0);
+  const tPar=lista.reduce((s,a)=>s+(a.paradas?.length||0),0);
+  tbody.innerHTML+=`<tr class="total-row">
+    <td>TOTAL GERAL</td><td>—</td><td>—</td><td>—</td>
+    <td>${tProd.toLocaleString('pt-BR')}</td><td>—</td><td>—</td><td>—</td>
+    <td>${tAus}</td><td>${tPar}</td>
+  </tr>`;
+}
+
+function exportConsolidadoCSV(){
+  const data=document.getElementById('cons-data').value;
+  const lista=apts.filter(a=>a.data===data);
+  const rows=[['DATA PROD','SETOR','MANHA','TARDE','NOITE','TOTAL','UNID','EFICIENCIA','ABSENTEISMO','PARADAS']];
+  setores.forEach(s=>{
+    const t1=lista.find(a=>a.sid===s.id&&a.turno==='T1');
+    const t2=lista.find(a=>a.sid===s.id&&a.turno==='T2');
+    const t3=lista.find(a=>a.sid===s.id&&a.turno==='T3');
+    const tot=(t1?.prod||0)+(t2?.prod||0)+(t3?.prod||0);
+    const meta=getMetaTot(data,s.id);
+    const efic=meta>0?Math.round(tot/meta*100)+'%':'';
+    const aus=(t1?.ausencias||0)+(t2?.ausencias||0)+(t3?.ausencias||0);
+    const par=(t1?.paradas?.length||0)+(t2?.paradas?.length||0)+(t3?.paradas?.length||0);
+    rows.push([data,s.nome,t1?.prod||0,t2?.prod||0,t3?.prod||0,tot,s.unid,efic,aus,par]);
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download=`consolidado-${data}.csv`;a.click();
+}
+
+// HISTÓRICO
+function renderHist(lista){
+  const tbody=document.getElementById('histBody');
+  const empty=document.getElementById('histEmpty');
+  if(!lista.length){tbody.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  tbody.innerHTML=[...lista].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).map(a=>{
+    const ec=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
+    return `<tr>
+      <td>${fmtD(a.data)}</td>
+      <td><span class="badge badge-gray">${a.turno}</span></td>
+      <td>${a.setorNome}</td>
+      <td>${a.resp||'—'}</td>
+      <td>${a.prod?.toLocaleString('pt-BR')||0} <span style="font-size:10px;color:var(--text3)">${a.unid}</span></td>
+      <td>${a.meta>0?a.meta.toLocaleString('pt-BR'):'—'}</td>
+      <td style="font-weight:700;color:${ec}">${a.efic!=null?a.efic+'%':'—'}</td>
+      <td>${a.presentes}</td>
+      <td>${a.ausencias>0?`<span style="color:var(--orange)">${a.ausencias}</span>`:a.ausencias}</td>
+      <td>${a.paradas?.length>0?`<span class="badge badge-red">⚠ ${a.paradas.length}</span>`:`<span class="badge badge-green">✓ 0</span>`}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="verDet(${a.id})">Ver</button>
+        <button class="btn btn-danger btn-sm" onclick="delApt(${a.id})">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarHist(){
+  const ini=document.getElementById('filt-ini').value;
+  const fim=document.getElementById('filt-fim').value;
+  const sid=document.getElementById('filt-setor').value;
+  const t=document.getElementById('filt-turno').value;
+  let l=[...apts];
+  if(ini)l=l.filter(a=>a.data>=ini);
+  if(fim)l=l.filter(a=>a.data<=fim);
+  if(sid)l=l.filter(a=>a.sid===sid);
+  if(t)l=l.filter(a=>a.turno===t);
+  renderHist(l);
+}
+
+function limparFiltros(){
+  const td=today();
+  document.getElementById('filt-ini').value=td;
+  document.getElementById('filt-fim').value=td;
+  document.getElementById('filt-setor').value='';
+  document.getElementById('filt-turno').value='';
+  renderHist(apts);
+}
+
+function delApt(id){
+  if(!confirm('Deletar?'))return;
+  apts=apts.filter(a=>a.id!==id);
+  localStorage.setItem('v1_apts',JSON.stringify(apts));
+  renderHist(apts);toast('Removido');
+}
+
+function populateFiltroSetor(){
+  const sel=document.getElementById('filt-setor');
+  setores.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.nome;sel.appendChild(o);});
+}
+
+// DETALHE
+function verDet(id){
+  const a=apts.find(x=>x.id===id);if(!a)return;
+  const ec=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
+  const parHTML=(a.paradas||[]).map(p=>`
+    <div style="background:var(--bg3);border-left:3px solid var(--orange);padding:10px;margin-bottom:8px;border-radius:2px;">
+      <strong>${p.eq||'Equip.'}</strong> — ${p.tp}<br>
+      <span style="color:var(--text2);font-size:12px;">${p.ini||'?'} → ${p.fi||p.fim||'?'} (${p.min} min) | ${p.ds}</span>
+    </div>`).join('')||'<p style="color:var(--text2);font-size:13px;">Sem paradas</p>';
+  const difHTML=(a.difs||[]).map(d=>`
+    <div style="background:var(--bg3);border-left:3px solid var(--yellow);padding:10px;margin-bottom:8px;border-radius:2px;">
+      <strong>${d.tp}</strong><br>
+      <span style="color:var(--text2);font-size:12px;">${d.ds}</span>
+    </div>`).join('')||'<p style="color:var(--text2);font-size:13px;">Sem dificuldades</p>';
+
+  document.getElementById('modalContent').innerHTML=`
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div class="kpi-card green"><div class="kpi-label">Data</div><div style="font-size:18px;font-weight:700;">${fmtD(a.data)}</div></div>
+      <div class="kpi-card blue"><div class="kpi-label">Turno — Setor</div><div style="font-size:15px;font-weight:700;">${a.turno} — ${a.setorNome}</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Produção</div><div style="font-size:24px;font-weight:800;">${a.prod?.toLocaleString('pt-BR')||0} <span style="font-size:12px;">${a.unid}</span></div></div>
+      <div class="kpi-card ${a.efic>=100?'green':a.efic>=80?'yellow':'red'}">
+        <div class="kpi-label">Eficiência</div>
+        <div style="font-size:28px;font-weight:800;color:${ec}">${a.efic!=null?a.efic+'%':'—'}</div>
+        <div style="font-size:11px;color:var(--text2)">Meta: ${a.meta>0?a.meta.toLocaleString('pt-BR'):'Sem OP'}</div>
+      </div>
     </div>
     <div class="grid-4" style="margin-bottom:16px;">
-      <div><div class="kpi-label">Presentes</div><div style="font-size:24px;font-weight:700;">${apt.presentes}</div></div>
-      <div><div class="kpi-label">Ausências</div><div style="font-size:24px;font-weight:700;color:var(--orange)">${apt.ausencias}</div></div>
-      <div><div class="kpi-label">Rec. Atrasadas</div><div style="font-size:24px;font-weight:700;">${apt.recAtrasadas}</div></div>
-      <div><div class="kpi-label">Rec. Adiantadas</div><div style="font-size:24px;font-weight:700;">${apt.recAdiantadas}</div></div>
+      <div><div class="kpi-label">Presentes</div><div style="font-size:20px;font-weight:700;">${a.presentes}</div></div>
+      <div><div class="kpi-label">Ausências</div><div style="font-size:20px;font-weight:700;color:var(--orange)">${a.ausencias}</div></div>
+      <div><div class="kpi-label">Rec. Atrasadas</div><div style="font-size:20px;font-weight:700;">${a.recAt||0}</div></div>
+      <div><div class="kpi-label">Rec. Adiantadas</div><div style="font-size:20px;font-weight:700;">${a.recAd||0}</div></div>
     </div>
-    <div class="card-title" style="margin-bottom:8px;">Produção</div>
-    ${prodHTML}
     <div class="divider"></div>
-    <div class="card-title" style="margin-bottom:8px;">⚠ Paradas</div>
-    ${paradasHTML}
+    <div class="card-title" style="margin-bottom:8px;">⚠ Paradas</div>${parHTML}
     <div class="divider"></div>
-    <div class="card-title" style="margin-bottom:8px;">📌 Dificuldades</div>
-    ${difsHTML}
-    ${apt.comentarios ? `<div class="divider"></div><div class="card-title" style="margin-bottom:8px;">💬 Comentários</div><p style="font-size:14px;color:var(--text2)">${apt.comentarios}</p>` : ''}
+    <div class="card-title" style="margin-bottom:8px;">📌 Dificuldades</div>${difHTML}
+    ${a.obs?`<div class="divider"></div><div class="card-title" style="margin-bottom:8px;">💬 Comentários</div><p style="font-size:13px;color:var(--text2)">${a.obs}</p>`:''}
   `;
-
-  document.getElementById('modalDetalhe').style.display = 'flex';
+  document.getElementById('modalDet').style.display='flex';
 }
 
-function fecharModal() {
-  document.getElementById('modalDetalhe').style.display = 'none';
-}
+// DASHBOARD
+function renderDash(){
+  const data=document.getElementById('dash-data').value;
+  const dh=apts.filter(a=>a.data===data);
+  const tPar=dh.reduce((s,a)=>s+(a.paradas?.length||0),0);
+  const tAus=dh.reduce((s,a)=>s+a.ausencias,0);
+  const efics=dh.filter(a=>a.efic!=null).map(a=>a.efic);
+  const em=efics.length?Math.round(efics.reduce((s,v)=>s+v,0)/efics.length):null;
+  document.getElementById('kpi-apt').textContent=dh.length;
+  document.getElementById('kpi-par').textContent=tPar;
+  document.getElementById('kpi-abs').textContent=tAus;
+  document.getElementById('kpi-efic').textContent=em!=null?em+'%':'—';
+  document.getElementById('kpi-set').textContent=new Set(dh.map(a=>a.sid)).size;
 
-// ===== DASHBOARD =====
-function renderDashboard() {
-  const today = new Date().toISOString().split('T')[0];
-  const deHoje = apontamentos.filter(a => a.data === today);
-  const totalParadas = deHoje.reduce((s, a) => s + (a.paradas?.length || 0), 0);
-  const totalAusencias = deHoje.reduce((s, a) => s + a.ausencias, 0);
-  const setoresAtivos = new Set(deHoje.map(a => a.setor)).size;
-
-  document.getElementById('kpi-hoje').textContent = deHoje.length;
-  document.getElementById('kpi-paradas').textContent = totalParadas;
-  document.getElementById('kpi-ausencias').textContent = totalAusencias;
-  document.getElementById('kpi-setores').textContent = setoresAtivos;
-
-  // produção por setor
-  const dashProd = document.getElementById('dashProducao');
-  if (deHoje.length) {
-    const setorProd = {};
-    deHoje.forEach(a => {
-      const total = Object.values(a.producao || {}).reduce((s,v) => s+v, 0);
-      if (!setorProd[a.setorNome]) setorProd[a.setorNome] = 0;
-      setorProd[a.setorNome] += total;
-    });
-    const max = Math.max(...Object.values(setorProd), 1);
-    dashProd.innerHTML = Object.entries(setorProd).map(([nome, val]) => `
-      <div style="margin-bottom:12px;">
+  // efic por setor
+  const dE=document.getElementById('dashEfic');
+  if(dh.length){
+    const map={};
+    dh.forEach(a=>{if(!map[a.setorNome])map[a.setorNome]={p:0,m:0};map[a.setorNome].p+=a.prod||0;map[a.setorNome].m+=a.meta||0;});
+    dE.innerHTML=Object.entries(map).map(([n,v])=>{
+      const p=v.m>0?Math.round(v.p/v.m*100):null;
+      const c=p===null?'var(--text2)':p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
+      return `<div style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:13px;">${nome}</span>
-          <span style="font-size:13px;font-weight:600;">${val.toLocaleString('pt-BR')}</span>
+          <span style="font-size:13px;">${n}</span>
+          <span style="font-size:13px;font-weight:700;color:${c}">${p!=null?p+'%':'Sem OP'}</span>
         </div>
-        <div class="progress-bar-wrap"><div class="progress-bar green" style="width:${(val/max*100).toFixed(0)}%"></div></div>
-      </div>
-    `).join('');
-  } else {
-    dashProd.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>Sem dados de hoje</p></div>';
-  }
+        <div class="progress-bar-wrap"><div class="progress-bar ${p>=100?'green':p>=80?'orange':'red'}" style="width:${Math.min(p||0,100)}%"></div></div>
+      </div>`;
+    }).join('');
+  }else{dE.innerHTML='<div class="empty-state"><div class="icon">📊</div><p>Sem dados</p></div>';}
 
-  // paradas recentes
-  const dashPar = document.getElementById('dashParadas');
-  const todasParadas = apontamentos.flatMap(a => (a.paradas || []).map(p => ({...p, setor:a.setorNome, turno:a.turno, data:a.data})))
-    .filter(p => p.data === today).slice(0,5);
-  if (todasParadas.length) {
-    dashPar.innerHTML = todasParadas.map(p => `
-      <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
-        <span style="color:var(--orange);font-size:18px;">⚠</span>
-        <div>
-          <div style="font-size:13px;font-weight:600;">${p.equipamento} — ${p.tipo}</div>
-          <div style="font-size:12px;color:var(--text2)">${p.setor} | ${p.turno} | ${p.tempoMinutos} min</div>
-        </div>
-      </div>
-    `).join('');
-  } else {
-    dashPar.innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>Sem paradas hoje</p></div>';
-  }
+  // paradas
+  const dP=document.getElementById('dashPar');
+  const pars=dh.flatMap(a=>(a.paradas||[]).map(p=>({...p,setor:a.setorNome,turno:a.turno}))).slice(0,8);
+  dP.innerHTML=pars.length?pars.map(p=>`
+    <div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--orange);">⚠</span>
+      <div><div style="font-size:13px;font-weight:600;">${p.eq||'Equip.'} — ${p.tp}</div>
+      <div style="font-size:11px;color:var(--text2)">${p.setor} | ${p.turno} | ${p.min} min | ${p.ds||''}</div></div>
+    </div>`).join(''):'<div class="empty-state"><div class="icon">✅</div><p>Sem paradas</p></div>';
 
-  // resumo por turno
-  const dashTurnos = document.getElementById('dashTurnos');
-  if (deHoje.length) {
-    const turnos = ['T1','T2','T3'];
-    dashTurnos.innerHTML = `<div class="grid-3">${turnos.map(t => {
-      const apts = deHoje.filter(a => a.turno === t);
-      const paradas = apts.reduce((s,a) => s + (a.paradas?.length||0), 0);
-      const ausencias = apts.reduce((s,a) => s + a.ausencias, 0);
-      return `
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:14px;">
-          <div class="kpi-label">${t === 'T1' ? 'Turno 1' : t === 'T2' ? 'Turno 2' : 'Turno 3'}</div>
-          <div style="font-size:22px;font-weight:700;margin:8px 0;">${apts.length} <span style="font-size:13px;color:var(--text2)">registros</span></div>
-          <div style="font-size:13px;color:${paradas>0?'var(--orange)':'var(--text2)'}">⚠ ${paradas} paradas</div>
-          <div style="font-size:13px;color:${ausencias>0?'var(--orange)':'var(--text2)'}">👤 ${ausencias} ausências</div>
-        </div>
-      `;
+  // turnos
+  const dT=document.getElementById('dashTurnos');
+  if(dh.length){
+    dT.innerHTML=`<div class="grid-3">${['T1','T2','T3'].map(t=>{
+      const ta=dh.filter(a=>a.turno===t);
+      const par=ta.reduce((s,a)=>s+(a.paradas?.length||0),0);
+      const aus=ta.reduce((s,a)=>s+a.ausencias,0);
+      const ef=ta.filter(a=>a.efic!=null).map(a=>a.efic);
+      const em2=ef.length?Math.round(ef.reduce((s,v)=>s+v,0)/ef.length):null;
+      return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:14px;">
+        <div class="kpi-label">${t==='T1'?'Turno 1 — Manhã':t==='T2'?'Turno 2 — Tarde':'Turno 3 — Noite'}</div>
+        <div style="font-size:22px;font-weight:700;margin:8px 0;">${ta.length} <span style="font-size:12px;color:var(--text2)">setores</span></div>
+        <div style="font-size:12px;color:${em2!=null?em2>=100?'var(--green)':em2>=80?'var(--yellow)':'var(--red)':'var(--text2)'}">⚡ Efic. média: ${em2!=null?em2+'%':'—'}</div>
+        <div style="font-size:12px;color:${par>0?'var(--orange)':'var(--text2)'}">⚠ ${par} paradas</div>
+        <div style="font-size:12px;color:${aus>0?'var(--orange)':'var(--text2)'}">👤 ${aus} ausências</div>
+      </div>`;
     }).join('')}</div>`;
-  } else {
-    dashTurnos.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Sem apontamentos hoje</p></div>';
-  }
+  }else{dT.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Sem dados</p></div>';}
 }
 
-// ===== CONFIG =====
-function renderConfigSetores() {
-  const div = document.getElementById('configSetores');
-  div.innerHTML = setores.map(s => `
+// CONFIG
+function renderConfigSetores(){
+  document.getElementById('configSetores').innerHTML=setores.map(s=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-      <span>${s.icon} ${s.nome}</span>
-      <button class="btn btn-danger btn-sm" onclick="removerSetor('${s.id}')">✕</button>
-    </div>
-  `).join('');
+      <span style="font-size:13px;">${s.nome} <span style="font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-left:6px;">${s.unid}</span></span>
+      <button class="btn btn-danger btn-sm" onclick="rmSetor('${s.id}')">✕</button>
+    </div>`).join('');
 }
 
-function adicionarSetor() {
-  const nome = document.getElementById('novoSetor').value.trim();
-  if (!nome) return;
-  const id = nome.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g,'');
-  if (setores.find(s => s.id === id)) { toast('Setor já existe!', 'error'); return; }
-  setores.push({ id, nome, icon: '🏭', campos: [{nome:'Qtd Produzida', tipo:'number'}] });
-  localStorage.setItem('v1_setores', JSON.stringify(setores));
-  document.getElementById('novoSetor').value = '';
-  renderConfigSetores();
-  renderSetorGrid();
+function addSetor(){
+  const nome=document.getElementById('novo-setor-nome').value.trim();
+  const unid=document.getElementById('novo-setor-unid').value;
+  if(!nome)return;
+  const id=nome.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  if(setores.find(s=>s.id===id)){toast('Já existe!','error');return;}
+  setores.push({id,nome,unid});
+  localStorage.setItem('v1_setores',JSON.stringify(setores));
+  document.getElementById('novo-setor-nome').value='';
+  renderConfigSetores();renderOPRows();renderAptSetor();
   toast('Setor adicionado!');
 }
 
-function removerSetor(id) {
-  if (!confirm('Remover setor?')) return;
-  setores = setores.filter(s => s.id !== id);
-  localStorage.setItem('v1_setores', JSON.stringify(setores));
-  renderConfigSetores();
-  renderSetorGrid();
-  toast('Setor removido');
+function rmSetor(id){
+  if(!confirm('Remover setor?'))return;
+  setores=setores.filter(s=>s.id!==id);
+  localStorage.setItem('v1_setores',JSON.stringify(setores));
+  renderConfigSetores();renderOPRows();renderAptSetor();
+  toast('Removido');
 }
 
-function salvarConfig() {
-  config.sheetsUrl = document.getElementById('cfg-sheets-url').value;
-  config.demandaUrl = document.getElementById('cfg-demanda-url').value;
-  localStorage.setItem('v1_config', JSON.stringify(config));
-  toast('Configurações salvas!');
+function salvarConfig(){
+  cfg.sheets=document.getElementById('cfg-sheets').value;
+  cfg.demanda=document.getElementById('cfg-demanda').value;
+  localStorage.setItem('v1_cfg',JSON.stringify(cfg));
+  toast('Config salva!');
 }
 
-async function testarConexao() {
-  const url = document.getElementById('cfg-sheets-url').value;
-  if (!url) { toast('Insira a URL do Apps Script!', 'warning'); return; }
-  const el = document.getElementById('cfg-status');
-  el.innerHTML = '<span style="color:var(--text2)">Testando...</span>';
-  try {
-    await fetch(url + '?test=1', { mode:'no-cors' });
-    el.innerHTML = '<div class="alert alert-success">✓ URL acessível!</div>';
-  } catch(e) {
-    el.innerHTML = '<div class="alert alert-error">✕ Erro de conexão</div>';
-  }
+async function testarConn(){
+  const url=document.getElementById('cfg-sheets').value;
+  if(!url){toast('Insira a URL!','warning');return;}
+  try{await fetch(url+'?test=1',{mode:'no-cors'});document.getElementById('cfg-status').innerHTML='<span style="color:var(--green)">✓ URL acessível</span>';}
+  catch{document.getElementById('cfg-status').innerHTML='<span style="color:var(--red)">✕ Erro de conexão</span>';}
 }
 
-// ===== EXPORT =====
-function exportarJSON() {
-  const blob = new Blob([JSON.stringify(apontamentos, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `v1-apontamentos-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
+async function envSheets(a){
+  try{await fetch(cfg.sheets,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'apontamento',dados:a})});}catch{}
 }
 
-function exportarCSV() {
-  if (!apontamentos.length) { toast('Sem dados para exportar', 'warning'); return; }
-  const headers = ['ID','Data','Turno','Setor','Responsável','Presentes','Ausências','Rec.Atrasadas','Rec.Adiantadas','TotalParadas','TempoTotalParadaMin','Desvio MP','Falta Utensílio','Falta Recurso','Comentários'];
-  const rows = apontamentos.map(a => [
-    a.id, a.data, a.turno, a.setorNome, a.responsavel,
-    a.presentes, a.ausencias, a.recAtrasadas, a.recAdiantadas,
-    a.paradas?.length||0,
-    a.paradas?.reduce((s,p)=>s+p.tempoMinutos,0)||0,
-    a.desvioMP, a.faltaUtensilio, a.faltaRecurso,
-    `"${(a.comentarios||'').replace(/"/g,'""')}"`
-  ]);
-  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `v1-apontamentos-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
+function expJSON(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({apts,ops},null,2)],{type:'application/json'}));
+  a.download=`v1-backup-${today()}.json`;a.click();
 }
 
-function limparTodos() {
-  if (!confirm('Tem certeza? Isso apaga TODOS os apontamentos salvos localmente.')) return;
-  apontamentos = [];
-  localStorage.setItem('v1_apontamentos', '[]');
-  toast('Dados limpos!', 'warning');
+function expCSV(){
+  if(!apts.length){toast('Sem dados','warning');return;}
+  const rows=[['ID','Data','Turno','Setor','Responsavel','Producao','Unid','Meta','Efic%','Presentes','Ausencias','Paradas']];
+  apts.forEach(a=>rows.push([a.id,a.data,a.turno,a.setorNome,a.resp,a.prod,a.unid,a.meta,a.efic!=null?a.efic+'%':'',a.presentes,a.ausencias,a.paradas?.length||0]));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download=`v1-apts-${today()}.csv`;a.click();
 }
 
-// ===== UTILS =====
-function formatDate(d) {
-  if (!d) return '—';
-  const [y,m,day] = d.split('-');
-  return `${day}/${m}/${y}`;
+function limparTudo(){
+  if(!confirm('Apaga TUDO?'))return;
+  apts=[];ops=[];
+  localStorage.setItem('v1_apts','[]');
+  localStorage.setItem('v1_ops','[]');
+  toast('Dados limpos','warning');
 }
 
-function toast(msg, type = 'success') {
-  const div = document.createElement('div');
-  div.className = 'toast-msg' + (type === 'error' ? ' error' : type === 'warning' ? ' warning' : '');
-  div.textContent = msg;
-  document.getElementById('toast').appendChild(div);
-  setTimeout(() => div.remove(), 3500);
+function toast(msg,type='success'){
+  const d=document.createElement('div');
+  d.className='toast-msg'+(type==='error'?' error':type==='warning'?' warning':'');
+  d.textContent=msg;
+  document.getElementById('toast').appendChild(d);
+  setTimeout(()=>d.remove(),3500);
 }
 
-// ===== START =====
 init();
 </script>
 </body>
