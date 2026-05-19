@@ -569,7 +569,7 @@
 <script>
 let apts = JSON.parse(localStorage.getItem('v1_apts')||'[]');
 let ops  = JSON.parse(localStorage.getItem('v1_ops')||'[]');
-let cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{}');
+let cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{"sheets":"https://script.google.com/macros/s/AKfycbx6BR0Ms09raTR1v2hPTKAZ_tOkeRuG2mxMkpwKIcJVqq7_4O5I9WpK7gK2nK_iAuK5/exec"}');
 let setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
   {id:'acougue',   nome:'Açougue',         unid:'KG'},
   {id:'flv',       nome:'FLV',             unid:'KG'},
@@ -1196,10 +1196,45 @@ function diasSemana(data) {
   return dias[new Date(data + 'T12:00:00').getDay()];
 }
 
-function renderPerformance() {
+async function renderPerformance() {
   const dataFim = document.getElementById('perf-data').value;
   const nSemanas = parseInt(document.getElementById('perf-semanas').value);
   if (!dataFim) { toast('Selecione a data!', 'error'); return; }
+
+  // Tenta buscar do Google Sheets
+  if (cfg.sheets) {
+    toast('Buscando dados do Sheets...', 'warning');
+    try {
+      const url = cfg.sheets + '?acao=getPerformance&dias=' + (nSemanas * 7);
+      const resp = await fetch(url);
+      const sheetsData = await resp.json();
+      if (Array.isArray(sheetsData) && sheetsData.length > 0) {
+        const dadosConv = sheetsData.map(function(d) {
+          return {
+            data: d.Data, dia: d.DiaSemana,
+            volResf: Number(d.VolResfriado)||null, mmResf: Number(d.MM28_Resf)||null,
+            limResf: {li: Number(d.LI_Resf)||0, ls: Number(d.LS_Resf)||0},
+            volCong: Number(d.VolCongelado)||null, mmCong: Number(d.MM28_Cong)||null,
+            limCong: {li: Number(d.LI_Cong)||0, ls: Number(d.LS_Cong)||0},
+            flv: Number(d.FLV_kg)||null, mmFlv: Number(d.MM28_FLV)||null,
+            limFlv: {li: Number(d.LI_FLV)||0, ls: Number(d.LS_FLV)||0},
+            acougue: Number(d.Acougue_kg)||null, mmAc: Number(d.MM28_Ac)||null,
+            limAc: {li: Number(d.LI_Ac)||0, ls: Number(d.LS_Ac)||0},
+            temDados: true
+          };
+        });
+        renderBlocoPerf('perfResfriamento', dadosConv, 'volResf', 'mmResf', 'limResf', 'Volume Resfriado (KG)', '#00C853');
+        renderBlocoPerf('perfCongelamento', dadosConv, 'volCong', 'mmCong', 'limCong', 'Volume Congelado (KG)', '#2979FF');
+        renderBlocoPerf('perfFLV',          dadosConv, 'flv',     'mmFlv',  'limFlv',  'FLV (KG)',              '#FFD600');
+        renderBlocoPerf('perfAcougue',      dadosConv, 'acougue', 'mmAc',   'limAc',   'Acougue (KG)',          '#FF6D00');
+        renderTabelaPerf(dadosConv);
+        toast('Dados carregados do Sheets!');
+        return;
+      }
+    } catch(e) {
+      toast('Sheets offline — usando dados locais', 'warning');
+    }
+  }
 
   const dias = getDiasSemana(dataFim, nSemanas);
 
