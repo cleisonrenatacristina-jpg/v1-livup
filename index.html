@@ -154,6 +154,7 @@
   <button class="nav-btn" onclick="showPage('consolidado',this)">📊 Consolidado</button>
   <button class="nav-btn" onclick="showPage('historico',this)">📁 Histórico</button>
   <button class="nav-btn" onclick="showPage('dashboard',this)">📈 Dashboard</button>
+  <button class="nav-btn" onclick="showPage('performance',this)">📉 Performance</button>
   <button class="nav-btn" onclick="showPage('config',this)">⚙️ Config</button>
 </nav>
 
@@ -418,6 +419,90 @@
   </div>
 </div>
 
+<!-- PERFORMANCE -->
+<div id="page-performance" class="hidden">
+  <div class="section-title">Performance Operacional <span class="sub">Média móvel 4 semanas · Limites ±1σ · Tendência</span></div>
+
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Período — Data Fim</label>
+        <input type="date" id="perf-data" class="form-control" style="width:180px;">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Semanas</label>
+        <select id="perf-semanas" class="form-control" style="width:120px;">
+          <option value="4">4 semanas</option>
+          <option value="8">8 semanas</option>
+          <option value="12">12 semanas</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="renderPerformance()">Gerar</button>
+    </div>
+  </div>
+
+  <!-- BLOCO RESFRIAMENTO -->
+  <div class="card">
+    <div class="card-title">🧊 Resfriamento — Volume Total (Cocção: Forno + Vário + Caldeirão em KG)</div>
+    <div id="perfResfriamento">
+      <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar para carregar</p></div>
+    </div>
+  </div>
+
+  <!-- BLOCO CONGELAMENTO -->
+  <div class="card">
+    <div class="card-title">❄️ Congelamento — Volume Total (Porcionamento: Marmitas + Saquinhos)</div>
+    <div id="perfCongelamento">
+      <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar para carregar</p></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- BLOCO FLV -->
+    <div class="card">
+      <div class="card-title">🥦 FLV — KG Produzidos</div>
+      <div id="perfFLV">
+        <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar</p></div>
+      </div>
+    </div>
+    <!-- BLOCO AÇOUGUE -->
+    <div class="card">
+      <div class="card-title">🥩 Açougue — KG Produzidos</div>
+      <div id="perfAcougue">
+        <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABELA RESUMO -->
+  <div class="card">
+    <div class="card-title">📋 Tabela Resumo por Dia</div>
+    <div class="table-wrap">
+      <table class="hist" id="perfTabela">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Dia</th>
+            <th>Vol. Resfriado</th>
+            <th>Méd. Móv. Resf.</th>
+            <th>LI Resf.</th>
+            <th>LS Resf.</th>
+            <th>Vol. Cong.</th>
+            <th>Méd. Móv. Cong.</th>
+            <th>FLV (kg)</th>
+            <th>Açougue (kg)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="perfTabelaBody"></tbody>
+      </table>
+    </div>
+    <div id="perfEmpty" class="empty-state hidden">
+      <div class="icon">📋</div><p>Sem dados para o período selecionado</p>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIG -->
 <div id="page-config" class="hidden">
   <div class="section-title">Configurações</div>
@@ -520,6 +605,7 @@ function init(){
   });
   if(cfg.sheets) document.getElementById('cfg-sheets').value=cfg.sheets;
   if(cfg.demanda) document.getElementById('cfg-demanda').value=cfg.demanda;
+  document.getElementById('perf-data').value=today();
   renderOPRows();
   renderAptSetor();
   renderConfigSetores();
@@ -538,6 +624,7 @@ function showPage(p,btn){
   if(p==='historico') renderHist(apts);
   if(p==='dashboard') renderDash();
   if(p==='consolidado') renderConsolidado();
+  if(p==='performance') renderPerformance();
 }
 
 // OP
@@ -1066,6 +1153,253 @@ function limparTudo(){
   localStorage.setItem('v1_ops','[]');
   toast('Dados limpos','warning');
 }
+
+// ===== PERFORMANCE OPERACIONAL =====
+
+// Converte ciclos em KG pelos fatores da planilha
+const KG_FATOR = { forno: 60, vario: 20, caldeira: 25 };
+
+function ciclosToKG(setor, qtd) {
+  return (KG_FATOR[setor] || 1) * qtd;
+}
+
+function getDiasSemana(dataFim, nSemanas) {
+  const dias = [];
+  const fim = new Date(dataFim + 'T12:00:00');
+  const ini = new Date(fim);
+  ini.setDate(ini.getDate() - (nSemanas * 7));
+  for (let d = new Date(ini); d <= fim; d.setDate(d.getDate() + 1)) {
+    dias.push(d.toISOString().split('T')[0]);
+  }
+  return dias;
+}
+
+function mediaMovel(arr, n) {
+  // Calcula a média móvel de n dias
+  const res = [];
+  for (let i = 0; i < arr.length; i++) {
+    const slice = arr.slice(Math.max(0, i - n + 1), i + 1).filter(v => v !== null);
+    res.push(slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null);
+  }
+  return res;
+}
+
+function desvio(arr, media) {
+  const vals = arr.filter(v => v !== null);
+  if (vals.length < 2) return 0;
+  const m = media !== undefined ? media : vals.reduce((a, b) => a + b, 0) / vals.length;
+  return Math.sqrt(vals.reduce((s, v) => s + Math.pow(v - m, 2), 0) / vals.length);
+}
+
+function diasSemana(data) {
+  const dias = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'];
+  return dias[new Date(data + 'T12:00:00').getDay()];
+}
+
+function renderPerformance() {
+  const dataFim = document.getElementById('perf-data').value;
+  const nSemanas = parseInt(document.getElementById('perf-semanas').value);
+  if (!dataFim) { toast('Selecione a data!', 'error'); return; }
+
+  const dias = getDiasSemana(dataFim, nSemanas);
+
+  // Para cada dia, agrupa apontamentos
+  const dados = dias.map(data => {
+    const da = apts.filter(a => a.data === data);
+
+    // RESFRIAMENTO — Forno (CICLO→KG) + Vário (CICLO→KG) + Caldeira (CICLO→KG)
+    const forno    = da.filter(a => a.sid === 'forno').reduce((s, a) => s + a.prod, 0);
+    const vario    = da.filter(a => a.sid === 'vario').reduce((s, a) => s + a.prod, 0);
+    const caldeira = da.filter(a => a.sid === 'caldeira').reduce((s, a) => s + a.prod, 0);
+    const kgForno    = forno * KG_FATOR.forno;
+    const kgVario    = vario * KG_FATOR.vario;
+    const kgCaldeira = caldeira * KG_FATOR.caldeira;
+    const volResf = kgForno + kgVario + kgCaldeira;
+
+    // CONGELAMENTO — Marmitas + Saquinhos
+    const marmitas   = da.filter(a => a.sid === 'marmitas').reduce((s, a) => s + a.prod, 0);
+    const saquinhos  = da.filter(a => a.sid === 'saquinhos').reduce((s, a) => s + a.prod, 0);
+    // Kg: marmitas * fator de peso médio (~0.32), saquinhos * fator (~0.14)
+    const kgMarmitas  = Math.round(marmitas * 0.32);
+    const kgSaquinhos = Math.round(saquinhos * 0.14);
+    const volCong = kgMarmitas + kgSaquinhos;
+
+    // FLV
+    const flv = da.filter(a => a.sid === 'flv').reduce((s, a) => s + a.prod, 0);
+
+    // Açougue
+    const acougue = da.filter(a => a.sid === 'acougue').reduce((s, a) => s + a.prod, 0);
+
+    return {
+      data, dia: diasSemana(data),
+      volResf: volResf || null,
+      kgForno, kgVario, kgCaldeira,
+      volCong: volCong || null,
+      kgMarmitas, kgSaquinhos,
+      flv: flv || null,
+      acougue: acougue || null,
+      temDados: da.length > 0
+    };
+  });
+
+  // Calcula médias móveis (4 semanas = 28 dias, mas usamos janela de 28 entradas)
+  const resfArr  = dados.map(d => d.volResf);
+  const congArr  = dados.map(d => d.volCong);
+  const flvArr   = dados.map(d => d.flv);
+  const acArr    = dados.map(d => d.acougue);
+
+  const mmResf = mediaMovel(resfArr, 28);
+  const mmCong = mediaMovel(congArr, 28);
+  const mmFlv  = mediaMovel(flvArr, 28);
+  const mmAc   = mediaMovel(acArr, 28);
+
+  // Limites ±1σ (calculado sobre a janela de 4 semanas anteriores)
+  function limites(arr, idx) {
+    const win = arr.slice(Math.max(0, idx - 27), idx + 1).filter(v => v !== null);
+    if (win.length < 2) return { li: null, ls: null, med: null };
+    const med = win.reduce((a, b) => a + b, 0) / win.length;
+    const std = Math.sqrt(win.reduce((s, v) => s + Math.pow(v - med, 2), 0) / win.length);
+    return { li: Math.round(med - std), ls: Math.round(med + std), med: Math.round(med) };
+  }
+
+  // Enriquece dados com estatísticas
+  const dadosEnriq = dados.map((d, i) => ({
+    ...d,
+    mmResf:  mmResf[i]  ? Math.round(mmResf[i])  : null,
+    limResf: limites(resfArr, i),
+    mmCong:  mmCong[i]  ? Math.round(mmCong[i])  : null,
+    limCong: limites(congArr, i),
+    mmFlv:   mmFlv[i]   ? Math.round(mmFlv[i])   : null,
+    limFlv:  limites(flvArr, i),
+    mmAc:    mmAc[i]    ? Math.round(mmAc[i])    : null,
+    limAc:   limites(acArr, i),
+  }));
+
+  renderBlocoPerf('perfResfriamento', dadosEnriq, 'volResf', 'mmResf', 'limResf', 'Volume Resfriado (KG)', '#00C853');
+  renderBlocoPerf('perfCongelamento', dadosEnriq, 'volCong', 'mmCong', 'limCong', 'Volume Congelado (KG)', '#2979FF');
+  renderBlocoPerf('perfFLV', dadosEnriq, 'flv', 'mmFlv', 'limFlv', 'FLV (KG)', '#FFD600');
+  renderBlocoPerf('perfAcougue', dadosEnriq, 'acougue', 'mmAc', 'limAc', 'Açougue (KG)', '#FF6D00');
+  renderTabelaPerf(dadosEnriq);
+}
+
+function renderBlocoPerf(containerId, dados, campo, mmCampo, limCampo, label, cor) {
+  const container = document.getElementById(containerId);
+  const recentes = dados.filter(function(d){ return d[campo] !== null; }).slice(-14);
+  if (!recentes.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>Sem dados no período</p></div>';
+    return;
+  }
+
+  const max = Math.max.apply(null, recentes.map(function(d){ return Math.max(d[campo]||0, d[mmCampo]||0, (d[limCampo]&&d[limCampo].ls)||0); }));
+  const vals = recentes.map(function(d){ return d[campo]; }).filter(function(v){ return v; });
+  const media = vals.length ? Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length) : 0;
+  const ultimo = recentes[recentes.length-1];
+  const penultimo = recentes.length>1 ? recentes[recentes.length-2] : null;
+  let tendencia = '—';
+  if (penultimo && ultimo[campo] && penultimo[campo]) {
+    tendencia = ultimo[campo] > penultimo[campo] ? '▲' : ultimo[campo] < penultimo[campo] ? '▼' : '—';
+  }
+  const tendCor = tendencia==='▲' ? 'var(--green)' : tendencia==='▼' ? 'var(--red)' : 'var(--text2)';
+  const tendClass = tendencia==='▲' ? 'green' : tendencia==='▼' ? 'red' : 'yellow';
+
+  const lim = ultimo[limCampo] || {};
+  let status = '✓ Normal';
+  let statusCor = 'var(--green)';
+  let statusClass = 'green';
+  if (lim.li !== undefined && ultimo[campo] !== null) {
+    if (ultimo[campo] < lim.li) { status='⚠ Abaixo LI'; statusCor='var(--red)'; statusClass='red'; }
+    else if (ultimo[campo] > lim.ls) { status='⚡ Acima LS'; statusCor='var(--orange)'; statusClass='orange'; }
+  }
+
+  // Monta SVG separado
+  const svgW = Math.max(700, recentes.length * 72);
+  let svgBars = '';
+  let polyPoints = [];
+  recentes.forEach(function(d, i) {
+    const x = i * 72 + 10;
+    const barH = max > 0 ? Math.round((d[campo]||0)/max*130) : 0;
+    const barColor = (d[campo] && lim.li && d[campo]<lim.li) ? '#FF1744'
+      : (d[campo] && lim.ls && d[campo]>lim.ls) ? '#FF6D00' : cor;
+    const yBar = 150 - barH;
+    const val1k = d[campo] ? (d[campo]/1000).toFixed(0)+'k' : '';
+    svgBars += '<rect x="'+x+'" y="'+yBar+'" width="52" height="'+barH+'" fill="'+barColor+'" opacity="0.85" rx="2"/>';
+    svgBars += '<text x="'+(x+26)+'" y="168" text-anchor="middle" fill="#5a6a5a" font-size="10" font-family="sans-serif">'+d.dia+'</text>';
+    if (barH > 0) svgBars += '<text x="'+(x+26)+'" y="'+(yBar-4)+'" text-anchor="middle" fill="'+barColor+'" font-size="10" font-family="sans-serif" font-weight="700">'+val1k+'</text>';
+    if (d[mmCampo] && max>0) {
+      const mmY = 150 - Math.round(d[mmCampo]/max*130);
+      svgBars += '<circle cx="'+(x+26)+'" cy="'+mmY+'" r="3" fill="white" opacity="0.9"/>';
+      polyPoints.push((x+26)+','+mmY);
+    }
+    if (d[limCampo] && d[limCampo].li && max>0) {
+      const liY = 150 - Math.round(d[limCampo].li/max*130);
+      const lsY = 150 - Math.round(d[limCampo].ls/max*130);
+      svgBars += '<line x1="'+x+'" y1="'+liY+'" x2="'+(x+52)+'" y2="'+liY+'" stroke="#FF1744" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
+      svgBars += '<line x1="'+x+'" y1="'+lsY+'" x2="'+(x+52)+'" y2="'+lsY+'" stroke="#FF6D00" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
+    }
+  });
+  if (polyPoints.length > 1) {
+    svgBars += '<polyline points="'+polyPoints.join(' ')+'" fill="none" stroke="white" stroke-width="1.5" opacity="0.6"/>';
+  }
+
+  const liStr = lim.li ? lim.li.toLocaleString('pt-BR') : '—';
+  const lsStr = lim.ls ? lim.ls.toLocaleString('pt-BR') : '—';
+
+  container.innerHTML =
+    '<div class="grid-4" style="margin-bottom:16px;">' +
+      '<div class="kpi-card green"><div class="kpi-label">Último Dia</div>' +
+        '<div style="font-size:26px;font-weight:800;">'+(ultimo[campo]||0).toLocaleString('pt-BR')+'</div>' +
+        '<div style="font-size:11px;color:var(--text2)">'+fmtD(ultimo.data)+' · '+ultimo.dia+'</div></div>' +
+      '<div class="kpi-card blue"><div class="kpi-label">Média Período</div>' +
+        '<div style="font-size:26px;font-weight:800;">'+media.toLocaleString('pt-BR')+'</div>' +
+        '<div style="font-size:11px;color:var(--text2)">últimos '+vals.length+' dias</div></div>' +
+      '<div class="kpi-card '+tendClass+'"><div class="kpi-label">Tendência</div>' +
+        '<div style="font-size:36px;font-weight:800;color:'+tendCor+'">'+tendencia+'</div>' +
+        '<div style="font-size:11px;color:var(--text2)">vs. dia anterior</div></div>' +
+      '<div class="kpi-card '+statusClass+'"><div class="kpi-label">Status Controle</div>' +
+        '<div style="font-size:15px;font-weight:700;color:'+statusCor+';margin-top:6px;">'+status+'</div>' +
+        '<div style="font-size:11px;color:var(--text2)">LI: '+liStr+' / LS: '+lsStr+'</div></div>' +
+    '</div>' +
+    '<div style="overflow-x:auto;">' +
+      '<svg width="'+svgW+'" height="180" style="display:block;">'+svgBars+'</svg>' +
+    '</div>' +
+    '<div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--text2);">' +
+      '<span>█ <span style="color:'+cor+'">Produção</span></span>' +
+      '<span>● <span style="color:white;opacity:.7">Média Móvel</span></span>' +
+      '<span>-- <span style="color:#FF1744">LI (-1σ)</span></span>' +
+      '<span>-- <span style="color:#FF6D00">LS (+1σ)</span></span>' +
+    '</div>';
+}
+
+function renderTabelaPerf(dados) {
+  const tbody = document.getElementById('perfTabelaBody');
+  const empty = document.getElementById('perfEmpty');
+  const comDados = dados.filter(d => d.temDados);
+  if (!comDados.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  tbody.innerHTML = [...comDados].reverse().map(d => {
+    const resfCor = d.volResf && d.limResf?.li && d.volResf < d.limResf.li ? 'var(--red)'
+      : d.volResf && d.limResf?.ls && d.volResf > d.limResf.ls ? 'var(--orange)'
+      : d.volResf ? 'var(--green)' : 'var(--text3)';
+    return `<tr>
+      <td>${fmtD(d.data)}</td>
+      <td><span class="badge badge-gray">${d.dia}</span></td>
+      <td style="font-weight:700;color:${resfCor}">${d.volResf?.toLocaleString('pt-BR') || '—'}</td>
+      <td style="color:var(--text2)">${d.mmResf?.toLocaleString('pt-BR') || '—'}</td>
+      <td style="color:var(--red);font-size:12px;">${d.limResf?.li?.toLocaleString('pt-BR') || '—'}</td>
+      <td style="color:var(--orange);font-size:12px;">${d.limResf?.ls?.toLocaleString('pt-BR') || '—'}</td>
+      <td style="font-weight:700;color:var(--blue)">${d.volCong?.toLocaleString('pt-BR') || '—'}</td>
+      <td style="color:var(--text2)">${d.mmCong?.toLocaleString('pt-BR') || '—'}</td>
+      <td>${d.flv?.toLocaleString('pt-BR') || '—'}</td>
+      <td>${d.acougue?.toLocaleString('pt-BR') || '—'}</td>
+      <td>${d.volResf ? (d.limResf?.li && d.volResf < d.limResf.li ? '<span class="badge badge-red">⚠ Baixo</span>' : d.limResf?.ls && d.volResf > d.limResf.ls ? '<span class="badge badge-orange">⚡ Alto</span>' : '<span class="badge badge-green">✓ OK</span>') : '<span class="badge badge-gray">Sem dados</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
 
 function toast(msg,type='success'){
   const d=document.createElement('div');
