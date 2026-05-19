@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V1 — Apontamentos Liv Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00C853;
+    --green-dim: #00a844;
+    --green-glow: rgba(0,200,83,0.15);
+    --orange: #FF6D00;
+    --orange-dim: #e06000;
+    --red: #FF1744;
+    --yellow: #FFD600;
+    --bg: #0a0e0a;
+    --bg2: #111611;
+    --bg3: #182018;
+    --card: #1a201a;
+    --card2: #202820;
+    --border: #2a342a;
+    --border2: #334033;
+    --text: #e8f0e8;
+    --text2: #9aaa9a;
+    --text3: #5a6a5a;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events:none;
+    z-index:1000;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--bg2);
+    border-bottom: 2px solid var(--green);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 0 30px rgba(0,200,83,0.1);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-badge {
+    background: var(--green);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    padding: 4px 12px;
+    letter-spacing: 2px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+
+  .header-title span { color: var(--green); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .clock {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 2px;
+  }
+
+  .date-display {
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display:none; }
+
+  .nav-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 14px 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--bg3); }
+  .nav-btn.active { color: var(--green); border-bottom-color: var(--green); background: var(--green-glow); }
+
+  /* MAIN */
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::before {
+    content:'';
+    width: 4px;
+    height: 28px;
+    background: var(--green);
+    display: inline-block;
+  }
+  .section-title .sub {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), transparent);
+  }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 16px;
+  }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .col-span-2 { grid-column: span 2; }
+  .col-span-3 { grid-column: span 3; }
+  .col-span-full { grid-column: 1/-1; }
+
+  /* FORM ELEMENTS */
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+  }
+  .form-control:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px var(--green-glow);
+  }
+  .form-control option { background: var(--bg3); }
+
+  textarea.form-control { resize: vertical; min-height: 80px; }
+
+  /* BUTTONS */
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 3px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: var(--green);
+    color: #000;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .btn-primary:hover { background: #00e065; transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); }
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid var(--red);
+  }
+  .btn-danger:hover { background: rgba(255,23,68,0.1); }
+  .btn-warning {
+    background: var(--orange);
+    color: #000;
+  }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+  .badge-green { background: rgba(0,200,83,0.15); color: var(--green); border: 1px solid rgba(0,200,83,0.3); }
+  .badge-orange { background: rgba(255,109,0,0.15); color: var(--orange); border: 1px solid rgba(255,109,0,0.3); }
+  .badge-red { background: rgba(255,23,68,0.15); color: var(--red); border: 1px solid rgba(255,23,68,0.3); }
+  .badge-yellow { background: rgba(255,214,0,0.15); color: var(--yellow); border: 1px solid rgba(255,214,0,0.3); }
+  .badge-gray { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border); }
+
+  /* KPI CARDS */
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::after {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:3px;
+  }
+  .kpi-card.green::after { background: var(--green); }
+  .kpi-card.orange::after { background: var(--orange); }
+  .kpi-card.red::after { background: var(--red); }
+  .kpi-card.yellow::after { background: var(--yellow); }
+
+  .kpi-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { border-bottom: 2px solid var(--green); }
+  th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 12px;
+    text-align: left;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  tbody tr:hover { background: var(--card2); }
+  td {
+    padding: 12px;
+    font-size: 14px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  /* PARADA ITEM */
+  .parada-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--orange);
+    border-radius: 3px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  .dificuldade-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--yellow);
+    border-radius: 3px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  /* ALERT */
+  .alert {
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .alert-success { background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.3); color: var(--green); }
+  .alert-warning { background: rgba(255,109,0,0.1); border: 1px solid rgba(255,109,0,0.3); color: var(--orange); }
+  .alert-error { background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.3); color: var(--red); }
+
+  /* TABS inside section */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    gap: 0;
+  }
+  .tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* SETOR SELECTOR */
+  .setor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .setor-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  .setor-btn:hover { border-color: var(--green); color: var(--text); }
+  .setor-btn.selected { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+  .setor-btn .setor-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    background: var(--bg3);
+    border-radius: 2px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .5s ease;
+  }
+  .progress-bar.green { background: var(--green); }
+  .progress-bar.orange { background: var(--orange); }
+  .progress-bar.red { background: var(--red); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text3);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* GLOW LINE */
+  .glow-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    margin: 24px 0;
+    opacity: 0.4;
+  }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toast-msg {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 3px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    animation: slideIn .3s ease;
+  }
+  .toast-msg.error { border-left-color: var(--red); }
+  .toast-msg.warning { border-left-color: var(--orange); }
+
+  @keyframes slideIn {
+    from { transform: translateX(40px); opacity:0; }
+    to { transform: translateX(0); opacity:1; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .parada-item { grid-template-columns: 1fr 1fr; }
+    .dificuldade-item { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    main { padding: 12px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .col-span-2 { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo-badge">LIV UP</div>
+    <div>
+      <div class="header-title">V<span>1</span> — APONTAMENTOS</div>
+      <div class="date-display" id="dateDisplay"></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-btn active" onclick="showPage('apontamento')">📋 Novo Apontamento</button>
+  <button class="nav-btn" onclick="showPage('historico')">📁 Histórico</button>
+  <button class="nav-btn" onclick="showPage('dashboard')">📊 Dashboard</button>
+  <button class="nav-btn" onclick="showPage('config')">⚙️ Configurações</button>
+</nav>
+
+<main>
+
+<!-- ====== PÁGINA: APONTAMENTO ====== -->
+<div id="page-apontamento">
+
+  <div class="section-title">
+    Novo Apontamento
+    <span class="sub">Registre turno, produção, paradas e dificuldades</span>
+  </div>
+
+  <!-- STEP 1: IDENTIFICAÇÃO -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">⬡ Identificação do Turno</div>
+    <div class="grid-3">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" id="apt-data" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Turno</label>
+        <select id="apt-turno" class="form-control">
+          <option value="">— Selecione —</option>
+          <option value="T1">Turno 1</option>
+          <option value="T2">Turno 2</option>
+          <option value="T3">Turno 3</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Responsável</label>
+        <input type="text" id="apt-responsavel" class="form-control" placeholder="Nome do supervisor">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: SETOR -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">⬡ Setor</div>
+    <div class="setor-grid" id="setorGrid"></div>
+    <input type="hidden" id="apt-setor">
+  </div>
+
+  <!-- STEP 3: PRODUÇÃO -->
+  <div class="card" style="margin-bottom:16px;" id="cardProducao">
+    <div class="card-title">⬡ Produção do Turno</div>
+    <div class="grid-3" id="producaoFields"></div>
+  </div>
+
+  <!-- STEP 4: PESSOAS -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">⬡ Pessoas</div>
+    <div class="grid-4">
+      <div class="form-group">
+        <label class="form-label">Presentes</label>
+        <input type="number" id="apt-presentes" class="form-control" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ausências</label>
+        <input type="number" id="apt-ausencias" class="form-control" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Receitas Atrasadas</label>
+        <input type="number" id="apt-rec-atrasadas" class="form-control" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Receitas Adiantadas</label>
+        <input type="number" id="apt-rec-adiantadas" class="form-control" min="0" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: PARADAS -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">⬡ Paradas de Maquinário</div>
+    <div id="paradasList"></div>
+    <button class="btn btn-warning btn-sm" onclick="addParada()">+ Adicionar Parada</button>
+  </div>
+
+  <!-- STEP 6: DIFICULDADES -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">⬡ Dificuldades do Turno</div>
+    <div class="grid-3" style="margin-bottom:16px;">
+      <div class="form-group">
+        <label class="form-label">Desvio de Matéria Prima?</label>
+        <select id="apt-desvio" class="form-control">
+          <option value="Não">Não</option>
+          <option value="Sim">Sim</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Falta de Utensílio?</label>
+        <select id="apt-utensilio" class="form-control">
+          <option value="Não">Não</option>
+          <option value="Sim">Sim</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Falta de Recurso?</label>
+        <select id="apt-recurso" class="form-control">
+          <option value="Não">Não</option>
+          <option value="Sim">Sim</option>
+        </select>
+      </div>
+    </div>
+    <div id="dificuldadesList"></div>
+    <button class="btn btn-secondary btn-sm" onclick="addDificuldade()">+ Adicionar Dificuldade</button>
+    <div class="form-group" style="margin-top:16px;">
+      <label class="form-label">Comentários Gerais</label>
+      <textarea id="apt-comentarios" class="form-control" placeholder="Observações adicionais do turno..."></textarea>
+    </div>
+  </div>
+
+  <!-- SALVAR -->
+  <div style="display:flex; gap:12px; justify-content:flex-end;">
+    <button class="btn btn-secondary" onclick="limparForm()">Limpar</button>
+    <button class="btn btn-primary" onclick="salvarApontamento()">✓ Salvar Apontamento</button>
+  </div>
+</div>
+
+<!-- ====== PÁGINA: HISTÓRICO ====== -->
+<div id="page-historico" class="hidden">
+  <div class="section-title">
+    Histórico
+    <span class="sub">Todos os apontamentos registrados</span>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="grid-4">
+      <div class="form-group">
+        <label class="form-label">Data Início</label>
+        <input type="date" id="filt-inicio" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data Fim</label>
+        <input type="date" id="filt-fim" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Setor</label>
+        <select id="filt-setor" class="form-control">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Turno</label>
+        <select id="filt-turno" class="form-control">
+          <option value="">Todos</option>
+          <option value="T1">Turno 1</option>
+          <option value="T2">Turno 2</option>
+          <option value="T3">Turno 3</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-primary btn-sm" onclick="filtrarHistorico()">Filtrar</button>
+      <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">Limpar Filtros</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Turno</th>
+            <th>Setor</th>
+            <th>Responsável</th>
+            <th>Produção</th>
+            <th>Presentes</th>
+            <th>Ausências</th>
+            <th>Paradas</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="historicoBody"></tbody>
+      </table>
+    </div>
+    <div id="historicoEmpty" class="empty-state hidden">
+      <div class="icon">📂</div>
+      <p>Nenhum apontamento encontrado</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PÁGINA: DASHBOARD ====== -->
+<div id="page-dashboard" class="hidden">
+  <div class="section-title">
+    Dashboard
+    <span class="sub">Visão geral de produção e paradas</span>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="kpi-card green">
+      <div class="kpi-label">Apontamentos Hoje</div>
+      <div class="kpi-value" id="kpi-hoje">0</div>
+      <div class="kpi-sub">registros do dia</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">Paradas Hoje</div>
+      <div class="kpi-value" id="kpi-paradas">0</div>
+      <div class="kpi-sub">ocorrências</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Total Ausências</div>
+      <div class="kpi-value" id="kpi-ausencias">0</div>
+      <div class="kpi-sub">no período</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Setores Ativos</div>
+      <div class="kpi-value" id="kpi-setores">0</div>
+      <div class="kpi-sub">com apontamento</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📊 Produção por Setor (Hoje)</div>
+      <div id="dashProducao">
+        <div class="empty-state"><div class="icon">📊</div><p>Sem dados de hoje</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔴 Paradas Recentes</div>
+      <div id="dashParadas">
+        <div class="empty-state"><div class="icon">✅</div><p>Sem paradas registradas</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glow-line"></div>
+
+  <div class="card">
+    <div class="card-title">📋 Resumo por Turno — Hoje</div>
+    <div id="dashTurnos">
+      <div class="empty-state"><div class="icon">📋</div><p>Sem apontamentos hoje</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PÁGINA: CONFIG ====== -->
+<div id="page-config" class="hidden">
+  <div class="section-title">
+    Configurações
+    <span class="sub">Setores, equipamentos e integração</span>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🏭 Setores & Equipamentos</div>
+      <div id="configSetores"></div>
+      <div class="divider"></div>
+      <div style="display:flex; gap:10px; align-items:end;">
+        <div class="form-group" style="flex:1; margin:0;">
+          <label class="form-label">Novo Setor</label>
+          <input type="text" id="novoSetor" class="form-control" placeholder="Nome do setor">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="adicionarSetor()">+ Adicionar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔗 Integração Google Sheets</div>
+      <div class="form-group">
+        <label class="form-label">URL do Apps Script (Web App)</label>
+        <input type="text" id="cfg-sheets-url" class="form-control" placeholder="https://script.google.com/macros/s/...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL do Demanda Flow (para enviar paradas)</label>
+        <input type="text" id="cfg-demanda-url" class="form-control" placeholder="URL do Apps Script do Demanda Flow">
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="salvarConfig()">✓ Salvar Config</button>
+        <button class="btn btn-secondary btn-sm" onclick="testarConexao()">Testar Conexão</button>
+      </div>
+      <div id="cfg-status" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">⚠️ Dados Locais</div>
+    <p style="font-size:14px; color:var(--text2); margin-bottom:16px;">Os dados ficam salvos no navegador. Exporte regularmente para não perder.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="exportarJSON()">⬇ Exportar JSON</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="limparTodos()">🗑 Limpar Todos os Dados</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- MODAL DETALHE -->
+<div id="modalDetalhe" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:500; align-items:center; justify-content:center;">
+  <div style="background:var(--card); border:1px solid var(--border); border-top:2px solid var(--green); border-radius:4px; padding:24px; max-width:700px; width:90%; max-height:85vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <div class="section-title" style="margin:0; font-size:20px;">Detalhe do Apontamento</div>
+      <button class="btn btn-secondary btn-sm" onclick="fecharModal()">✕ Fechar</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ===== STATE =====
+let apontamentos = JSON.parse(localStorage.getItem('v1_apontamentos') || '[]');
+let config = JSON.parse(localStorage.getItem('v1_config') || '{}');
+let setores = JSON.parse(localStorage.getItem('v1_setores') || JSON.stringify([
+  { id:'flv', nome:'FLV', icon:'🥦', campos:[{nome:'Qtd Produzida (kg)', tipo:'number'}] },
+  { id:'acougue', nome:'Açougue', icon:'🥩', campos:[{nome:'Qtd Produzida (kg)', tipo:'number'}] },
+  { id:'forno', nome:'Forno', icon:'🔥', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'vario', nome:'Vário', icon:'🍱', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'caldeirao', nome:'Caldeirão', icon:'🫕', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'marmitas', nome:'Marmitas', icon:'📦', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'saquinhos', nome:'Saquinhos', icon:'🛍', campos:[{nome:'Qtd Selada', tipo:'number'}] },
+  { id:'coccao', nome:'Cocção', icon:'♨️', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'porcionamento', nome:'Porcionamento', icon:'⚖️', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'sd', nome:'Salgados & Doces', icon:'🍡', campos:[{nome:'Qtd Produzida', tipo:'number'}] },
+  { id:'apoio', nome:'Áreas de Apoio', icon:'🧹', campos:[{nome:'Etiquetas Internas', tipo:'number'},{nome:'Etiquetas Terceiros', tipo:'number'},{nome:'Bandejas Abertas', tipo:'number'},{nome:'Grãos Separados (kg)', tipo:'number'}] },
+]));
+
+let paradaCount = 0;
+let dificuldadeCount = 0;
+let currentPage = 'apontamento';
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR');
+  document.getElementById('dateDisplay').textContent = now.toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== INIT =====
+function init() {
+  // set today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('apt-data').value = today;
+  document.getElementById('filt-inicio').value = today;
+  document.getElementById('filt-fim').value = today;
+
+  // restore config
+  if (config.sheetsUrl) document.getElementById('cfg-sheets-url').value = config.sheetsUrl;
+  if (config.demandaUrl) document.getElementById('cfg-demanda-url').value = config.demandaUrl;
+
+  renderSetorGrid();
+  renderConfigSetores();
+  populateFiltroSetor();
+}
+
+// ===== NAVIGATION =====
+function showPage(page) {
+  document.querySelectorAll('[id^=page-]').forEach(p => p.classList.add('hidden'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  currentPage = page;
+  if (page === 'historico') renderHistorico(apontamentos);
+  if (page === 'dashboard') renderDashboard();
+}
+
+// ===== SETOR GRID =====
+function renderSetorGrid() {
+  const grid = document.getElementById('setorGrid');
+  grid.innerHTML = setores.map(s => `
+    <div class="setor-btn" id="setor-btn-${s.id}" onclick="selecionarSetor('${s.id}')">
+      <span class="setor-icon">${s.icon}</span>
+      ${s.nome}
+    </div>
+  `).join('');
+}
+
+function selecionarSetor(id) {
+  document.querySelectorAll('.setor-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('setor-btn-' + id).classList.add('selected');
+  document.getElementById('apt-setor').value = id;
+  renderProducaoFields(id);
+}
+
+function renderProducaoFields(id) {
+  const setor = setores.find(s => s.id === id);
+  if (!setor) return;
+  const container = document.getElementById('producaoFields');
+  container.innerHTML = setor.campos.map((c, i) => `
+    <div class="form-group">
+      <label class="form-label">${c.nome}</label>
+      <input type="${c.tipo}" class="form-control prod-field" data-campo="${c.nome}" placeholder="0" min="0">
+    </div>
+  `).join('');
+}
+
+// ===== PARADAS =====
+const tiposParada = ['Manutenção Corretiva','Manutenção Preventiva','Falta de Material','Setup / Troca','Aguardando Time','Problema Elétrico','Problema Mecânico','Congestionamento','Outro'];
+
+function addParada() {
+  paradaCount++;
+  const id = paradaCount;
+  const div = document.createElement('div');
+  div.className = 'parada-item';
+  div.id = 'parada-' + id;
+  div.innerHTML = `
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Equipamento</label>
+      <input type="text" class="form-control" id="p-equip-${id}" placeholder="Ex: CUB 10, Esteira...">
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Tipo de Parada</label>
+      <select class="form-control" id="p-tipo-${id}">
+        ${tiposParada.map(t => `<option value="${t}">${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Tempo Parado</label>
+      <div style="display:flex; gap:6px;">
+        <input type="time" class="form-control" id="p-inicio-${id}" style="flex:1;" placeholder="Início">
+        <input type="time" class="form-control" id="p-fim-${id}" style="flex:1;" placeholder="Fim">
+      </div>
+    </div>
+    <div style="padding-bottom:2px;">
+      <button class="btn btn-danger btn-sm" onclick="removeParada(${id})">✕</button>
+    </div>
+    <div class="form-group col-span-full" style="margin:0; grid-column:1/-1; margin-top:8px;">
+      <label class="form-label">Descrição / Causa</label>
+      <input type="text" class="form-control" id="p-desc-${id}" placeholder="Descreva o problema e causa...">
+    </div>
+  `;
+  document.getElementById('paradasList').appendChild(div);
+}
+
+function removeParada(id) {
+  document.getElementById('parada-' + id).remove();
+}
+
+// ===== DIFICULDADES =====
+const tiposDific = ['Falta de Receita','Treinamento de Pessoa','Absenteísmo','Falta de Insumo','Problema de Qualidade','Comunicação','Logística Interna','Outro'];
+
+function addDificuldade() {
+  dificuldadeCount++;
+  const id = dificuldadeCount;
+  const div = document.createElement('div');
+  div.className = 'dificuldade-item';
+  div.id = 'dif-' + id;
+  div.innerHTML = `
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Tipo de Dificuldade</label>
+      <select class="form-control" id="d-tipo-${id}">
+        ${tiposDific.map(t => `<option value="${t}">${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">Descrição</label>
+      <input type="text" class="form-control" id="d-desc-${id}" placeholder="Descreva a dificuldade...">
+    </div>
+    <div style="padding-bottom:2px;">
+      <button class="btn btn-danger btn-sm" onclick="removeDificuldade(${id})">✕</button>
+    </div>
+  `;
+  document.getElementById('dificuldadesList').appendChild(div);
+}
+
+function removeDificuldade(id) {
+  document.getElementById('dif-' + id).remove();
+}
+
+// ===== COLETA PARADAS =====
+function coletarParadas() {
+  const paradas = [];
+  document.querySelectorAll('[id^=parada-]').forEach(el => {
+    const id = el.id.split('-')[1];
+    paradas.push({
+      equipamento: document.getElementById('p-equip-' + id)?.value || '',
+      tipo: document.getElementById('p-tipo-' + id)?.value || '',
+      inicio: document.getElementById('p-inicio-' + id)?.value || '',
+      fim: document.getElementById('p-fim-' + id)?.value || '',
+      descricao: document.getElementById('p-desc-' + id)?.value || '',
+      tempoMinutos: calcularTempo(document.getElementById('p-inicio-' + id)?.value, document.getElementById('p-fim-' + id)?.value)
+    });
+  });
+  return paradas;
+}
+
+function coletarDificuldades() {
+  const difs = [];
+  document.querySelectorAll('[id^=dif-]').forEach(el => {
+    const id = el.id.split('-')[1];
+    difs.push({
+      tipo: document.getElementById('d-tipo-' + id)?.value || '',
+      descricao: document.getElementById('d-desc-' + id)?.value || ''
+    });
+  });
+  return difs;
+}
+
+function calcularTempo(inicio, fim) {
+  if (!inicio || !fim) return 0;
+  const [hi, mi] = inicio.split(':').map(Number);
+  const [hf, mf] = fim.split(':').map(Number);
+  return Math.max(0, (hf * 60 + mf) - (hi * 60 + mi));
+}
+
+function coletarProducao() {
+  const dados = {};
+  document.querySelectorAll('.prod-field').forEach(f => {
+    dados[f.dataset.campo] = Number(f.value) || 0;
+  });
+  return dados;
+}
+
+// ===== SALVAR =====
+function salvarApontamento() {
+  const data = document.getElementById('apt-data').value;
+  const turno = document.getElementById('apt-turno').value;
+  const setor = document.getElementById('apt-setor').value;
+  const responsavel = document.getElementById('apt-responsavel').value;
+
+  if (!data || !turno || !setor) {
+    toast('Preencha Data, Turno e Setor!', 'error');
+    return;
+  }
+
+  const setorObj = setores.find(s => s.id === setor);
+  const apt = {
+    id: Date.now(),
+    data,
+    turno,
+    setor,
+    setorNome: setorObj?.nome || setor,
+    responsavel,
+    presentes: Number(document.getElementById('apt-presentes').value) || 0,
+    ausencias: Number(document.getElementById('apt-ausencias').value) || 0,
+    recAtrasadas: Number(document.getElementById('apt-rec-atrasadas').value) || 0,
+    recAdiantadas: Number(document.getElementById('apt-rec-adiantadas').value) || 0,
+    producao: coletarProducao(),
+    paradas: coletarParadas(),
+    dificuldades: coletarDificuldades(),
+    desvioMP: document.getElementById('apt-desvio').value,
+    faltaUtensilio: document.getElementById('apt-utensilio').value,
+    faltaRecurso: document.getElementById('apt-recurso').value,
+    comentarios: document.getElementById('apt-comentarios').value,
+    timestamp: new Date().toISOString()
+  };
+
+  apontamentos.push(apt);
+  localStorage.setItem('v1_apontamentos', JSON.stringify(apontamentos));
+
+  // enviar para Google Sheets se configurado
+  if (config.sheetsUrl) enviarParaSheets(apt);
+
+  toast('Apontamento salvo com sucesso!');
+  limparForm();
+}
+
+// ===== ENVIAR SHEETS =====
+async function enviarParaSheets(apt) {
+  try {
+    await fetch(config.sheetsUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo: 'apontamento', dados: apt })
+    });
+  } catch(e) { console.log('Sheets offline:', e); }
+}
+
+// ===== LIMPAR FORM =====
+function limparForm() {
+  document.getElementById('apt-turno').value = '';
+  document.getElementById('apt-responsavel').value = '';
+  document.getElementById('apt-presentes').value = '';
+  document.getElementById('apt-ausencias').value = '';
+  document.getElementById('apt-rec-atrasadas').value = '';
+  document.getElementById('apt-rec-adiantadas').value = '';
+  document.getElementById('apt-desvio').value = 'Não';
+  document.getElementById('apt-utensilio').value = 'Não';
+  document.getElementById('apt-recurso').value = 'Não';
+  document.getElementById('apt-comentarios').value = '';
+  document.getElementById('apt-setor').value = '';
+  document.getElementById('producaoFields').innerHTML = '';
+  document.getElementById('paradasList').innerHTML = '';
+  document.getElementById('dificuldadesList').innerHTML = '';
+  document.querySelectorAll('.setor-btn').forEach(b => b.classList.remove('selected'));
+  paradaCount = 0;
+  dificuldadeCount = 0;
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('apt-data').value = today;
+}
+
+// ===== HISTÓRICO =====
+function renderHistorico(lista) {
+  const tbody = document.getElementById('historicoBody');
+  const empty = document.getElementById('historicoEmpty');
+  if (!lista.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  tbody.innerHTML = lista.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map(apt => {
+    const prodTotal = Object.values(apt.producao || {}).reduce((s,v) => s + v, 0);
+    const paradasCount = apt.paradas?.length || 0;
+    const temParada = paradasCount > 0;
+    return `
+      <tr>
+        <td>${formatDate(apt.data)}</td>
+        <td><span class="badge badge-gray">${apt.turno}</span></td>
+        <td>${apt.setorNome}</td>
+        <td>${apt.responsavel || '—'}</td>
+        <td>${prodTotal > 0 ? prodTotal.toLocaleString('pt-BR') : '—'}</td>
+        <td>${apt.presentes}</td>
+        <td>${apt.ausencias > 0 ? `<span style="color:var(--orange)">${apt.ausencias}</span>` : apt.ausencias}</td>
+        <td>${temParada ? `<span class="badge badge-red">⚠ ${paradasCount}</span>` : '<span class="badge badge-green">✓ 0</span>'}</td>
+        <td><span class="badge badge-green">Salvo</span></td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="verDetalhe(${apt.id})">Ver</button>
+          <button class="btn btn-danger btn-sm" onclick="deletarApontamento(${apt.id})">✕</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filtrarHistorico() {
+  const inicio = document.getElementById('filt-inicio').value;
+  const fim = document.getElementById('filt-fim').value;
+  const setor = document.getElementById('filt-setor').value;
+  const turno = document.getElementById('filt-turno').value;
+
+  let lista = [...apontamentos];
+  if (inicio) lista = lista.filter(a => a.data >= inicio);
+  if (fim) lista = lista.filter(a => a.data <= fim);
+  if (setor) lista = lista.filter(a => a.setor === setor);
+  if (turno) lista = lista.filter(a => a.turno === turno);
+  renderHistorico(lista);
+}
+
+function limparFiltros() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('filt-inicio').value = today;
+  document.getElementById('filt-fim').value = today;
+  document.getElementById('filt-setor').value = '';
+  document.getElementById('filt-turno').value = '';
+  renderHistorico(apontamentos);
+}
+
+function deletarApontamento(id) {
+  if (!confirm('Deletar este apontamento?')) return;
+  apontamentos = apontamentos.filter(a => a.id !== id);
+  localStorage.setItem('v1_apontamentos', JSON.stringify(apontamentos));
+  renderHistorico(apontamentos);
+  toast('Apontamento removido');
+}
+
+function populateFiltroSetor() {
+  const sel = document.getElementById('filt-setor');
+  setores.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.nome;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== DETALHE MODAL =====
+function verDetalhe(id) {
+  const apt = apontamentos.find(a => a.id === id);
+  if (!apt) return;
+
+  const prodHTML = Object.entries(apt.producao || {}).map(([k,v]) =>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--text2)">${k}</span>
+      <span style="font-weight:600">${v.toLocaleString('pt-BR')}</span>
+    </div>`
+  ).join('') || '<p style="color:var(--text2)">Sem dados</p>';
+
+  const paradasHTML = (apt.paradas || []).map(p =>
+    `<div style="background:var(--bg3);border-left:3px solid var(--orange);padding:10px;margin-bottom:8px;border-radius:2px;">
+      <strong>${p.equipamento}</strong> — ${p.tipo}<br>
+      <span style="color:var(--text2);font-size:13px;">${p.inicio} → ${p.fim} (${p.tempoMinutos} min) | ${p.descricao}</span>
+    </div>`
+  ).join('') || '<p style="color:var(--text2)">Sem paradas</p>';
+
+  const difsHTML = (apt.dificuldades || []).map(d =>
+    `<div style="background:var(--bg3);border-left:3px solid var(--yellow);padding:10px;margin-bottom:8px;border-radius:2px;">
+      <strong>${d.tipo}</strong><br>
+      <span style="color:var(--text2);font-size:13px;">${d.descricao}</span>
+    </div>`
+  ).join('') || '<p style="color:var(--text2)">Sem dificuldades</p>';
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div><span class="badge badge-gray">${apt.turno}</span> &nbsp; ${formatDate(apt.data)}</div>
+      <div style="text-align:right;"><strong>${apt.setorNome}</strong> — ${apt.responsavel || 'Sem responsável'}</div>
+    </div>
+    <div class="grid-4" style="margin-bottom:16px;">
+      <div><div class="kpi-label">Presentes</div><div style="font-size:24px;font-weight:700;">${apt.presentes}</div></div>
+      <div><div class="kpi-label">Ausências</div><div style="font-size:24px;font-weight:700;color:var(--orange)">${apt.ausencias}</div></div>
+      <div><div class="kpi-label">Rec. Atrasadas</div><div style="font-size:24px;font-weight:700;">${apt.recAtrasadas}</div></div>
+      <div><div class="kpi-label">Rec. Adiantadas</div><div style="font-size:24px;font-weight:700;">${apt.recAdiantadas}</div></div>
+    </div>
+    <div class="card-title" style="margin-bottom:8px;">Produção</div>
+    ${prodHTML}
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:8px;">⚠ Paradas</div>
+    ${paradasHTML}
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:8px;">📌 Dificuldades</div>
+    ${difsHTML}
+    ${apt.comentarios ? `<div class="divider"></div><div class="card-title" style="margin-bottom:8px;">💬 Comentários</div><p style="font-size:14px;color:var(--text2)">${apt.comentarios}</p>` : ''}
+  `;
+
+  document.getElementById('modalDetalhe').style.display = 'flex';
+}
+
+function fecharModal() {
+  document.getElementById('modalDetalhe').style.display = 'none';
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const deHoje = apontamentos.filter(a => a.data === today);
+  const totalParadas = deHoje.reduce((s, a) => s + (a.paradas?.length || 0), 0);
+  const totalAusencias = deHoje.reduce((s, a) => s + a.ausencias, 0);
+  const setoresAtivos = new Set(deHoje.map(a => a.setor)).size;
+
+  document.getElementById('kpi-hoje').textContent = deHoje.length;
+  document.getElementById('kpi-paradas').textContent = totalParadas;
+  document.getElementById('kpi-ausencias').textContent = totalAusencias;
+  document.getElementById('kpi-setores').textContent = setoresAtivos;
+
+  // produção por setor
+  const dashProd = document.getElementById('dashProducao');
+  if (deHoje.length) {
+    const setorProd = {};
+    deHoje.forEach(a => {
+      const total = Object.values(a.producao || {}).reduce((s,v) => s+v, 0);
+      if (!setorProd[a.setorNome]) setorProd[a.setorNome] = 0;
+      setorProd[a.setorNome] += total;
+    });
+    const max = Math.max(...Object.values(setorProd), 1);
+    dashProd.innerHTML = Object.entries(setorProd).map(([nome, val]) => `
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:13px;">${nome}</span>
+          <span style="font-size:13px;font-weight:600;">${val.toLocaleString('pt-BR')}</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar green" style="width:${(val/max*100).toFixed(0)}%"></div></div>
+      </div>
+    `).join('');
+  } else {
+    dashProd.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>Sem dados de hoje</p></div>';
+  }
+
+  // paradas recentes
+  const dashPar = document.getElementById('dashParadas');
+  const todasParadas = apontamentos.flatMap(a => (a.paradas || []).map(p => ({...p, setor:a.setorNome, turno:a.turno, data:a.data})))
+    .filter(p => p.data === today).slice(0,5);
+  if (todasParadas.length) {
+    dashPar.innerHTML = todasParadas.map(p => `
+      <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--orange);font-size:18px;">⚠</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;">${p.equipamento} — ${p.tipo}</div>
+          <div style="font-size:12px;color:var(--text2)">${p.setor} | ${p.turno} | ${p.tempoMinutos} min</div>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    dashPar.innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>Sem paradas hoje</p></div>';
+  }
+
+  // resumo por turno
+  const dashTurnos = document.getElementById('dashTurnos');
+  if (deHoje.length) {
+    const turnos = ['T1','T2','T3'];
+    dashTurnos.innerHTML = `<div class="grid-3">${turnos.map(t => {
+      const apts = deHoje.filter(a => a.turno === t);
+      const paradas = apts.reduce((s,a) => s + (a.paradas?.length||0), 0);
+      const ausencias = apts.reduce((s,a) => s + a.ausencias, 0);
+      return `
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:14px;">
+          <div class="kpi-label">${t === 'T1' ? 'Turno 1' : t === 'T2' ? 'Turno 2' : 'Turno 3'}</div>
+          <div style="font-size:22px;font-weight:700;margin:8px 0;">${apts.length} <span style="font-size:13px;color:var(--text2)">registros</span></div>
+          <div style="font-size:13px;color:${paradas>0?'var(--orange)':'var(--text2)'}">⚠ ${paradas} paradas</div>
+          <div style="font-size:13px;color:${ausencias>0?'var(--orange)':'var(--text2)'}">👤 ${ausencias} ausências</div>
+        </div>
+      `;
+    }).join('')}</div>`;
+  } else {
+    dashTurnos.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Sem apontamentos hoje</p></div>';
+  }
+}
+
+// ===== CONFIG =====
+function renderConfigSetores() {
+  const div = document.getElementById('configSetores');
+  div.innerHTML = setores.map(s => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span>${s.icon} ${s.nome}</span>
+      <button class="btn btn-danger btn-sm" onclick="removerSetor('${s.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function adicionarSetor() {
+  const nome = document.getElementById('novoSetor').value.trim();
+  if (!nome) return;
+  const id = nome.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g,'');
+  if (setores.find(s => s.id === id)) { toast('Setor já existe!', 'error'); return; }
+  setores.push({ id, nome, icon: '🏭', campos: [{nome:'Qtd Produzida', tipo:'number'}] });
+  localStorage.setItem('v1_setores', JSON.stringify(setores));
+  document.getElementById('novoSetor').value = '';
+  renderConfigSetores();
+  renderSetorGrid();
+  toast('Setor adicionado!');
+}
+
+function removerSetor(id) {
+  if (!confirm('Remover setor?')) return;
+  setores = setores.filter(s => s.id !== id);
+  localStorage.setItem('v1_setores', JSON.stringify(setores));
+  renderConfigSetores();
+  renderSetorGrid();
+  toast('Setor removido');
+}
+
+function salvarConfig() {
+  config.sheetsUrl = document.getElementById('cfg-sheets-url').value;
+  config.demandaUrl = document.getElementById('cfg-demanda-url').value;
+  localStorage.setItem('v1_config', JSON.stringify(config));
+  toast('Configurações salvas!');
+}
+
+async function testarConexao() {
+  const url = document.getElementById('cfg-sheets-url').value;
+  if (!url) { toast('Insira a URL do Apps Script!', 'warning'); return; }
+  const el = document.getElementById('cfg-status');
+  el.innerHTML = '<span style="color:var(--text2)">Testando...</span>';
+  try {
+    await fetch(url + '?test=1', { mode:'no-cors' });
+    el.innerHTML = '<div class="alert alert-success">✓ URL acessível!</div>';
+  } catch(e) {
+    el.innerHTML = '<div class="alert alert-error">✕ Erro de conexão</div>';
+  }
+}
+
+// ===== EXPORT =====
+function exportarJSON() {
+  const blob = new Blob([JSON.stringify(apontamentos, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `v1-apontamentos-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+
+function exportarCSV() {
+  if (!apontamentos.length) { toast('Sem dados para exportar', 'warning'); return; }
+  const headers = ['ID','Data','Turno','Setor','Responsável','Presentes','Ausências','Rec.Atrasadas','Rec.Adiantadas','TotalParadas','TempoTotalParadaMin','Desvio MP','Falta Utensílio','Falta Recurso','Comentários'];
+  const rows = apontamentos.map(a => [
+    a.id, a.data, a.turno, a.setorNome, a.responsavel,
+    a.presentes, a.ausencias, a.recAtrasadas, a.recAdiantadas,
+    a.paradas?.length||0,
+    a.paradas?.reduce((s,p)=>s+p.tempoMinutos,0)||0,
+    a.desvioMP, a.faltaUtensilio, a.faltaRecurso,
+    `"${(a.comentarios||'').replace(/"/g,'""')}"`
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `v1-apontamentos-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+function limparTodos() {
+  if (!confirm('Tem certeza? Isso apaga TODOS os apontamentos salvos localmente.')) return;
+  apontamentos = [];
+  localStorage.setItem('v1_apontamentos', '[]');
+  toast('Dados limpos!', 'warning');
+}
+
+// ===== UTILS =====
+function formatDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function toast(msg, type = 'success') {
+  const div = document.createElement('div');
+  div.className = 'toast-msg' + (type === 'error' ? ' error' : type === 'warning' ? ' warning' : '');
+  div.textContent = msg;
+  document.getElementById('toast').appendChild(div);
+  setTimeout(() => div.remove(), 3500);
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>
