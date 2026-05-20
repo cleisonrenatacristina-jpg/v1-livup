@@ -359,6 +359,14 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
     </div>
   </div>
   <div class="card">
+    <div class="ctitle">☁ Sincronizacao com Google Sheets</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Envia todos os apontamentos salvos localmente para a planilha V1 como backup.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-p" onclick="syncTodos()">☁ Sincronizar Todos com Sheets</button>
+      <span id="sync-status" style="font-size:13px;color:var(--text2);"></span>
+    </div>
+  </div>
+  <div class="card">
     <div class="ctitle">⚠ Dados Locais</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:7px;">
       <button class="btn btn-s btn-sm" onclick="expJSON()">⬇ JSON</button>
@@ -1177,6 +1185,35 @@ async function testarConn(){
 async function envSh(apt){
   if(!cfg.sheets) return;
   try{await fetch(cfg.sheets,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'apontamento',dados:apt})});}catch(e){}
+}
+
+async function syncTodos(){
+  if(!cfg.sheets){toast('Configure a URL do Sheets primeiro!','e');return;}
+  if(!apts.length){toast('Sem apontamentos para sincronizar','w');return;}
+  var el=document.getElementById('sync-status');
+  el.textContent='Sincronizando '+apts.length+' apontamentos...';
+  el.style.color='var(--yellow)';
+  try{
+    var resp=await fetch(cfg.sheets,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({tipo:'sync_batch',apontamentos:apts})
+    });
+    var data=await resp.json();
+    if(data.status==='ok'){
+      el.textContent='✓ '+data.msg;
+      el.style.color='var(--green)';
+      toast('Sincronizacao concluida!');
+    } else {
+      el.textContent='✕ Erro: '+(data.msg||'Falha');
+      el.style.color='var(--red)';
+      toast('Erro na sincronizacao','e');
+    }
+  }catch(e){
+    el.textContent='✕ Erro de conexao';
+    el.style.color='var(--red)';
+    toast('Sem conexao com o Sheets','e');
+  }
 }
 
 function expJSON(){
