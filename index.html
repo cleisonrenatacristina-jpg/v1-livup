@@ -689,10 +689,14 @@ function renderAptProd(){
   var c=document.getElementById('aptProdF');
   if(!s){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno.</p>';return;}
   var meta=getMetaTurn(data,sid,turno);
+  var metaLabel = meta>0 ? meta.toLocaleString('pt-BR')+' '+s.unid : 'Sem OP cadastrada';
   c.innerHTML='<div class="g3">'+
     '<div class="fg"><label class="fl">Qtd. Produzida ('+s.unid+')</label><input type="number" id="apt-prod" class="fc" min="0" placeholder="0" oninput="calcEfic()"></div>'+
-    '<div class="fg"><label class="fl">Meta do Turno (OP)</label><input type="number" id="apt-meta" class="fc" value="'+meta+'" placeholder="'+(meta||'Sem OP')+'"></div>'+
-    '<div class="fg"><label class="fl">Eficiencia</label><div id="eficV" style="font-family:\'Barlow Condensed\',sans-serif;font-size:28px;font-weight:800;color:var(--text2);padding:5px 0;">—</div></div>'+
+    '<div class="fg"><label class="fl">Meta do Turno (OP) — Fixada</label>'+
+      '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:9px 12px;font-size:14px;color:'+(meta>0?'var(--green)':'var(--text3)')+';font-weight:600;">'+metaLabel+'</div>'+
+      '<input type="hidden" id="apt-meta" value="'+meta+'"></div>'+
+    '<div class="fg"><label class="fl">Eficiencia do Turno</label><div id="eficV" style="font-family:\'Barlow Condensed\',sans-serif;font-size:28px;font-weight:800;color:var(--text2);padding:5px 0;">—</div>'+
+      '<div id="eficBar" style="height:5px;background:var(--bg3);border-radius:2px;margin-top:5px;overflow:hidden;"><div id="eficFill" style="height:100%;border-radius:2px;width:0%;transition:width .5s;"></div></div></div>'+
     '</div>'+
     '<div class="fg"><label class="fl">Obs. de Producao</label><input type="text" id="apt-pobs" class="fc" placeholder="Observacao..."></div>';
 }
@@ -700,11 +704,19 @@ function renderAptProd(){
 function calcEfic(){
   var prod=Number(document.getElementById('apt-prod')&&document.getElementById('apt-prod').value)||0;
   var meta=Number(document.getElementById('apt-meta')&&document.getElementById('apt-meta').value)||0;
-  var el=document.getElementById('eficV'); if(!el) return;
-  if(!meta){el.textContent='—';el.style.color='var(--text2)';return;}
+  var el=document.getElementById('eficV');
+  var fill=document.getElementById('eficFill');
+  if(!el) return;
+  if(!meta){
+    el.textContent='—';el.style.color='var(--text2)';
+    if(fill) fill.style.width='0%';
+    return;
+  }
   var p=Math.round(prod/meta*100);
+  var cor=p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
   el.textContent=p+'%';
-  el.style.color=p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
+  el.style.color=cor;
+  if(fill){fill.style.width=Math.min(p,100)+'%';fill.style.background=cor;}
 }
 
 function addParada(){
