@@ -111,11 +111,17 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
 </head>
 <body>
 <header>
-  <div style="display:flex;align-items:center;">
-    <div class="logo">LIV UP</div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <!-- Logo Liv Up translúcido -->
+    <div style="position:relative;width:42px;height:42px;flex-shrink:0;">
+      <svg viewBox="0 0 100 110" width="42" height="42" xmlns="http://www.w3.org/2000/svg" opacity="1">
+        <text x="4" y="52" font-family="Arial Black,sans-serif" font-weight="900" font-size="56" fill="#E8174B" font-style="italic">liv</text>
+        <text x="10" y="100" font-family="Arial Black,sans-serif" font-weight="900" font-size="56" fill="#E8174B" font-style="italic">up</text>
+      </svg>
+    </div>
     <div>
-      <div class="htitle" style="margin-left:14px;">V<span>1</span> — APONTAMENTOS</div>
-      <div class="ddate" style="margin-left:14px;" id="dd"></div>
+      <div class="htitle">V<span>1</span> — APONTAMENTOS</div>
+      <div class="ddate" id="dd"></div>
     </div>
   </div>
   <div style="text-align:right;"><div class="clock" id="ck">--:--:--</div></div>
@@ -397,17 +403,17 @@ var cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{}');
 if(!cfg.sheets) cfg.sheets = 'https://script.google.com/macros/s/AKfycbx6BR0Ms09raTR1v2hPTKAZ_tOkeRuG2mxMkpwKIcJVqq7_4O5I9WpK7gK2nK_iAuK5/exec';
 
 var setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
-  {id:'acougue',   nome:'Acougue',          unid:'KG'},
-  {id:'flv',       nome:'FLV',              unid:'KG'},
-  {id:'forno',     nome:'Forno',            unid:'CICLO'},
-  {id:'vario',     nome:'Vario',            unid:'CICLO'},
-  {id:'caldeira',  nome:'Caldeira',         unid:'CICLO'},
-  {id:'sd',        nome:'S&D',              unid:'RECEITAS'},
-  {id:'saquinhos', nome:'Saquinhos',        unid:'UNIDADES'},
-  {id:'marmitas',  nome:'Marmitas',         unid:'UNIDADES'},
-  {id:'coccao',    nome:'Coccao',           unid:'KG'},
-  {id:'porcionamento',nome:'Porcionamento', unid:'KG'},
-  {id:'apoio',     nome:'Areas de Apoio',   unid:'UNIDADES'}
+  {id:'acougue',       nome:'Acougue',          unid:'KG'},
+  {id:'flv',           nome:'FLV',              unid:'KG'},
+  {id:'forno',         nome:'Forno',            unid:'CICLO'},
+  {id:'vario',         nome:'Vario',            unid:'CICLO'},
+  {id:'caldeira',      nome:'Caldeira',         unid:'CICLO'},
+  {id:'sd',            nome:'S&D',              unid:'RECEITAS'},
+  {id:'saquinhos',     nome:'Saquinhos',        unid:'UNIDADES'},
+  {id:'marmitas',      nome:'Marmitas',         unid:'UNIDADES'},
+  {id:'coccao',        nome:'Coccao',           unid:'KG'},
+  {id:'porcionamento', nome:'Porcionamento',    unid:'KG'},
+  {id:'apoio',         nome:'Areas de Apoio',   unid:'UNIDADES'}
 ]));
 
 var pCount=0, dCount=0;
@@ -521,8 +527,9 @@ function renderOPDia(){
   var rows='';
   setores.forEach(function(s){
     var sd=(op.s&&op.s[s.id])||{};
+    var cor=s.cor||'var(--text)';
     rows+='<div class="oprow">'+
-      '<div style="font-size:13px;font-weight:600;">'+s.nome+'</div>'+
+      '<div style="font-size:13px;font-weight:700;color:'+cor+';">'+s.nome+'</div>'+
       '<div class="ounid">'+s.unid+'</div>'+
       '<input type="number" class="fc" id="op-tot-'+s.id+'" placeholder="Total" min="0" value="'+(sd.tot||'')+'" oninput="opTotChange(\''+s.id+'\')">'+
       '<input type="number" class="fc" id="op-t1-'+s.id+'" placeholder="T1" min="0" value="'+(sd.t1||'')+'" oninput="opTurnChange(\''+s.id+'\',1)">'+
@@ -644,6 +651,8 @@ function copiarOPDiaAnterior(){
 }
 
 function getMetaTot(data,sid){ var op=ops.find(function(o){return o.data===data;}); return(op&&op.s&&op.s[sid]&&op.s[sid].tot)||0; }
+function getCorSetor(sid){ var s=setores.find(function(x){return x.id===sid;}); return s&&s.cor?s.cor:'var(--text)'; }
+function getCorSetorNome(nome){ var s=setores.find(function(x){return x.nome===nome||x.id===nome;}); return s&&s.cor?s.cor:'var(--text)'; }
 function getMetaTurn(data,sid,t){ var op=ops.find(function(o){return o.data===data;}); var sd=op&&op.s&&op.s[sid]||{}; return t==='T1'?sd.t1||0:t==='T2'?sd.t2||0:sd.t3||0; }
 
 function renderOPResumo(seg){
@@ -658,7 +667,8 @@ function renderOPResumo(seg){
   }
   html+='</tr></thead><tbody>';
   setores.forEach(function(s){
-    html+='<tr><td>'+s.nome+'</td>';
+    var corS2=s.cor||'var(--text)';
+      html+='<tr><td style="color:'+corS2+';font-weight:700;">'+s.nome+'</td>';
     for(var i=0;i<7;i++){
       var d=new Date(seg); d.setDate(d.getDate()+i);
       var dk=d.toISOString().split('T')[0];
@@ -688,7 +698,11 @@ function renderAptProd(){
   var s=setores.find(function(x){return x.id===sid;});
   var c=document.getElementById('aptProdF');
   if(!s||!turno){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno.</p>';return;}
+  // Mostra nome do setor colorido acima dos campos
+  var corS=s.cor||'var(--green)';
   var meta=getMetaTurn(data,sid,turno);
+  document.getElementById('cardAptProd').querySelector('.ctitle').innerHTML=
+    '⬡ Produção do Turno — <span style="color:'+corS+';font-weight:800;">'+s.nome+'</span>';
   var metaLabel=meta>0?meta.toLocaleString('pt-BR')+' '+s.unid:'Sem OP cadastrada';
   var metaCor=meta>0?'var(--green)':'var(--text3)';
   // Preserva valor de producao ja digitado
@@ -893,7 +907,8 @@ function renderCons(){
     var par=(t1?t1.paradas.length:0)+(t2?t2.paradas.length:0)+(t3?t3.paradas.length:0);
     tProd+=tp; tAus+=aus; tPar+=par;
     var ec2=efic===null?'var(--text2)':efic>=100?'var(--green)':efic>=80?'var(--yellow)':'var(--red)';
-    return '<tr><td>'+s.nome+'</td>'+
+    var cor=s.cor||'var(--green)';
+    return '<tr><td style="color:'+cor+';font-weight:700;">'+s.nome+'</td>'+
       '<td>'+(t1?t1.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>')+'</td>'+
       '<td>'+(t2?t2.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>')+'</td>'+
       '<td>'+(t3?t3.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>')+'</td>'+
@@ -935,10 +950,12 @@ function renderHist(lista){
   empty.classList.add('hidden');
   tbody.innerHTML=lista.slice().sort(function(a,b){return new Date(b.ts)-new Date(a.ts);}).map(function(a){
     var ec2=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
+    var setorObj=setores.find(function(x){return x.id===a.sid;})||{};
+    var corSet=setorObj.cor||'var(--text)';
     return '<tr>'+
       '<td>'+fmtD(a.data)+'</td>'+
       '<td><span class="badge bgr">'+a.turno+'</span></td>'+
-      '<td>'+a.setorNome+'</td>'+
+      '<td style="color:'+corSet+';font-weight:700;">'+a.setorNome+'</td>'+
       '<td>'+(a.resp||'—')+'</td>'+
       '<td>'+(a.prod||0).toLocaleString('pt-BR')+' <span style="font-size:10px;color:var(--text3);">'+a.unid+'</span></td>'+
       '<td>'+(a.meta>0?a.meta.toLocaleString('pt-BR'):'—')+'</td>'+
@@ -1065,7 +1082,7 @@ function verDet(id){
   document.getElementById('modalC').innerHTML=
     '<div class="g4" style="margin-bottom:14px;">'+
       '<div class="kpi g"><div class="kl">Data</div><div style="font-size:17px;font-weight:700;">'+fmtD(a.data)+'</div></div>'+
-      '<div class="kpi b"><div class="kl">Turno / Setor</div><div style="font-size:14px;font-weight:700;">'+a.turno+' — '+a.setorNome+'</div></div>'+
+      '<div class="kpi b"><div class="kl">Turno / Setor</div><div style="font-size:14px;font-weight:700;">'+a.turno+' — <span style="color:'+getCorSetor(a.sid)+'">'+a.setorNome+'</span></div></div>'+
       '<div class="kpi g"><div class="kl">Producao</div><div style="font-size:22px;font-weight:800;">'+(a.prod||0).toLocaleString('pt-BR')+' <span style="font-size:11px;">'+a.unid+'</span></div></div>'+
       '<div class="kpi '+(a.efic>=100?'g':a.efic>=80?'y':'r')+'"><div class="kl">Eficiencia</div><div style="font-size:26px;font-weight:800;color:'+ec2+'">'+(a.efic!=null?a.efic+'%':'—')+'</div></div>'+
     '</div>'+
@@ -1098,7 +1115,8 @@ function renderDash(){
       var n=e[0],v=e[1];
       var p=v.m>0?Math.round(v.p/v.m*100):null;
       var c=p===null?'var(--text2)':p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
-      return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;">'+n+'</span><span style="font-size:12px;font-weight:700;color:'+c+'">'+(p!=null?p+'%':'Sem OP')+'</span></div><div class="pbw"><div class="pb '+(p>=100?'g':p>=80?'o':'r')+'" style="width:'+Math.min(p||0,100)+'%"></div></div></div>';
+      var cSet=getCorSetorNome(n);
+      return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;font-weight:600;color:'+cSet+';">'+n+'</span><span style="font-size:12px;font-weight:700;color:'+c+'">'+(p!=null?p+'%':'Sem OP')+'</span></div><div class="pbw"><div class="pb '+(p>=100?'g':p>=80?'o':'r')+'" style="width:'+Math.min(p||0,100)+'%"></div></div></div>';
     }).join('');
   } else {dE.innerHTML='<div class="es"><div class="ei">📊</div><p>Sem dados</p></div>';}
   var dP=document.getElementById('dashPar');
@@ -1120,6 +1138,7 @@ function renderDash(){
       return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:13px;">'+
         '<div class="kl">'+(t==='T1'?'T1 — Manha':t==='T2'?'T2 — Tarde':'T3 — Noite')+'</div>'+
         '<div style="font-size:20px;font-weight:700;margin:7px 0;">'+ta.length+' <span style="font-size:11px;color:var(--text2);">setores</span></div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">'+ta.map(function(x){return '<span style="font-size:10px;font-weight:700;color:'+getCorSetor(x.sid)+'">'+x.setorNome+'</span>';}).join('<span style="color:var(--text3);"> · </span>')+'</div>'+
         '<div style="font-size:11px;color:'+(em2!=null?em2>=100?'var(--green)':em2>=80?'var(--yellow)':'var(--red)':'var(--text2)')+'">Efic.: '+(em2!=null?em2+'%':'—')+'</div>'+
         '<div style="font-size:11px;color:'+(par>0?'var(--orange)':'var(--text2)')+'">⚠ '+par+' paradas</div>'+
         '<div style="font-size:11px;color:'+(aus>0?'var(--orange)':'var(--text2)')+'">👤 '+aus+' ausencias</div></div>';
@@ -1265,7 +1284,7 @@ function renderTblPerf(dados){
 function renderCfgSetores(){
   document.getElementById('cfgSetores').innerHTML=setores.map(function(s){
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'+
-      '<span style="font-size:13px;">'+s.nome+' <span class="ounid" style="margin-left:5px;">'+s.unid+'</span></span>'+
+      '<span style="font-size:13px;font-weight:600;color:'+(s.cor||'var(--text)')+'">'+s.nome+'</span> <span class="ounid" style="margin-left:5px;">('+s.unid+')</span>'+
       '<button class="btn btn-d btn-sm" onclick="rmSetor(\''+s.id+'\')">✕</button></div>';
   }).join('');
 }
