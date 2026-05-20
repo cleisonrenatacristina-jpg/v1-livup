@@ -737,13 +737,18 @@ function addParada(){
   var opts=TIPOS_P.map(function(t){return '<option>'+t+'</option>';}).join('');
   div.innerHTML='<div class="g3" style="margin-bottom:8px;">'+
     '<div class="fg" style="margin:0;"><label class="fl">Equipamento</label><input type="text" class="fc" id="p-eq-'+id+'" placeholder="Ex: CUB 10..."></div>'+
-    '<div class="fg" style="margin:0;"><label class="fl">Tipo</label><select class="fc" id="p-tp-'+id+'">'+opts+'</select></div>'+
+    '<div class="fg" style="margin:0;"><label class="fl">Tipo de Parada</label><select class="fc" id="p-tp-'+id+'" onchange="checkOS('+id+')">'+opts+'</select></div>'+
     '<div style="display:flex;gap:5px;align-items:end;">'+
       '<div class="fg" style="margin:0;flex:1;"><label class="fl">Inicio</label><input type="time" class="fc" id="p-in-'+id+'"></div>'+
       '<div class="fg" style="margin:0;flex:1;"><label class="fl">Fim</label><input type="time" class="fc" id="p-fi-'+id+'"></div>'+
       '<button class="btn btn-d btn-sm" style="margin-bottom:1px;" onclick="document.getElementById(\'par-'+id+'\').remove()">X</button>'+
     '</div></div>'+
-    '<div class="fg" style="margin:0;"><label class="fl">Descricao</label><input type="text" class="fc" id="p-ds-'+id+'" placeholder="Causa..."></div>';
+    '<div class="fg" style="margin-top:8px;margin-bottom:0;"><label class="fl">Descricao / Causa</label><input type="text" class="fc" id="p-ds-'+id+'" placeholder="Descreva o problema e a causa..."></div>'+
+    '<div id="p-os-box-'+id+'" style="display:none;margin-top:8px;background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.4);border-radius:3px;padding:12px;">'+
+      '<label class="fl" style="color:var(--red);">🔧 Nº O.S. Manutenção — OBRIGATÓRIO</label>'+
+      '<input type="text" class="fc" id="p-os-'+id+'" placeholder="Ex: OS-2026-001" style="border-color:var(--red);font-weight:600;">'+
+      '<div style="font-size:11px;color:var(--red);margin-top:4px;">⚠ Parada por Manutenção Corretiva exige número de O.S. para salvar</div>'+
+    '</div>';
   document.getElementById('paradasList').appendChild(div);
 }
 
@@ -758,6 +763,19 @@ function addDific(){
     '<button class="btn btn-d btn-sm" style="margin-bottom:1px;" onclick="document.getElementById(\'dif-'+id+'\').remove()">X</button>'+
     '</div>';
   document.getElementById('dificuldadesList').appendChild(div);
+}
+
+function checkOS(id){
+  var tp=document.getElementById('p-tp-'+id);
+  var box=document.getElementById('p-os-box-'+id);
+  if(!tp||!box) return;
+  if(tp.value==='Manutencao Corretiva'){
+    box.style.display='block';
+  } else {
+    box.style.display='none';
+    var os=document.getElementById('p-os-'+id);
+    if(os) os.value='';
+  }
 }
 
 function calcMin(a,b){
@@ -775,7 +793,8 @@ function colParadas(){
     return{eq:document.getElementById('p-eq-'+id)&&document.getElementById('p-eq-'+id).value||'',
            tp:document.getElementById('p-tp-'+id)&&document.getElementById('p-tp-'+id).value||'',
            ini:ini,fim:fim,min:calcMin(ini,fim),
-           ds:document.getElementById('p-ds-'+id)&&document.getElementById('p-ds-'+id).value||''};
+           ds:document.getElementById('p-ds-'+id)&&document.getElementById('p-ds-'+id).value||'',
+           os:document.getElementById('p-os-'+id)&&document.getElementById('p-os-'+id).value||''};
   });
 }
 
@@ -787,7 +806,27 @@ function colDifs(){
   });
 }
 
+function validarOS(){
+  var paradas=Array.from(document.querySelectorAll('[id^=par-]'));
+  for(var i=0;i<paradas.length;i++){
+    var el=paradas[i];
+    var pid=el.id.split('-')[1];
+    var tp=document.getElementById('p-tp-'+pid);
+    var os=document.getElementById('p-os-'+pid);
+    if(tp&&tp.value==='Manutencao Corretiva'){
+      if(!os||!os.value.trim()){
+        toast('Parada de Manutencao Corretiva exige numero da O.S.!','e');
+        // destaca o campo
+        if(os){os.style.borderColor='var(--red)';os.focus();}
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 function salvarApt(){
+  if(!validarOS()) return;
   var data=document.getElementById('apt-data').value;
   var turno=document.getElementById('apt-turno').value;
   var sid=document.getElementById('apt-setor').value;
@@ -905,8 +944,9 @@ function renderHist(lista){
       '<td>'+a.presentes+'</td>'+
       '<td>'+(a.ausencias>0?'<span style="color:var(--orange);">'+a.ausencias+'</span>':a.ausencias)+'</td>'+
       '<td>'+(a.paradas&&a.paradas.length>0?'<span class="badge br">⚠ '+a.paradas.length+'</span>':'<span class="badge bg">✓ 0</span>')+'</td>'+
-      '<td style="display:flex;gap:5px;">'+
+      '<td style="display:flex;gap:5px;flex-wrap:wrap;">'+
         '<button class="btn btn-s btn-sm" onclick="verDet('+a.id+')">Ver</button>'+
+        '<button class="btn btn-w btn-sm" onclick="editarApt('+a.id+')">✏ Editar</button>'+
         '<button class="btn btn-d btn-sm" onclick="delApt('+a.id+')">✕</button>'+
       '</td></tr>';
   }).join('');
@@ -946,6 +986,66 @@ function popFiltSetor(){
   setores.forEach(function(s){
     var o=document.createElement('option'); o.value=s.id; o.textContent=s.nome; sel.appendChild(o);
   });
+}
+
+function editarApt(id){
+  var a=apts.find(function(x){return x.id===id;});
+  if(!a) return;
+  // Navega para aba de apontamento
+  var btn=document.querySelector('.nb:nth-child(2)');
+  pg('apt',btn);
+  // Preenche os campos
+  setTimeout(function(){
+    document.getElementById('apt-data').value=a.data;
+    document.getElementById('apt-turno').value=a.turno;
+    document.getElementById('apt-setor').value=a.sid;
+    document.getElementById('apt-resp').value=a.resp||'';
+    document.getElementById('apt-pres').value=a.presentes||0;
+    document.getElementById('apt-aus').value=a.ausencias||0;
+    document.getElementById('apt-rat').value=a.recAt||0;
+    document.getElementById('apt-rad').value=a.recAd||0;
+    document.getElementById('apt-desv').value=a.desv||'Nao';
+    document.getElementById('apt-uten').value=a.uten||'Nao';
+    document.getElementById('apt-rec').value=a.rec||'Nao';
+    document.getElementById('apt-obs').value=a.obs||'';
+    // Renderiza produção com valor existente
+    renderAptProd();
+    setTimeout(function(){
+      if(document.getElementById('apt-prod')) document.getElementById('apt-prod').value=a.prod||0;
+      if(document.getElementById('apt-pobs')) document.getElementById('apt-pobs').value=a.pobs||'';
+      calcEfic();
+      // Restaura paradas
+      document.getElementById('paradasList').innerHTML='';
+      pCount=0;
+      (a.paradas||[]).forEach(function(p){
+        addParada();
+        var id2=pCount;
+        setTimeout(function(){
+          if(document.getElementById('p-eq-'+id2)) document.getElementById('p-eq-'+id2).value=p.eq||'';
+          if(document.getElementById('p-tp-'+id2)) document.getElementById('p-tp-'+id2).value=p.tp||'';
+          if(document.getElementById('p-in-'+id2)) document.getElementById('p-in-'+id2).value=p.ini||'';
+          if(document.getElementById('p-fi-'+id2)) document.getElementById('p-fi-'+id2).value=p.fim||'';
+          if(document.getElementById('p-ds-'+id2)) document.getElementById('p-ds-'+id2).value=p.ds||'';
+          if(document.getElementById('p-os-'+id2)) document.getElementById('p-os-'+id2).value=p.os||'';
+        },50);
+      });
+      // Restaura dificuldades
+      document.getElementById('dificuldadesList').innerHTML='';
+      dCount=0;
+      (a.difs||[]).forEach(function(d){
+        addDific();
+        var id3=dCount;
+        setTimeout(function(){
+          if(document.getElementById('d-tp-'+id3)) document.getElementById('d-tp-'+id3).value=d.tp||'';
+          if(document.getElementById('d-ds-'+id3)) document.getElementById('d-ds-'+id3).value=d.ds||'';
+        },50);
+      });
+    },100);
+    // Remove o apontamento antigo para ser substituído pelo novo
+    apts=apts.filter(function(x){return x.id!==id;});
+    localStorage.setItem('v1_apts',JSON.stringify(apts));
+    toast('Apontamento carregado para edicao — salve para confirmar!','w');
+  },100);
 }
 
 function verDet(id){
