@@ -162,42 +162,67 @@
 
 <!-- OP DO DIA -->
 <div id="page-op">
-  <div class="section-title">OP do Dia <span class="sub">Defina a quantidade planejada por setor</span></div>
+  <div class="section-title">OP Semanal <span class="sub">Planejamento até 1 semana à frente · Distribuição automática por turno</span></div>
 
+  <!-- SELETOR DE SEMANA -->
   <div class="card">
-    <div class="grid-3">
-      <div class="form-group">
-        <label class="form-label">Data</label>
-        <input type="date" id="op-data" class="form-control" onchange="renderOPRows()">
+    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Semana — Selecione qualquer dia</label>
+        <input type="date" id="op-semana" class="form-control" style="width:180px;" onchange="renderOPSemana()">
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin:0;">
         <label class="form-label">Nº da OP / Referência</label>
-        <input type="text" id="op-ref" class="form-control" placeholder="Ex: OP-2026-001">
+        <input type="text" id="op-ref" class="form-control" style="width:180px;" placeholder="Ex: OP-2026-001">
       </div>
-      <div class="form-group">
-        <label class="form-label">Responsável / Planejador</label>
-        <input type="text" id="op-resp" class="form-control" placeholder="Nome">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Responsável</label>
+        <input type="text" id="op-resp" class="form-control" style="width:180px;" placeholder="Nome">
       </div>
     </div>
+    <!-- NAVEGAÇÃO DE DIAS DA SEMANA -->
+    <div id="opDiasNav" style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title">📦 Planejamento por Setor</div>
-    <div class="op-row" style="border-bottom:2px solid var(--green);margin-bottom:4px;">
+  <!-- TABELA DE OP DO DIA SELECIONADO -->
+  <div class="card" id="opCardDia">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div class="card-title" style="margin:0;" id="opDiaTitulo">📦 Selecione um dia acima</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="copiarOPDiaAnterior()">↺ Copiar dia anterior</button>
+        <button class="btn btn-primary btn-sm" onclick="salvarOPDia()">✓ Salvar dia</button>
+        <button class="btn btn-primary" onclick="salvarOPSemana()">✓ Salvar Semana Toda</button>
+      </div>
+    </div>
+
+    <!-- CABEÇALHO -->
+    <div style="display:grid;grid-template-columns:160px 70px 1fr 1fr 1fr 1fr 90px 60px;gap:8px;border-bottom:2px solid var(--green);padding-bottom:8px;margin-bottom:4px;">
       <div class="form-label" style="margin:0;">Setor</div>
       <div class="form-label" style="margin:0;">Unid.</div>
       <div class="form-label" style="margin:0;text-align:center;">Meta Total</div>
-      <div class="form-label" style="margin:0;text-align:center;">Meta T1</div>
-      <div class="form-label" style="margin:0;text-align:center;">Meta T2</div>
-      <div class="form-label" style="margin:0;text-align:center;">Meta T3</div>
-      <div class="form-label" style="margin:0;text-align:center;">Cap. Máxima</div>
+      <div class="form-label" style="margin:0;text-align:center;">T1 — Manhã</div>
+      <div class="form-label" style="margin:0;text-align:center;">T2 — Tarde</div>
+      <div class="form-label" style="margin:0;text-align:center;">T3 — Noite</div>
+      <div class="form-label" style="margin:0;text-align:center;">Cap. Máx.</div>
       <div class="form-label" style="margin:0;text-align:center;">Ativo</div>
     </div>
     <div id="opSetoresRows"></div>
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="salvarOP()">✓ Salvar OP</button>
-      <button class="btn btn-secondary btn-sm" onclick="carregarOPData()">↺ Carregar Salvo</button>
+
+    <!-- LEGENDA -->
+    <div style="margin-top:12px;font-size:11px;color:var(--text3);display:flex;gap:16px;flex-wrap:wrap;">
+      <span>💡 Digite o Total → T1/T2/T3 distribuem proporcionalmente</span>
+      <span>💡 Digite T1+T2 → T3 calcula o restante automaticamente</span>
+      <span>💡 Digite qualquer turno → Total atualiza</span>
     </div>
+  </div>
+
+  <!-- RESUMO DA SEMANA -->
+  <div class="card">
+    <div class="card-title">📅 Resumo da Semana</div>
+    <div id="opResumoSemana">
+      <div class="empty-state"><div class="icon">📅</div><p>Selecione uma semana acima</p></div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -606,6 +631,10 @@ function init(){
   if(cfg.sheets) document.getElementById('cfg-sheets').value=cfg.sheets;
   if(cfg.demanda) document.getElementById('cfg-demanda').value=cfg.demanda;
   document.getElementById('perf-data').value=today();
+  document.getElementById('op-semana').value=today();
+  opDiaSelecionado=today();
+  renderOPSemana();
+  renderOPDia();
   renderOPRows();
   renderAptSetor();
   renderConfigSetores();
@@ -639,59 +668,219 @@ function showPage(p,btn){
 }
 
 // OP
-function renderOPRows(){
-  const data=document.getElementById('op-data').value;
-  const op=ops.find(o=>o.data===data)||{s:{}};
-  document.getElementById('opSetoresRows').innerHTML=setores.map(s=>{
-    const d=op.s?.[s.id]||{};
-    return `<div class="op-row">
-      <div style="font-size:13px;font-weight:600;">${s.nome}</div>
-      <div class="op-unid">${s.unid}</div>
-      <input type="number" class="form-control" id="op-tot-${s.id}" placeholder="Total" min="0" value="${d.tot||''}" oninput="distrib('${s.id}')">
-      <input type="number" class="form-control" id="op-t1-${s.id}"  placeholder="T1"    min="0" value="${d.t1||''}">
-      <input type="number" class="form-control" id="op-t2-${s.id}"  placeholder="T2"    min="0" value="${d.t2||''}">
-      <input type="number" class="form-control" id="op-t3-${s.id}"  placeholder="T3"    min="0" value="${d.t3||''}">
-      <input type="number" class="form-control" id="op-cap-${s.id}" placeholder="Cap."  min="0" value="${d.cap||''}">
-      <div style="text-align:center;"><input type="checkbox" id="op-at-${s.id}" ${d.ativo!==false?'checked':''} style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;"></div>
-    </div>`;
+// ===== OP SEMANAL =====
+let opDiaSelecionado = null;
+
+function getSegundaDaSemana(data) {
+  const d = new Date(data + 'T12:00:00');
+  const dia = d.getDay();
+  const diff = dia === 0 ? -6 : 1 - dia;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function renderOPSemana() {
+  const val = document.getElementById('op-semana').value;
+  if (!val) return;
+  const seg = getSegundaDaSemana(val);
+  const diasNomes = ['seg.','ter.','qua.','qui.','sex.','sáb.','dom.'];
+  const nav = document.getElementById('opDiasNav');
+  nav.innerHTML = '';
+
+  // Limita a semana atual e próxima (hoje + 7 dias)
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const limite = new Date(hoje); limite.setDate(limite.getDate() + 7);
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(seg);
+    d.setDate(d.getDate() + i);
+    const dk = d.toISOString().split('T')[0];
+    const op = ops.find(o => o.data === dk);
+    const temOP = op && Object.keys(op.s||{}).some(id => (op.s[id].tot||0) > 0);
+    const isHoje = dk === today();
+    const isSelecionado = dk === opDiaSelecionado;
+    const btn = document.createElement('button');
+    btn.style.cssText = 'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;border:2px solid ' +
+      (isSelecionado ? 'var(--green)' : isHoje ? 'var(--yellow)' : 'var(--border2)') +
+      ';background:' + (isSelecionado ? 'var(--green-glow)' : 'var(--bg3)') +
+      ';color:' + (isSelecionado ? 'var(--green)' : isHoje ? 'var(--yellow)' : 'var(--text2)') +
+      ';padding:10px 14px;border-radius:3px;cursor:pointer;position:relative;';
+    btn.innerHTML = diasNomes[i] + '<br><span style="font-size:10px;font-weight:400;">' + fmtD(dk) + '</span>' +
+      (temOP ? '<span style="position:absolute;top:4px;right:4px;width:6px;height:6px;background:var(--green);border-radius:50%;"></span>' : '');
+    btn.onclick = (function(dk2) { return function() { opDiaSelecionado = dk2; renderOPDia(); renderOPSemana(); }; })(dk);
+    nav.appendChild(btn);
+  }
+
+  renderOPResumoSemana(seg);
+}
+
+function renderOPDia() {
+  const dk = opDiaSelecionado;
+  if (!dk) return;
+  const op = ops.find(o => o.data === dk) || {s:{}};
+  const d = new Date(dk + 'T12:00:00');
+  const diasNomes = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  document.getElementById('opDiaTitulo').textContent = '📦 ' + diasNomes[d.getDay()] + ' — ' + fmtD(dk);
+
+  document.getElementById('opSetoresRows').innerHTML = setores.map(s => {
+    const sd = op.s?.[s.id] || {};
+    return '<div style="display:grid;grid-template-columns:160px 70px 1fr 1fr 1fr 1fr 90px 60px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">' +
+      '<div style="font-size:13px;font-weight:600;">' + s.nome + '</div>' +
+      '<div class="op-unid">' + s.unid + '</div>' +
+      '<input type="number" class="form-control" id="op-tot-' + s.id + '" placeholder="Total" min="0" value="' + (sd.tot||'') + '" oninput="opTotalChange('' + s.id + '')">' +
+      '<input type="number" class="form-control" id="op-t1-' + s.id + '"  placeholder="T1" min="0" value="' + (sd.t1||'') + '" oninput="opTurnoChange('' + s.id + '',1)">' +
+      '<input type="number" class="form-control" id="op-t2-' + s.id + '"  placeholder="T2" min="0" value="' + (sd.t2||'') + '" oninput="opTurnoChange('' + s.id + '',2)">' +
+      '<input type="number" class="form-control" id="op-t3-' + s.id + '"  placeholder="T3" min="0" value="' + (sd.t3||'') + '" oninput="opTurnoChange('' + s.id + '',3)">' +
+      '<input type="number" class="form-control" id="op-cap-' + s.id + '" placeholder="Cap." min="0" value="' + (sd.cap||'') + '">' +
+      '<div style="text-align:center;"><input type="checkbox" id="op-at-' + s.id + '" ' + (sd.ativo!==false?'checked':'') + ' style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;"></div>' +
+      '</div>';
   }).join('');
 }
 
-function distrib(id){
-  const tot=Number(document.getElementById('op-tot-'+id).value)||0;
-  const p=Math.round(tot/3);
-  document.getElementById('op-t1-'+id).value=p;
-  document.getElementById('op-t2-'+id).value=p;
-  document.getElementById('op-t3-'+id).value=tot-p*2;
+// Total muda → distribui proporcionalmente entre T1/T2/T3
+function opTotalChange(id) {
+  const tot = Number(document.getElementById('op-tot-' + id).value) || 0;
+  const t1 = Number(document.getElementById('op-t1-' + id).value) || 0;
+  const t2 = Number(document.getElementById('op-t2-' + id).value) || 0;
+  const t3 = Number(document.getElementById('op-t3-' + id).value) || 0;
+  const somaTurnos = t1 + t2 + t3;
+
+  if (somaTurnos === 0) {
+    // Nenhum turno preenchido — distribui igual
+    const p = Math.round(tot / 3);
+    document.getElementById('op-t1-' + id).value = p;
+    document.getElementById('op-t2-' + id).value = p;
+    document.getElementById('op-t3-' + id).value = tot - p * 2;
+  } else {
+    // Distribui proporcionalmente mantendo as proporções atuais
+    const novoT1 = Math.round(tot * t1 / somaTurnos);
+    const novoT2 = Math.round(tot * t2 / somaTurnos);
+    const novoT3 = tot - novoT1 - novoT2;
+    document.getElementById('op-t1-' + id).value = novoT1 || '';
+    document.getElementById('op-t2-' + id).value = novoT2 || '';
+    document.getElementById('op-t3-' + id).value = novoT3 >= 0 ? novoT3 : 0;
+  }
 }
 
-function salvarOP(){
-  const data=document.getElementById('op-data').value;
-  if(!data){toast('Selecione a data!','error');return;}
-  const s={};
-  setores.forEach(x=>{
-    s[x.id]={
-      tot: Number(document.getElementById('op-tot-'+x.id)?.value)||0,
-      t1:  Number(document.getElementById('op-t1-'+x.id)?.value)||0,
-      t2:  Number(document.getElementById('op-t2-'+x.id)?.value)||0,
-      t3:  Number(document.getElementById('op-t3-'+x.id)?.value)||0,
-      cap: Number(document.getElementById('op-cap-'+x.id)?.value)||0,
-      ativo: document.getElementById('op-at-'+x.id)?.checked!==false
+// Turno muda → recalcula total e o turno restante
+function opTurnoChange(id, turnoAlterado) {
+  const t1 = Number(document.getElementById('op-t1-' + id).value) || 0;
+  const t2 = Number(document.getElementById('op-t2-' + id).value) || 0;
+  const t3 = Number(document.getElementById('op-t3-' + id).value) || 0;
+  const tot = Number(document.getElementById('op-tot-' + id).value) || 0;
+  const soma = t1 + t2 + t3;
+
+  // Atualiza total
+  document.getElementById('op-tot-' + id).value = soma || '';
+
+  // Se total estava definido e dois turnos estão preenchidos, calcula o terceiro
+  if (tot > 0) {
+    if (turnoAlterado === 1 && t2 > 0 && t3 === 0) {
+      const resto = Math.max(0, tot - t1 - t2);
+      document.getElementById('op-t3-' + id).value = resto || '';
+      document.getElementById('op-tot-' + id).value = tot;
+    } else if (turnoAlterado === 2 && t1 > 0 && t3 === 0) {
+      const resto = Math.max(0, tot - t1 - t2);
+      document.getElementById('op-t3-' + id).value = resto || '';
+      document.getElementById('op-tot-' + id).value = tot;
+    } else if (turnoAlterado === 3 && t1 > 0 && t2 > 0) {
+      document.getElementById('op-tot-' + id).value = soma || '';
+    }
+  }
+}
+
+function coletarOPDia() {
+  const s = {};
+  setores.forEach(x => {
+    s[x.id] = {
+      tot: Number(document.getElementById('op-tot-' + x.id)?.value) || 0,
+      t1:  Number(document.getElementById('op-t1-' + x.id)?.value)  || 0,
+      t2:  Number(document.getElementById('op-t2-' + x.id)?.value)  || 0,
+      t3:  Number(document.getElementById('op-t3-' + x.id)?.value)  || 0,
+      cap: Number(document.getElementById('op-cap-' + x.id)?.value) || 0,
+      ativo: document.getElementById('op-at-' + x.id)?.checked !== false
     };
   });
-  ops=ops.filter(o=>o.data!==data);
-  ops.push({data,ref:document.getElementById('op-ref').value,resp:document.getElementById('op-resp').value,s,ts:new Date().toISOString()});
-  localStorage.setItem('v1_ops',JSON.stringify(ops));
-  toast('OP salva!');
+  return s;
 }
 
-function carregarOPData(){
-  const data=document.getElementById('op-data').value;
-  const op=ops.find(o=>o.data===data);
-  if(op){document.getElementById('op-ref').value=op.ref||'';document.getElementById('op-resp').value=op.resp||'';}
-  renderOPRows();
-  toast(op?'OP carregada!':'Sem OP para esta data','warning');
+function salvarOPDia() {
+  if (!opDiaSelecionado) { toast('Selecione um dia!', 'error'); return; }
+  const s = coletarOPDia();
+  ops = ops.filter(o => o.data !== opDiaSelecionado);
+  ops.push({
+    data: opDiaSelecionado,
+    ref:  document.getElementById('op-ref').value,
+    resp: document.getElementById('op-resp').value,
+    s, ts: new Date().toISOString()
+  });
+  localStorage.setItem('v1_ops', JSON.stringify(ops));
+  renderOPSemana();
+  toast('OP de ' + fmtD(opDiaSelecionado) + ' salva!');
 }
+
+function salvarOPSemana() {
+  if (!opDiaSelecionado) { toast('Selecione um dia da semana primeiro!', 'error'); return; }
+  salvarOPDia();
+  renderOPResumoSemana(getSegundaDaSemana(opDiaSelecionado.slice(0,10)));
+  toast('Semana salva!');
+}
+
+function copiarOPDiaAnterior() {
+  if (!opDiaSelecionado) { toast('Selecione um dia!', 'error'); return; }
+  const d = new Date(opDiaSelecionado + 'T12:00:00');
+  d.setDate(d.getDate() - 1);
+  const dkAnterior = d.toISOString().split('T')[0];
+  const opAnterior = ops.find(o => o.data === dkAnterior);
+  if (!opAnterior) { toast('Sem OP no dia anterior', 'warning'); return; }
+
+  // Copia valores para os campos
+  setores.forEach(x => {
+    const sd = opAnterior.s?.[x.id] || {};
+    if (document.getElementById('op-tot-' + x.id)) document.getElementById('op-tot-' + x.id).value = sd.tot || '';
+    if (document.getElementById('op-t1-' + x.id))  document.getElementById('op-t1-' + x.id).value  = sd.t1  || '';
+    if (document.getElementById('op-t2-' + x.id))  document.getElementById('op-t2-' + x.id).value  = sd.t2  || '';
+    if (document.getElementById('op-t3-' + x.id))  document.getElementById('op-t3-' + x.id).value  = sd.t3  || '';
+    if (document.getElementById('op-cap-' + x.id)) document.getElementById('op-cap-' + x.id).value = sd.cap || '';
+  });
+  toast('OP de ' + fmtD(dkAnterior) + ' copiada!');
+}
+
+function renderOPResumoSemana(seg) {
+  const container = document.getElementById('opResumoSemana');
+  const diasNomes = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let html = '<div style="overflow-x:auto;"><table class="prod-table"><thead><tr><th>Setor</th>';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(seg); d.setDate(d.getDate() + i);
+    const dk = d.toISOString().split('T')[0];
+    const isHoje = dk === today();
+    html += '<th style="' + (isHoje ? 'color:var(--yellow)' : '') + '">' + diasNomes[d.getDay()] + '<br><span style="font-size:10px;font-weight:400;">' + fmtD(dk) + '</span></th>';
+  }
+  html += '<th>Total Semana</th></tr></thead><tbody>';
+
+  setores.forEach(s => {
+    html += '<tr><td>' + s.nome + ' <span class="op-unid">' + s.unid + '</span></td>';
+    let totalSemana = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(seg); d.setDate(d.getDate() + i);
+      const dk = d.toISOString().split('T')[0];
+      const op = ops.find(o => o.data === dk);
+      const tot = op?.s?.[s.id]?.tot || 0;
+      totalSemana += tot;
+      html += '<td style="' + (tot > 0 ? 'color:var(--green);font-weight:600;' : 'color:var(--text3);') + '">' + (tot > 0 ? tot.toLocaleString('pt-BR') : '—') + '</td>';
+    }
+    html += '<td style="font-weight:700;color:var(--green);">' + (totalSemana > 0 ? totalSemana.toLocaleString('pt-BR') : '—') + '</td></tr>';
+  });
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+// Mantém compatibilidade com o restante do app
+function renderOPRows() { renderOPDia(); }
+function distrib(id) { opTotalChange(id); }
+function salvarOP() { salvarOPDia(); }
+function carregarOPData() { renderOPDia(); }
 
 function getMetaTurno(data,sid,turno){
   const op=ops.find(o=>o.data===data);
