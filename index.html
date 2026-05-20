@@ -4,1654 +4,1177 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>V1 — Apontamentos Liv Up</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green:#00C853; --green-dim:#00a844; --green-glow:rgba(0,200,83,0.15);
-    --orange:#FF6D00; --red:#FF1744; --yellow:#FFD600; --blue:#2979FF;
-    --bg:#0a0e0a; --bg2:#111611; --bg3:#182018;
-    --card:#1a201a; --card2:#202820;
-    --border:#2a342a; --border2:#334033;
-    --text:#e8f0e8; --text2:#9aaa9a; --text3:#5a6a5a;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000;}
-
-  header{background:var(--bg2);border-bottom:2px solid var(--green);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 0 30px rgba(0,200,83,0.1);}
-  .logo-badge{background:var(--green);color:#000;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;padding:4px 12px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
-  .header-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:3px;text-transform:uppercase;}
-  .header-title span{color:var(--green);}
-  .clock{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--green);letter-spacing:2px;}
-  .date-display{font-size:12px;color:var(--text2);letter-spacing:1px;}
-
-  nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;}
-  nav::-webkit-scrollbar{display:none;}
-  .nav-btn{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);background:transparent;border:none;border-bottom:3px solid transparent;padding:14px 20px;cursor:pointer;white-space:nowrap;transition:all .2s;}
-  .nav-btn:hover{color:var(--text);background:var(--bg3);}
-  .nav-btn.active{color:var(--green);border-bottom-color:var(--green);background:var(--green-glow);}
-
-  main{padding:24px;max-width:1500px;margin:0 auto;}
-
-  .section-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
-  .section-title::before{content:'';width:4px;height:26px;background:var(--green);display:inline-block;}
-  .section-title .sub{font-size:13px;font-weight:400;color:var(--text2);letter-spacing:1px;}
-
-  .card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;position:relative;overflow:hidden;margin-bottom:16px;}
-  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent);}
-  .card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:16px;}
-
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-  .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
-
-  .form-group{margin-bottom:14px;}
-  .form-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px;}
-  .form-control{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:9px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);transition:border-color .2s,box-shadow .2s;outline:none;}
-  .form-control:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow);}
-  .form-control option{background:var(--bg3);}
-  textarea.form-control{resize:vertical;min-height:70px;}
-
-  .btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:3px;padding:11px 22px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
-  .btn-primary{background:var(--green);color:#000;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
-  .btn-primary:hover{background:#00e065;transform:translateY(-1px);}
-  .btn-secondary{background:transparent;color:var(--text2);border:1px solid var(--border2);}
-  .btn-secondary:hover{border-color:var(--green);color:var(--green);}
-  .btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);}
-  .btn-danger:hover{background:rgba(255,23,68,0.1);}
-  .btn-warning{background:var(--orange);color:#000;}
-  .btn-sm{padding:7px 14px;font-size:11px;}
-
-  .badge{display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:2px;}
-  .badge-green{background:rgba(0,200,83,0.15);color:var(--green);border:1px solid rgba(0,200,83,0.3);}
-  .badge-orange{background:rgba(255,109,0,0.15);color:var(--orange);border:1px solid rgba(255,109,0,0.3);}
-  .badge-red{background:rgba(255,23,68,0.15);color:var(--red);border:1px solid rgba(255,23,68,0.3);}
-  .badge-yellow{background:rgba(255,214,0,0.15);color:var(--yellow);border:1px solid rgba(255,214,0,0.3);}
-  .badge-blue{background:rgba(41,121,255,0.15);color:var(--blue);border:1px solid rgba(41,121,255,0.3);}
-  .badge-gray{background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--border);}
-
-  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;position:relative;overflow:hidden;}
-  .kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
-  .kpi-card.green::after{background:var(--green);}
-  .kpi-card.orange::after{background:var(--orange);}
-  .kpi-card.red::after{background:var(--red);}
-  .kpi-card.yellow::after{background:var(--yellow);}
-  .kpi-card.blue::after{background:var(--blue);}
-  .kpi-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
-  .kpi-value{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;line-height:1;color:var(--text);}
-  .kpi-sub{font-size:11px;color:var(--text2);margin-top:4px;}
-
-  .prod-table{width:100%;border-collapse:collapse;}
-  .prod-table thead tr{border-bottom:2px solid var(--green);}
-  .prod-table th{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px;text-align:center;}
-  .prod-table th:first-child{text-align:left;}
-  .prod-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
-  .prod-table tbody tr:hover{background:var(--card2);}
-  .prod-table td{padding:10px;font-size:13px;color:var(--text);text-align:center;vertical-align:middle;}
-  .prod-table td:first-child{text-align:left;font-weight:600;}
-  .prod-table .total-row td{color:var(--green);font-weight:700;background:rgba(0,200,83,0.05);}
-
-  .parada-item{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:3px;padding:14px;margin-bottom:10px;}
-  .dificuldade-item{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--yellow);border-radius:3px;padding:14px;margin-bottom:10px;}
-
-  .op-row{display:grid;grid-template-columns:160px 80px 120px 110px 110px 110px 110px 70px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
-  .op-unid{font-size:11px;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;}
-
-  .divider{height:1px;background:var(--border);margin:20px 0;}
-  .table-wrap{overflow-x:auto;}
-
-  table.hist{width:100%;border-collapse:collapse;}
-  table.hist thead tr{border-bottom:2px solid var(--green);}
-  table.hist th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:9px 10px;text-align:left;}
-  table.hist tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
-  table.hist tbody tr:hover{background:var(--card2);}
-  table.hist td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
-
-  .progress-bar-wrap{background:var(--bg3);border-radius:2px;height:5px;overflow:hidden;margin-top:5px;}
-  .progress-bar{height:100%;border-radius:2px;transition:width .5s;}
-  .progress-bar.green{background:var(--green);}
-  .progress-bar.orange{background:var(--orange);}
-  .progress-bar.red{background:var(--red);}
-
-  .empty-state{text-align:center;padding:40px 24px;color:var(--text3);}
-  .empty-state .icon{font-size:40px;margin-bottom:10px;}
-
-  .hidden{display:none!important;}
-
-  #toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
-  .toast-msg{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:12px 20px;font-size:13px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:slideIn .3s ease;}
-  .toast-msg.error{border-left-color:var(--red);}
-  .toast-msg.warning{border-left-color:var(--orange);}
-  @keyframes slideIn{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;}
-  .modal-box{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--green);border-radius:4px;padding:24px;max-width:800px;width:92%;max-height:88vh;overflow-y:auto;}
-
-  @media(max-width:1100px){.op-row{grid-template-columns:130px 70px repeat(5,95px) 60px;}}
-  @media(max-width:900px){.grid-4,.grid-5{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr 1fr;}}
-  @media(max-width:600px){main{padding:12px;}.grid-2,.grid-3,.grid-4,.grid-5{grid-template-columns:1fr;}}
+:root{
+  --green:#00C853;--green-glow:rgba(0,200,83,0.15);
+  --orange:#FF6D00;--red:#FF1744;--yellow:#FFD600;--blue:#2979FF;
+  --bg:#0a0e0a;--bg2:#111611;--bg3:#182018;
+  --card:#1a201a;--card2:#202820;
+  --border:#2a342a;--border2:#334033;
+  --text:#e8f0e8;--text2:#9aaa9a;--text3:#5a6a5a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:var(--bg2);border-bottom:2px solid var(--green);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;}
+.logo{background:var(--green);color:#000;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;padding:3px 11px;letter-spacing:2px;clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);}
+.htitle{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:21px;letter-spacing:3px;text-transform:uppercase;margin-left:14px;}
+.htitle span{color:var(--green);}
+.clock{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:600;color:var(--green);letter-spacing:2px;}
+.ddate{font-size:11px;color:var(--text2);}
+nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+.nb{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);background:transparent;border:none;border-bottom:3px solid transparent;padding:13px 18px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.nb:hover{color:var(--text);background:var(--bg3);}
+.nb.active{color:var(--green);border-bottom-color:var(--green);background:var(--green-glow);}
+main{padding:20px;max-width:1500px;margin:0 auto;}
+.stitle{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.stitle::before{content:'';width:4px;height:24px;background:var(--green);display:inline-block;}
+.stitle .sub{font-size:12px;font-weight:400;color:var(--text2);letter-spacing:1px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px;position:relative;overflow:hidden;margin-bottom:14px;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent);}
+.ctitle{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:14px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.fg{margin-bottom:12px;}
+.fl{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px;}
+.fc{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:8px 11px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+.fc:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow);}
+.fc option{background:var(--bg3);}
+textarea.fc{resize:vertical;min-height:65px;}
+.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:3px;padding:10px 20px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;}
+.btn-p{background:var(--green);color:#000;clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);}
+.btn-p:hover{background:#00e065;}
+.btn-s{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-s:hover{border-color:var(--green);color:var(--green);}
+.btn-d{background:transparent;color:var(--red);border:1px solid var(--red);}
+.btn-w{background:var(--orange);color:#000;}
+.btn-sm{padding:6px 12px;font-size:11px;}
+.badge{display:inline-flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:2px;}
+.bg{background:rgba(0,200,83,0.12);color:var(--green);border:1px solid rgba(0,200,83,0.3);}
+.bo{background:rgba(255,109,0,0.12);color:var(--orange);border:1px solid rgba(255,109,0,0.3);}
+.br{background:rgba(255,23,68,0.12);color:var(--red);border:1px solid rgba(255,23,68,0.3);}
+.by{background:rgba(255,214,0,0.12);color:var(--yellow);border:1px solid rgba(255,214,0,0.3);}
+.bb{background:rgba(41,121,255,0.12);color:var(--blue);border:1px solid rgba(41,121,255,0.3);}
+.bgr{background:rgba(255,255,255,0.04);color:var(--text2);border:1px solid var(--border);}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.kpi.g::after{background:var(--green);}
+.kpi.o::after{background:var(--orange);}
+.kpi.r::after{background:var(--red);}
+.kpi.y::after{background:var(--yellow);}
+.kpi.b::after{background:var(--blue);}
+.kl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.kv{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;line-height:1;}
+.ks{font-size:11px;color:var(--text2);margin-top:3px;}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:2px solid var(--green);}
+th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:9px 10px;text-align:left;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
+tbody tr:hover{background:var(--card2);}
+td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
+.pbw{background:var(--bg3);border-radius:2px;height:5px;overflow:hidden;margin-top:5px;}
+.pb{height:100%;border-radius:2px;transition:width .5s;}
+.pb.g{background:var(--green);}
+.pb.o{background:var(--orange);}
+.pb.r{background:var(--red);}
+.es{text-align:center;padding:36px 20px;color:var(--text3);}
+.es .ei{font-size:36px;margin-bottom:8px;}
+.hidden{display:none!important;}
+#toast{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;}
+.tm{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:3px;padding:10px 18px;font-size:13px;color:var(--text);box-shadow:0 4px 18px rgba(0,0,0,0.4);animation:sli .3s ease;}
+.tm.e{border-left-color:var(--red);}
+.tm.w{border-left-color:var(--orange);}
+@keyframes sli{from{transform:translateX(36px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;}
+.mb{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--green);border-radius:4px;padding:22px;max-width:780px;width:92%;max-height:88vh;overflow-y:auto;}
+.oprow{display:grid;grid-template-columns:150px 65px 1fr 1fr 1fr 1fr 85px 55px;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.ounid{font-size:10px;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.pi{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:3px;padding:12px;margin-bottom:9px;}
+.di{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--yellow);border-radius:3px;padding:12px;margin-bottom:9px;}
+.ptable{width:100%;border-collapse:collapse;}
+.ptable thead tr{border-bottom:2px solid var(--green);}
+.ptable th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:9px;text-align:center;}
+.ptable th:first-child{text-align:left;}
+.ptable tbody tr{border-bottom:1px solid var(--border);}
+.ptable tbody tr:hover{background:var(--card2);}
+.ptable td{padding:9px;font-size:13px;text-align:center;vertical-align:middle;}
+.ptable td:first-child{text-align:left;font-weight:600;}
+.ptable .tr td{color:var(--green);font-weight:700;background:rgba(0,200,83,0.05);}
+@media(max-width:900px){.g4,.g5{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){main{padding:10px;}.g2,.g3,.g4,.g5{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-
 <header>
-  <div style="display:flex;align-items:center;gap:16px;">
-    <div class="logo-badge">LIV UP</div>
+  <div style="display:flex;align-items:center;">
+    <div class="logo">LIV UP</div>
     <div>
-      <div class="header-title">V<span>1</span> — APONTAMENTOS</div>
-      <div class="date-display" id="dateDisplay"></div>
+      <div class="htitle" style="margin-left:14px;">V<span>1</span> — APONTAMENTOS</div>
+      <div class="ddate" style="margin-left:14px;" id="dd"></div>
     </div>
   </div>
-  <div style="text-align:right;">
-    <div class="clock" id="clock">--:--:--</div>
-  </div>
+  <div style="text-align:right;"><div class="clock" id="ck">--:--:--</div></div>
 </header>
-
 <nav>
-  <button class="nav-btn active" onclick="showPage('op',this)">📋 OP do Dia</button>
-  <button class="nav-btn" onclick="showPage('apontamento',this)">✏️ Apontamento</button>
-  <button class="nav-btn" onclick="showPage('consolidado',this)">📊 Consolidado</button>
-  <button class="nav-btn" onclick="showPage('historico',this)">📁 Histórico</button>
-  <button class="nav-btn" onclick="showPage('dashboard',this)">📈 Dashboard</button>
-  <button class="nav-btn" onclick="showPage('performance',this)">📉 Performance</button>
-  <button class="nav-btn" onclick="showPage('config',this)">⚙️ Config</button>
+  <button class="nb active" onclick="pg('op',this)">📋 OP Semanal</button>
+  <button class="nb" onclick="pg('apt',this)">✏️ Apontamento</button>
+  <button class="nb" onclick="pg('cons',this)">📊 Consolidado</button>
+  <button class="nb" onclick="pg('hist',this)">📁 Histórico</button>
+  <button class="nb" onclick="pg('dash',this)">📈 Dashboard</button>
+  <button class="nb" onclick="pg('perf',this)">📉 Performance</button>
+  <button class="nb" onclick="pg('cfg',this)">⚙️ Config</button>
 </nav>
-
 <main>
 
-<!-- OP DO DIA -->
+<!-- OP SEMANAL -->
 <div id="page-op">
-  <div class="section-title">OP Semanal <span class="sub">Planejamento até 1 semana à frente · Distribuição automática por turno</span></div>
-
-  <!-- SELETOR DE SEMANA -->
+  <div class="stitle">OP Semanal <span class="sub">Planejamento até 1 semana à frente · Distribuição automática por turno</span></div>
   <div class="card">
-    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Semana — Selecione qualquer dia</label>
-        <input type="date" id="op-semana" class="form-control" style="width:180px;" onchange="renderOPSemana()">
-      </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Nº da OP / Referência</label>
-        <input type="text" id="op-ref" class="form-control" style="width:180px;" placeholder="Ex: OP-2026-001">
-      </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Responsável</label>
-        <input type="text" id="op-resp" class="form-control" style="width:180px;" placeholder="Nome">
-      </div>
+    <div class="g3">
+      <div class="fg"><label class="fl">Semana — Selecione qualquer dia</label>
+        <input type="date" id="op-semana" class="fc" onchange="renderOPSemana()"></div>
+      <div class="fg"><label class="fl">Nº da OP / Referência</label>
+        <input type="text" id="op-ref" class="fc" placeholder="Ex: OP-2026-001"></div>
+      <div class="fg"><label class="fl">Responsável</label>
+        <input type="text" id="op-resp" class="fc" placeholder="Nome"></div>
     </div>
-    <!-- NAVEGAÇÃO DE DIAS DA SEMANA -->
-    <div id="opDiasNav" style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;"></div>
   </div>
-
-  <!-- TABELA DE OP DO DIA SELECIONADO -->
-  <div class="card" id="opCardDia">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-      <div class="card-title" style="margin:0;" id="opDiaTitulo">📦 Selecione um dia acima</div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-secondary btn-sm" onclick="copiarOPDiaAnterior()">↺ Copiar dia anterior</button>
-        <button class="btn btn-primary btn-sm" onclick="salvarOPDia()">✓ Salvar dia</button>
-        <button class="btn btn-primary" onclick="salvarOPSemana()">✓ Salvar Semana Toda</button>
-      </div>
-    </div>
-
-    <!-- CABEÇALHO -->
-    <div style="display:grid;grid-template-columns:160px 70px 1fr 1fr 1fr 1fr 90px 60px;gap:8px;border-bottom:2px solid var(--green);padding-bottom:8px;margin-bottom:4px;">
-      <div class="form-label" style="margin:0;">Setor</div>
-      <div class="form-label" style="margin:0;">Unid.</div>
-      <div class="form-label" style="margin:0;text-align:center;">Meta Total</div>
-      <div class="form-label" style="margin:0;text-align:center;">T1 — Manhã</div>
-      <div class="form-label" style="margin:0;text-align:center;">T2 — Tarde</div>
-      <div class="form-label" style="margin:0;text-align:center;">T3 — Noite</div>
-      <div class="form-label" style="margin:0;text-align:center;">Cap. Máx.</div>
-      <div class="form-label" style="margin:0;text-align:center;">Ativo</div>
+  <!-- Navegação dias da semana -->
+  <div class="card" style="padding:14px;">
+    <div id="opDiasNav" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"></div>
+    <div id="opDiaTitulo" style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;color:var(--text2);margin-bottom:12px;"></div>
+    <!-- Cabeçalho -->
+    <div class="oprow" style="border-bottom:2px solid var(--green);margin-bottom:4px;">
+      <div class="fl" style="margin:0;">Setor</div>
+      <div class="fl" style="margin:0;">Unid.</div>
+      <div class="fl" style="margin:0;text-align:center;">Meta Total</div>
+      <div class="fl" style="margin:0;text-align:center;">T1 Manhã</div>
+      <div class="fl" style="margin:0;text-align:center;">T2 Tarde</div>
+      <div class="fl" style="margin:0;text-align:center;">T3 Noite</div>
+      <div class="fl" style="margin:0;text-align:center;">Cap. Máx.</div>
+      <div class="fl" style="margin:0;text-align:center;">Ativo</div>
     </div>
     <div id="opSetoresRows"></div>
-
-    <!-- LEGENDA -->
-    <div style="margin-top:12px;font-size:11px;color:var(--text3);display:flex;gap:16px;flex-wrap:wrap;">
-      <span>💡 Digite o Total → T1/T2/T3 distribuem proporcionalmente</span>
-      <span>💡 Digite T1+T2 → T3 calcula o restante automaticamente</span>
-      <span>💡 Digite qualquer turno → Total atualiza</span>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-p" onclick="salvarOPDia()">✓ Salvar dia</button>
+      <button class="btn btn-s btn-sm" onclick="copiarOPDiaAnterior()">↩ Copiar dia anterior</button>
+      <span style="font-size:11px;color:var(--text3);">💡 Total → distribui proporcionalmente · T1+T2 → T3 calcula o resto</span>
     </div>
   </div>
-
-  <!-- RESUMO DA SEMANA -->
+  <!-- Resumo semana -->
   <div class="card">
-    <div class="card-title">📅 Resumo da Semana</div>
-    <div id="opResumoSemana">
-      <div class="empty-state"><div class="icon">📅</div><p>Selecione uma semana acima</p></div>
-    </div>
-  </div>
+    <div class="ctitle">📅 Resumo da Semana</div>
+    <div id="opResumoSemana"><div class="es"><div class="ei">📅</div><p>Selecione uma semana acima</p></div></div>
   </div>
 </div>
 
 <!-- APONTAMENTO -->
-<div id="page-apontamento" class="hidden">
-  <div class="section-title">Apontamento de Turno <span class="sub">Produção, paradas e dificuldades</span></div>
-
+<div id="page-apt" class="hidden">
+  <div class="stitle">Apontamento de Turno <span class="sub">Produção, paradas e dificuldades</span></div>
   <div class="card">
-    <div class="card-title">⬡ Identificação</div>
-    <div class="grid-4">
-      <div class="form-group">
-        <label class="form-label">Data</label>
-        <input type="date" id="apt-data" class="form-control" onchange="renderAptProd()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Turno</label>
-        <select id="apt-turno" class="form-control" onchange="renderAptProd()">
+    <div class="ctitle">⬡ Identificação</div>
+    <div class="g4">
+      <div class="fg"><label class="fl">Data</label>
+        <input type="date" id="apt-data" class="fc" onchange="renderAptProd()"></div>
+      <div class="fg"><label class="fl">Turno</label>
+        <select id="apt-turno" class="fc" onchange="renderAptProd()">
           <option value="">— Selecione —</option>
           <option value="T1">Turno 1 — Manhã</option>
           <option value="T2">Turno 2 — Tarde</option>
           <option value="T3">Turno 3 — Noite</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Setor</label>
-        <select id="apt-setor" class="form-control" onchange="renderAptProd()">
-          <option value="">— Selecione —</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Responsável</label>
-        <input type="text" id="apt-resp" class="form-control" placeholder="Supervisor">
-      </div>
+        </select></div>
+      <div class="fg"><label class="fl">Setor</label>
+        <select id="apt-setor" class="fc" onchange="renderAptProd()"><option value="">— Selecione —</option></select></div>
+      <div class="fg"><label class="fl">Responsável</label>
+        <input type="text" id="apt-resp" class="fc" placeholder="Supervisor"></div>
     </div>
   </div>
-
   <div class="card" id="cardAptProd">
-    <div class="card-title">⬡ Produção do Turno</div>
-    <div id="aptProdFields"><p style="color:var(--text2);font-size:13px;">Selecione data, turno e setor acima.</p></div>
+    <div class="ctitle">⬡ Produção do Turno</div>
+    <div id="aptProdF"><p style="color:var(--text2);font-size:13px;">Selecione data, turno e setor.</p></div>
   </div>
-
   <div class="card">
-    <div class="card-title">⬡ Pessoas</div>
-    <div class="grid-4">
-      <div class="form-group">
-        <label class="form-label">Presentes</label>
-        <input type="number" id="apt-presentes" class="form-control" min="0" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Ausências</label>
-        <input type="number" id="apt-ausencias" class="form-control" min="0" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Receitas Atrasadas</label>
-        <input type="number" id="apt-rec-at" class="form-control" min="0" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Receitas Adiantadas</label>
-        <input type="number" id="apt-rec-ad" class="form-control" min="0" placeholder="0">
-      </div>
+    <div class="ctitle">⬡ Pessoas</div>
+    <div class="g4">
+      <div class="fg"><label class="fl">Presentes</label><input type="number" id="apt-pres" class="fc" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">Ausências</label><input type="number" id="apt-aus" class="fc" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">Rec. Atrasadas</label><input type="number" id="apt-rat" class="fc" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">Rec. Adiantadas</label><input type="number" id="apt-rad" class="fc" min="0" placeholder="0"></div>
     </div>
   </div>
-
   <div class="card">
-    <div class="card-title">⬡ Paradas de Maquinário</div>
+    <div class="ctitle">⬡ Paradas de Maquinário</div>
     <div id="paradasList"></div>
-    <button class="btn btn-warning btn-sm" onclick="addParada()">+ Adicionar Parada</button>
+    <button class="btn btn-w btn-sm" onclick="addParada()">+ Adicionar Parada</button>
   </div>
-
   <div class="card">
-    <div class="card-title">⬡ Dificuldades do Turno</div>
-    <div class="grid-3" style="margin-bottom:14px;">
-      <div class="form-group">
-        <label class="form-label">Desvio de Matéria Prima?</label>
-        <select id="apt-desvio" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Falta de Utensílio?</label>
-        <select id="apt-utensilio" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Falta de Recurso?</label>
-        <select id="apt-recurso" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-      </div>
+    <div class="ctitle">⬡ Dificuldades do Turno</div>
+    <div class="g3" style="margin-bottom:12px;">
+      <div class="fg"><label class="fl">Desvio Matéria Prima?</label>
+        <select id="apt-desv" class="fc"><option>Não</option><option>Sim</option></select></div>
+      <div class="fg"><label class="fl">Falta de Utensílio?</label>
+        <select id="apt-uten" class="fc"><option>Não</option><option>Sim</option></select></div>
+      <div class="fg"><label class="fl">Falta de Recurso?</label>
+        <select id="apt-rec" class="fc"><option>Não</option><option>Sim</option></select></div>
     </div>
     <div id="dificuldadesList"></div>
-    <button class="btn btn-secondary btn-sm" onclick="addDificuldade()">+ Adicionar Dificuldade</button>
-    <div class="form-group" style="margin-top:14px;">
-      <label class="form-label">Comentários Gerais</label>
-      <textarea id="apt-obs" class="form-control" placeholder="Observações do turno..."></textarea>
-    </div>
+    <button class="btn btn-s btn-sm" onclick="addDific()">+ Adicionar Dificuldade</button>
+    <div class="fg" style="margin-top:12px;"><label class="fl">Comentários Gerais</label>
+      <textarea id="apt-obs" class="fc" placeholder="Observações do turno..."></textarea></div>
   </div>
-
-  <div style="display:flex;gap:12px;justify-content:flex-end;">
-    <button class="btn btn-secondary" onclick="limparApt()">Limpar</button>
-    <button class="btn btn-primary" onclick="salvarApt()">✓ Salvar Apontamento</button>
+  <div style="display:flex;gap:10px;justify-content:flex-end;">
+    <button class="btn btn-s" onclick="limparApt()">Limpar</button>
+    <button class="btn btn-p" onclick="salvarApt()">✓ Salvar Apontamento</button>
   </div>
 </div>
 
 <!-- CONSOLIDADO -->
-<div id="page-consolidado" class="hidden">
-  <div class="section-title">Consolidado do Dia <span class="sub">Visão geral igual à planilha V1</span></div>
+<div id="page-cons" class="hidden">
+  <div class="stitle">Consolidado do Dia <span class="sub">Visão igual à planilha V1</span></div>
   <div class="card">
-    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Data</label>
-        <input type="date" id="cons-data" class="form-control" style="width:180px;">
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="renderConsolidado()">Gerar</button>
-      <button class="btn btn-secondary btn-sm" onclick="exportConsolidadoCSV()">⬇ Exportar CSV</button>
+    <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;">
+      <div class="fg" style="margin:0;"><label class="fl">Data</label>
+        <input type="date" id="cons-data" class="fc" style="width:170px;"></div>
+      <button class="btn btn-p btn-sm" onclick="renderCons()">Gerar</button>
+      <button class="btn btn-s btn-sm" onclick="expConsCSV()">⬇ CSV</button>
     </div>
   </div>
   <div class="card">
-    <div class="table-wrap">
-      <table class="prod-table">
-        <thead>
-          <tr>
-            <th>Setor</th>
-            <th>T1 Manhã</th>
-            <th>T2 Tarde</th>
-            <th>T3 Noite</th>
-            <th>Total Prod.</th>
-            <th>Meta (OP)</th>
-            <th>Unid.</th>
-            <th>Eficiência</th>
-            <th>Absenteísmo</th>
-            <th>Paradas</th>
-          </tr>
-        </thead>
-        <tbody id="consolidadoBody"></tbody>
+    <div class="tw">
+      <table class="ptable">
+        <thead><tr>
+          <th>Setor</th><th>T1 Manhã</th><th>T2 Tarde</th><th>T3 Noite</th>
+          <th>Total</th><th>Meta (OP)</th><th>Unid.</th><th>Efic%</th>
+          <th>Absenteísmo</th><th>Paradas</th>
+        </tr></thead>
+        <tbody id="consBody"></tbody>
       </table>
     </div>
-    <div id="consolidadoEmpty" class="empty-state hidden">
-      <div class="icon">📊</div><p>Selecione a data e clique em Gerar</p>
-    </div>
+    <div id="consEmpty" class="es hidden"><div class="ei">📊</div><p>Selecione a data e clique Gerar</p></div>
   </div>
 </div>
 
 <!-- HISTÓRICO -->
-<div id="page-historico" class="hidden">
-  <div class="section-title">Histórico <span class="sub">Todos os apontamentos</span></div>
+<div id="page-hist" class="hidden">
+  <div class="stitle">Histórico <span class="sub">Todos os apontamentos</span></div>
   <div class="card">
-    <div class="grid-4">
-      <div class="form-group">
-        <label class="form-label">Data Início</label>
-        <input type="date" id="filt-ini" class="form-control">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Data Fim</label>
-        <input type="date" id="filt-fim" class="form-control">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Setor</label>
-        <select id="filt-setor" class="form-control"><option value="">Todos</option></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Turno</label>
-        <select id="filt-turno" class="form-control">
-          <option value="">Todos</option>
-          <option value="T1">T1 — Manhã</option>
-          <option value="T2">T2 — Tarde</option>
-          <option value="T3">T3 — Noite</option>
-        </select>
-      </div>
+    <div class="g4">
+      <div class="fg"><label class="fl">Data Início</label><input type="date" id="fi" class="fc"></div>
+      <div class="fg"><label class="fl">Data Fim</label><input type="date" id="ff" class="fc"></div>
+      <div class="fg"><label class="fl">Setor</label><select id="fst" class="fc"><option value="">Todos</option></select></div>
+      <div class="fg"><label class="fl">Turno</label>
+        <select id="ftu" class="fc"><option value="">Todos</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select></div>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-primary btn-sm" onclick="filtrarHist()">Filtrar</button>
-      <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">Limpar</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-p btn-sm" onclick="filtHist()">Filtrar</button>
+      <button class="btn btn-s btn-sm" onclick="limFilt()">Limpar</button>
     </div>
   </div>
   <div class="card">
-    <div class="table-wrap">
-      <table class="hist">
-        <thead>
-          <tr>
-            <th>Data</th><th>Turno</th><th>Setor</th><th>Responsável</th>
-            <th>Produzido</th><th>Meta</th><th>Efic%</th>
-            <th>Presentes</th><th>Ausências</th><th>Paradas</th><th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="histBody"></tbody>
-      </table>
-    </div>
-    <div id="histEmpty" class="empty-state hidden">
-      <div class="icon">📂</div><p>Nenhum apontamento encontrado</p>
-    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th>Data</th><th>Turno</th><th>Setor</th><th>Responsável</th>
+        <th>Produzido</th><th>Meta</th><th>Efic%</th>
+        <th>Presentes</th><th>Ausências</th><th>Paradas</th><th>Ações</th>
+      </tr></thead>
+      <tbody id="histBody"></tbody>
+    </table></div>
+    <div id="histEmpty" class="es hidden"><div class="ei">📂</div><p>Nenhum apontamento encontrado</p></div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
-<div id="page-dashboard" class="hidden">
-  <div class="section-title">Dashboard <span class="sub">Visão geral operacional</span></div>
-  <div style="display:flex;gap:10px;align-items:end;margin-bottom:20px;">
-    <div>
-      <label class="form-label">Data</label>
-      <input type="date" id="dash-data" class="form-control" style="width:170px;" onchange="renderDash()">
-    </div>
+<div id="page-dash" class="hidden">
+  <div class="stitle">Dashboard <span class="sub">Visão geral operacional</span></div>
+  <div style="display:flex;gap:10px;align-items:end;margin-bottom:18px;">
+    <div><label class="fl">Data</label><input type="date" id="dash-data" class="fc" style="width:165px;" onchange="renderDash()"></div>
   </div>
-  <div class="grid-5" style="margin-bottom:20px;">
-    <div class="kpi-card green"><div class="kpi-label">Apontamentos</div><div class="kpi-value" id="kpi-apt">0</div><div class="kpi-sub">do dia</div></div>
-    <div class="kpi-card orange"><div class="kpi-label">Paradas</div><div class="kpi-value" id="kpi-par">0</div><div class="kpi-sub">ocorrências</div></div>
-    <div class="kpi-card yellow"><div class="kpi-label">Absenteísmo</div><div class="kpi-value" id="kpi-abs">0</div><div class="kpi-sub">ausências</div></div>
-    <div class="kpi-card blue"><div class="kpi-label">Efic. Média</div><div class="kpi-value" id="kpi-efic">—</div><div class="kpi-sub">do dia</div></div>
-    <div class="kpi-card green"><div class="kpi-label">Setores</div><div class="kpi-value" id="kpi-set">0</div><div class="kpi-sub">ativos hoje</div></div>
+  <div class="g5" style="margin-bottom:18px;">
+    <div class="kpi g"><div class="kl">Apontamentos</div><div class="kv" id="ki-apt">0</div><div class="ks">do dia</div></div>
+    <div class="kpi o"><div class="kl">Paradas</div><div class="kv" id="ki-par">0</div><div class="ks">ocorrências</div></div>
+    <div class="kpi y"><div class="kl">Absenteísmo</div><div class="kv" id="ki-abs">0</div><div class="ks">ausências</div></div>
+    <div class="kpi b"><div class="kl">Efic. Média</div><div class="kv" id="ki-efi">—</div><div class="ks">do dia</div></div>
+    <div class="kpi g"><div class="kl">Setores</div><div class="kv" id="ki-set">0</div><div class="ks">ativos</div></div>
   </div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">📊 Eficiência por Setor</div>
-      <div id="dashEfic"><div class="empty-state"><div class="icon">📊</div><p>Sem dados</p></div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">⚠ Paradas do Dia</div>
-      <div id="dashPar"><div class="empty-state"><div class="icon">✅</div><p>Sem paradas</p></div></div>
-    </div>
+  <div class="g2">
+    <div class="card"><div class="ctitle">📊 Eficiência por Setor</div><div id="dashEfic"><div class="es"><div class="ei">📊</div><p>Sem dados</p></div></div></div>
+    <div class="card"><div class="ctitle">⚠ Paradas do Dia</div><div id="dashPar"><div class="es"><div class="ei">✅</div><p>Sem paradas</p></div></div></div>
   </div>
-  <div class="card">
-    <div class="card-title">📋 Resumo por Turno</div>
-    <div id="dashTurnos"><div class="empty-state"><div class="icon">📋</div><p>Sem dados</p></div></div>
-  </div>
+  <div class="card"><div class="ctitle">📋 Resumo por Turno</div><div id="dashTurn"><div class="es"><div class="ei">📋</div><p>Sem dados</p></div></div></div>
 </div>
 
 <!-- PERFORMANCE -->
-<div id="page-performance" class="hidden">
-  <div class="section-title">Performance Operacional <span class="sub">Média móvel 4 semanas · Limites ±1σ · Tendência</span></div>
-
+<div id="page-perf" class="hidden">
+  <div class="stitle">Performance Operacional <span class="sub">Média móvel 28 dias · Limites ±1σ</span></div>
   <div class="card">
-    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Período — Data Fim</label>
-        <input type="date" id="perf-data" class="form-control" style="width:180px;">
-      </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Semanas</label>
-        <select id="perf-semanas" class="form-control" style="width:120px;">
-          <option value="4">4 semanas</option>
-          <option value="8">8 semanas</option>
-          <option value="12">12 semanas</option>
-        </select>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="renderPerformance()">Gerar</button>
+    <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;">
+      <div class="fg" style="margin:0;"><label class="fl">Data Fim</label><input type="date" id="perf-data" class="fc" style="width:170px;"></div>
+      <div class="fg" style="margin:0;"><label class="fl">Semanas</label>
+        <select id="perf-sem" class="fc" style="width:120px;"><option value="4">4 semanas</option><option value="8">8 semanas</option><option value="12">12 semanas</option></select></div>
+      <button class="btn btn-p btn-sm" onclick="renderPerf()">Gerar</button>
     </div>
   </div>
-
-  <!-- BLOCO RESFRIAMENTO -->
-  <div class="card">
-    <div class="card-title">🧊 Resfriamento — Volume Total (Cocção: Forno + Vário + Caldeirão em KG)</div>
-    <div id="perfResfriamento">
-      <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar para carregar</p></div>
-    </div>
+  <div class="card"><div class="ctitle">🧊 Resfriamento — Forno + Vário + Caldeirão (KG)</div><div id="pResf"><div class="es"><div class="ei">📉</div><p>Clique em Gerar</p></div></div></div>
+  <div class="card"><div class="ctitle">❄️ Congelamento — Marmitas + Saquinhos (KG)</div><div id="pCong"><div class="es"><div class="ei">📉</div><p>Clique em Gerar</p></div></div></div>
+  <div class="g2">
+    <div class="card"><div class="ctitle">🥦 FLV (KG)</div><div id="pFLV"><div class="es"><div class="ei">📉</div><p>Clique em Gerar</p></div></div></div>
+    <div class="card"><div class="ctitle">🥩 Açougue (KG)</div><div id="pAc"><div class="es"><div class="ei">📉</div><p>Clique em Gerar</p></div></div></div>
   </div>
-
-  <!-- BLOCO CONGELAMENTO -->
   <div class="card">
-    <div class="card-title">❄️ Congelamento — Volume Total (Porcionamento: Marmitas + Saquinhos)</div>
-    <div id="perfCongelamento">
-      <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar para carregar</p></div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <!-- BLOCO FLV -->
-    <div class="card">
-      <div class="card-title">🥦 FLV — KG Produzidos</div>
-      <div id="perfFLV">
-        <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar</p></div>
-      </div>
-    </div>
-    <!-- BLOCO AÇOUGUE -->
-    <div class="card">
-      <div class="card-title">🥩 Açougue — KG Produzidos</div>
-      <div id="perfAcougue">
-        <div class="empty-state"><div class="icon">📉</div><p>Clique em Gerar</p></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TABELA RESUMO -->
-  <div class="card">
-    <div class="card-title">📋 Tabela Resumo por Dia</div>
-    <div class="table-wrap">
-      <table class="hist" id="perfTabela">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Dia</th>
-            <th>Vol. Resfriado</th>
-            <th>Méd. Móv. Resf.</th>
-            <th>LI Resf.</th>
-            <th>LS Resf.</th>
-            <th>Vol. Cong.</th>
-            <th>Méd. Móv. Cong.</th>
-            <th>FLV (kg)</th>
-            <th>Açougue (kg)</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="perfTabelaBody"></tbody>
-      </table>
-    </div>
-    <div id="perfEmpty" class="empty-state hidden">
-      <div class="icon">📋</div><p>Sem dados para o período selecionado</p>
-    </div>
+    <div class="ctitle">📋 Tabela Resumo por Dia</div>
+    <div class="tw"><table class="ptable">
+      <thead><tr><th>Data</th><th>Dia</th><th>Vol.Resf</th><th>MM Resf</th><th>LI</th><th>LS</th><th>Vol.Cong</th><th>MM Cong</th><th>FLV(kg)</th><th>Açougue(kg)</th><th>Status</th></tr></thead>
+      <tbody id="perfTbl"></tbody>
+    </table></div>
+    <div id="perfEmpty" class="es hidden"><div class="ei">📋</div><p>Sem dados</p></div>
   </div>
 </div>
 
 <!-- CONFIG -->
-<div id="page-config" class="hidden">
-  <div class="section-title">Configurações</div>
-  <div class="grid-2">
+<div id="page-cfg" class="hidden">
+  <div class="stitle">Configurações</div>
+  <div class="g2">
     <div class="card">
-      <div class="card-title">🏭 Setores</div>
-      <div id="configSetores"></div>
+      <div class="ctitle">🏭 Setores</div>
+      <div id="cfgSetores"></div>
       <div class="divider"></div>
-      <div style="display:flex;gap:8px;align-items:end;">
-        <div class="form-group" style="flex:1;margin:0;">
-          <label class="form-label">Nome</label>
-          <input type="text" id="novo-setor-nome" class="form-control" placeholder="Ex: Embalagem">
-        </div>
-        <div class="form-group" style="flex:1;margin:0;">
-          <label class="form-label">Unidade</label>
-          <select id="novo-setor-unid" class="form-control">
-            <option>KG</option><option>UNIDADES</option><option>CICLO</option><option>RECEITAS</option>
-          </select>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="addSetor()">+</button>
+      <div style="display:flex;gap:7px;align-items:end;">
+        <div class="fg" style="flex:1;margin:0;"><label class="fl">Nome</label><input type="text" id="ns-nome" class="fc" placeholder="Ex: Embalagem"></div>
+        <div class="fg" style="flex:1;margin:0;"><label class="fl">Unidade</label>
+          <select id="ns-unid" class="fc"><option>KG</option><option>UNIDADES</option><option>CICLO</option><option>RECEITAS</option></select></div>
+        <button class="btn btn-p btn-sm" onclick="addSetor()">+</button>
       </div>
     </div>
     <div class="card">
-      <div class="card-title">🔗 Integrações</div>
-      <div class="form-group">
-        <label class="form-label">URL Apps Script (Google Sheets)</label>
-        <input type="text" id="cfg-sheets" class="form-control" placeholder="https://script.google.com/macros/s/...">
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL Demanda Flow (enviar paradas)</label>
-        <input type="text" id="cfg-demanda" class="form-control" placeholder="URL do Apps Script Demanda Flow">
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="salvarConfig()">✓ Salvar</button>
-        <button class="btn btn-secondary btn-sm" onclick="testarConn()">Testar</button>
-      </div>
-      <div id="cfg-status" style="margin-top:10px;font-size:13px;"></div>
+      <div class="ctitle">🔗 Integrações</div>
+      <div class="fg"><label class="fl">URL Apps Script (Google Sheets)</label><input type="text" id="cfg-sh" class="fc" placeholder="https://script.google.com/..."></div>
+      <div class="fg"><label class="fl">URL Demanda Flow</label><input type="text" id="cfg-df" class="fc" placeholder="URL do Demanda Flow"></div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" onclick="salvarCfg()">✓ Salvar</button><button class="btn btn-s btn-sm" onclick="testarConn()">Testar</button></div>
+      <div id="cfg-st" style="margin-top:9px;font-size:13px;"></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">⚠ Dados Locais</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-      <button class="btn btn-secondary btn-sm" onclick="expJSON()">⬇ JSON</button>
-      <button class="btn btn-secondary btn-sm" onclick="expCSV()">⬇ CSV</button>
-      <button class="btn btn-danger btn-sm" onclick="limparTudo()">🗑 Limpar Tudo</button>
+    <div class="ctitle">⚠ Dados Locais</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:7px;">
+      <button class="btn btn-s btn-sm" onclick="expJSON()">⬇ JSON</button>
+      <button class="btn btn-s btn-sm" onclick="expCSV()">⬇ CSV</button>
+      <button class="btn btn-d btn-sm" onclick="limTudo()">🗑 Limpar Tudo</button>
     </div>
   </div>
 </div>
 
 </main>
 
-<div class="modal-overlay" id="modalDet">
-  <div class="modal-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div class="section-title" style="margin:0;font-size:18px;">Detalhe</div>
-      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modalDet').style.display='none'">✕ Fechar</button>
+<!-- MODAL -->
+<div class="mo" id="modalDet">
+  <div class="mb">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div class="stitle" style="margin:0;font-size:17px;">Detalhe</div>
+      <button class="btn btn-s btn-sm" onclick="document.getElementById('modalDet').style.display='none'">✕ Fechar</button>
     </div>
-    <div id="modalContent"></div>
+    <div id="modalC"></div>
   </div>
 </div>
-
 <div id="toast"></div>
 
 <script>
-let apts = JSON.parse(localStorage.getItem('v1_apts')||'[]');
-let ops  = JSON.parse(localStorage.getItem('v1_ops')||'[]');
-let cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{"sheets":"https://script.google.com/macros/s/AKfycbx6BR0Ms09raTR1v2hPTKAZ_tOkeRuG2mxMkpwKIcJVqq7_4O5I9WpK7gK2nK_iAuK5/exec"}');
-let setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
-  {id:'acougue',   nome:'Açougue',         unid:'KG'},
-  {id:'flv',       nome:'FLV',             unid:'KG'},
-  {id:'forno',     nome:'Forno',           unid:'CICLO'},
-  {id:'vario',     nome:'Vário',           unid:'CICLO'},
-  {id:'caldeira',  nome:'Caldeira',        unid:'CICLO'},
-  {id:'sd',        nome:'S&D',             unid:'RECEITAS'},
-  {id:'saquinhos', nome:'Saquinhos',       unid:'UNIDADES'},
-  {id:'marmitas',  nome:'Marmitas',        unid:'UNIDADES'},
-  {id:'coccao',    nome:'Cocção',          unid:'KG'},
-  {id:'porcionamento',nome:'Porcionamento',unid:'KG'},
-  {id:'apoio',     nome:'Áreas de Apoio',  unid:'UNIDADES'},
+var apts = JSON.parse(localStorage.getItem('v1_apts')||'[]');
+var ops  = JSON.parse(localStorage.getItem('v1_ops')||'[]');
+var cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{}');
+if(!cfg.sheets) cfg.sheets = 'https://script.google.com/macros/s/AKfycbx6BR0Ms09raTR1v2hPTKAZ_tOkeRuG2mxMkpwKIcJVqq7_4O5I9WpK7gK2nK_iAuK5/exec';
+
+var setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
+  {id:'acougue',   nome:'Acougue',          unid:'KG'},
+  {id:'flv',       nome:'FLV',              unid:'KG'},
+  {id:'forno',     nome:'Forno',            unid:'CICLO'},
+  {id:'vario',     nome:'Vario',            unid:'CICLO'},
+  {id:'caldeira',  nome:'Caldeira',         unid:'CICLO'},
+  {id:'sd',        nome:'S&D',              unid:'RECEITAS'},
+  {id:'saquinhos', nome:'Saquinhos',        unid:'UNIDADES'},
+  {id:'marmitas',  nome:'Marmitas',         unid:'UNIDADES'},
+  {id:'coccao',    nome:'Coccao',           unid:'KG'},
+  {id:'porcionamento',nome:'Porcionamento', unid:'KG'},
+  {id:'apoio',     nome:'Areas de Apoio',   unid:'UNIDADES'}
 ]));
 
-let pCount=0, dCount=0;
+var pCount=0, dCount=0;
+var opDiaSel = '';
 
-const TIPOS_PARADA=['Manutenção Corretiva','Manutenção Preventiva','Falta de Material','Setup / Troca','Aguardando Time','Problema Elétrico','Problema Mecânico','Congestionamento','Por Falta de Sub','Troca de Turno','Outro'];
-const TIPOS_DIFIC=['Falta de Receita','Treinamento de Pessoa','Absenteísmo','Falta de Insumo','Problema de Qualidade','Comunicação','Logística Interna','Outro'];
+var TIPOS_P = ['Manutencao Corretiva','Manutencao Preventiva','Falta de Material','Setup / Troca','Aguardando Time','Problema Eletrico','Problema Mecanico','Congestionamento','Por Falta de Sub','Troca de Turno','Outro'];
+var TIPOS_D = ['Falta de Receita','Treinamento de Pessoa','Absenteismo','Falta de Insumo','Problema de Qualidade','Comunicacao','Logistica Interna','Outro'];
+var DIAS_PT = ['dom.','seg.','ter.','qua.','qui.','sex.','sab.'];
 
 // CLOCK
 function updClock(){
-  const n=new Date();
-  document.getElementById('clock').textContent=n.toLocaleTimeString('pt-BR');
-  document.getElementById('dateDisplay').textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  var n=new Date();
+  document.getElementById('ck').textContent=n.toLocaleTimeString('pt-BR');
+  document.getElementById('dd').textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
 setInterval(updClock,1000); updClock();
 
-// INIT
-function init(){
-  const td=today();
-  ['op-data','apt-data','cons-data','dash-data','filt-ini','filt-fim'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value=td;
-  });
-  if(cfg.sheets) document.getElementById('cfg-sheets').value=cfg.sheets;
-  if(cfg.demanda) document.getElementById('cfg-demanda').value=cfg.demanda;
-  document.getElementById('perf-data').value=today();
-  document.getElementById('op-semana').value=today();
-  opDiaSelecionado=today();
-  renderOPSemana();
-  renderOPDia();
-  renderOPRows();
-  renderAptSetor();
-  renderConfigSetores();
-  populateFiltroSetor();
-}
-
-function today(){return new Date().toISOString().split('T')[0];}
+// UTILS
+function today(){ return new Date().toISOString().split('T')[0]; }
 function fmtD(d){
   if(!d) return '—';
-  // Limpa formato ISO do Sheets: "19T03:00:00.000Z/05/2026" → "2026-05-19"
-  let s = String(d).trim();
-  // Caso: "19T03:00:00.000Z/05/2026" — extrai dia/mes/ano
-  const m1 = s.match(/^(\d{1,2})T[^/]+\/(\d{2})\/(\d{4})/);
-  if(m1) return m1[1].padStart(2,'0')+'/'+m1[2]+'/'+m1[3];
-  // Caso normal: "2026-05-19"
-  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(m2) return m2[3]+'/'+m2[2]+'/'+m2[1];
+  var s=String(d).trim();
+  var m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return m[3]+'/'+m[2]+'/'+m[1];
   return s;
+}
+function ec(color){ return color==='g'?'var(--green)':color==='o'?'var(--orange)':color==='r'?'var(--red)':'var(--text2)'; }
+function toast(msg,type){
+  var d=document.createElement('div');
+  d.className='tm'+(type==='e'?' e':type==='w'?' w':'');
+  d.textContent=msg;
+  document.getElementById('toast').appendChild(d);
+  setTimeout(function(){d.remove();},3500);
+}
+
+// INIT
+function init(){
+  var td=today();
+  ['apt-data','cons-data','dash-data','perf-data','fi','ff'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value=td;
+  });
+  document.getElementById('op-semana').value=td;
+  if(cfg.sheets) document.getElementById('cfg-sh').value=cfg.sheets;
+  if(cfg.demanda) document.getElementById('cfg-df').value=cfg.demanda;
+  opDiaSel=td;
+  renderOPSemana();
+  renderAptSetor();
+  renderCfgSetores();
+  popFiltSetor();
 }
 
 // NAV
-function showPage(p,btn){
-  document.querySelectorAll('[id^=page-]').forEach(x=>x.classList.add('hidden'));
+function pg(p,btn){
+  document.querySelectorAll('[id^=page-]').forEach(function(x){x.classList.add('hidden');});
   document.getElementById('page-'+p).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
   if(btn) btn.classList.add('active');
-  if(p==='historico') renderHist(apts);
-  if(p==='dashboard') renderDash();
-  if(p==='consolidado') renderConsolidado();
-  if(p==='performance') renderPerformance();
+  if(p==='hist') renderHist(apts);
+  if(p==='dash') renderDash();
+  if(p==='cons') renderCons();
+  if(p==='perf') renderPerf();
 }
 
-// OP
 // ===== OP SEMANAL =====
-let opDiaSelecionado = null;
-
-function getSegundaDaSemana(data) {
-  const d = new Date(data + 'T12:00:00');
-  const dia = d.getDay();
-  const diff = dia === 0 ? -6 : 1 - dia;
-  d.setDate(d.getDate() + diff);
+function getSegunda(data){
+  var d=new Date(data+'T12:00:00');
+  var day=d.getDay();
+  var diff=day===0?-6:1-day;
+  d.setDate(d.getDate()+diff);
   return d;
 }
 
-function renderOPSemana() {
-  const val = document.getElementById('op-semana').value;
-  if (!val) return;
-  const seg = getSegundaDaSemana(val);
-  const diasNomes = ['seg.','ter.','qua.','qui.','sex.','sáb.','dom.'];
-  const nav = document.getElementById('opDiasNav');
-  nav.innerHTML = '';
-
-  // Limita a semana atual e próxima (hoje + 7 dias)
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  const limite = new Date(hoje); limite.setDate(limite.getDate() + 7);
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(seg);
-    d.setDate(d.getDate() + i);
-    const dk = d.toISOString().split('T')[0];
-    const op = ops.find(o => o.data === dk);
-    const temOP = op && Object.keys(op.s||{}).some(id => (op.s[id].tot||0) > 0);
-    const isHoje = dk === today();
-    const isSelecionado = dk === opDiaSelecionado;
-    const btn = document.createElement('button');
-    btn.style.cssText = 'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;border:2px solid ' +
-      (isSelecionado ? 'var(--green)' : isHoje ? 'var(--yellow)' : 'var(--border2)') +
-      ';background:' + (isSelecionado ? 'var(--green-glow)' : 'var(--bg3)') +
-      ';color:' + (isSelecionado ? 'var(--green)' : isHoje ? 'var(--yellow)' : 'var(--text2)') +
-      ';padding:10px 14px;border-radius:3px;cursor:pointer;position:relative;';
-    btn.innerHTML = diasNomes[i] + '<br><span style="font-size:10px;font-weight:400;">' + fmtD(dk) + '</span>' +
-      (temOP ? '<span style="position:absolute;top:4px;right:4px;width:6px;height:6px;background:var(--green);border-radius:50%;"></span>' : '');
-    btn.onclick = (function(dk2) { return function() { opDiaSelecionado = dk2; renderOPDia(); renderOPSemana(); }; })(dk);
+function renderOPSemana(){
+  var val=document.getElementById('op-semana').value;
+  if(!val) return;
+  var seg=getSegunda(val);
+  var nav=document.getElementById('opDiasNav');
+  nav.innerHTML='';
+  var hoje=new Date(); hoje.setHours(0,0,0,0);
+  var limite=new Date(hoje); limite.setDate(limite.getDate()+7);
+  var diasN=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+  for(var i=0;i<7;i++){
+    var d=new Date(seg); d.setDate(d.getDate()+i);
+    var dk=d.toISOString().split('T')[0];
+    var op=ops.find(function(o){return o.data===dk;});
+    var temOP=op&&Object.keys(op.s||{}).some(function(id){return (op.s[id].tot||0)>0;});
+    var isSel=dk===opDiaSel;
+    var isHoje=dk===today();
+    var btn=document.createElement('button');
+    btn.style.cssText='font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;'+
+      'border:2px solid '+(isSel?'var(--green)':isHoje?'var(--yellow)':'var(--border2)')+';'+
+      'background:'+(isSel?'var(--green-glow)':'var(--bg3)')+';'+
+      'color:'+(isSel?'var(--green)':isHoje?'var(--yellow)':'var(--text2)')+';'+
+      'padding:9px 13px;border-radius:3px;cursor:pointer;position:relative;min-width:70px;';
+    btn.innerHTML=diasN[i]+'<br><span style="font-size:10px;font-weight:400;">'+fmtD(dk)+'</span>'+
+      (temOP?'<span style="position:absolute;top:3px;right:3px;width:6px;height:6px;background:var(--green);border-radius:50%;"></span>':'');
+    (function(dk2){btn.onclick=function(){opDiaSel=dk2;renderOPDia();renderOPSemana();};})(dk);
     nav.appendChild(btn);
   }
-
-  renderOPResumoSemana(seg);
+  renderOPDia();
+  renderOPResumo(seg);
 }
 
-function renderOPDia() {
-  const dk = opDiaSelecionado;
-  if (!dk) return;
-  const op = ops.find(o => o.data === dk) || {s:{}};
-  const d = new Date(dk + 'T12:00:00');
-  const diasNomes = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  document.getElementById('opDiaTitulo').textContent = '📦 ' + diasNomes[d.getDay()] + ' — ' + fmtD(dk);
-
-  document.getElementById('opSetoresRows').innerHTML = setores.map(s => {
-    const sd = op.s?.[s.id] || {};
-    return '<div style="display:grid;grid-template-columns:160px 70px 1fr 1fr 1fr 1fr 90px 60px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">' +
-      '<div style="font-size:13px;font-weight:600;">' + s.nome + '</div>' +
-      '<div class="op-unid">' + s.unid + '</div>' +
-      '<input type="number" class="form-control" id="op-tot-' + s.id + '" placeholder="Total" min="0" value="' + (sd.tot||'') + '" oninput="opTotalChange('' + s.id + '')">' +
-      '<input type="number" class="form-control" id="op-t1-' + s.id + '"  placeholder="T1" min="0" value="' + (sd.t1||'') + '" oninput="opTurnoChange('' + s.id + '',1)">' +
-      '<input type="number" class="form-control" id="op-t2-' + s.id + '"  placeholder="T2" min="0" value="' + (sd.t2||'') + '" oninput="opTurnoChange('' + s.id + '',2)">' +
-      '<input type="number" class="form-control" id="op-t3-' + s.id + '"  placeholder="T3" min="0" value="' + (sd.t3||'') + '" oninput="opTurnoChange('' + s.id + '',3)">' +
-      '<input type="number" class="form-control" id="op-cap-' + s.id + '" placeholder="Cap." min="0" value="' + (sd.cap||'') + '">' +
-      '<div style="text-align:center;"><input type="checkbox" id="op-at-' + s.id + '" ' + (sd.ativo!==false?'checked':'') + ' style="width:18px;height:18px;accent-color:var(--green);cursor:pointer;"></div>' +
+function renderOPDia(){
+  var dk=opDiaSel;
+  if(!dk) return;
+  var op=ops.find(function(o){return o.data===dk;})||{s:{}};
+  var d=new Date(dk+'T12:00:00');
+  var diasN=['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'];
+  document.getElementById('opDiaTitulo').textContent='Planejamento — '+diasN[d.getDay()]+' '+fmtD(dk);
+  var rows='';
+  setores.forEach(function(s){
+    var sd=(op.s&&op.s[s.id])||{};
+    rows+='<div class="oprow">'+
+      '<div style="font-size:13px;font-weight:600;">'+s.nome+'</div>'+
+      '<div class="ounid">'+s.unid+'</div>'+
+      '<input type="number" class="fc" id="op-tot-'+s.id+'" placeholder="Total" min="0" value="'+(sd.tot||'')+'" oninput="opTotChange(\''+s.id+'\')">'+
+      '<input type="number" class="fc" id="op-t1-'+s.id+'" placeholder="T1" min="0" value="'+(sd.t1||'')+'" oninput="opTurnChange(\''+s.id+'\',1)">'+
+      '<input type="number" class="fc" id="op-t2-'+s.id+'" placeholder="T2" min="0" value="'+(sd.t2||'')+'" oninput="opTurnChange(\''+s.id+'\',2)">'+
+      '<input type="number" class="fc" id="op-t3-'+s.id+'" placeholder="T3" min="0" value="'+(sd.t3||'')+'" oninput="opTurnChange(\''+s.id+'\',3)">'+
+      '<input type="number" class="fc" id="op-cap-'+s.id+'" placeholder="Cap." min="0" value="'+(sd.cap||'')+'">'+
+      '<div style="text-align:center;"><input type="checkbox" id="op-at-'+s.id+'" '+(sd.ativo!==false?'checked':'')+' style="width:17px;height:17px;accent-color:var(--green);cursor:pointer;"></div>'+
       '</div>';
-  }).join('');
+  });
+  document.getElementById('opSetoresRows').innerHTML=rows;
 }
 
-// Total muda → distribui proporcionalmente entre T1/T2/T3
-function opTotalChange(id) {
-  const tot = Number(document.getElementById('op-tot-' + id).value) || 0;
-  const t1 = Number(document.getElementById('op-t1-' + id).value) || 0;
-  const t2 = Number(document.getElementById('op-t2-' + id).value) || 0;
-  const t3 = Number(document.getElementById('op-t3-' + id).value) || 0;
-  const somaTurnos = t1 + t2 + t3;
-
-  if (somaTurnos === 0) {
-    // Nenhum turno preenchido — distribui igual
-    const p = Math.round(tot / 3);
-    document.getElementById('op-t1-' + id).value = p;
-    document.getElementById('op-t2-' + id).value = p;
-    document.getElementById('op-t3-' + id).value = tot - p * 2;
+function opTotChange(id){
+  var tot=Number(document.getElementById('op-tot-'+id).value)||0;
+  var t1=Number(document.getElementById('op-t1-'+id).value)||0;
+  var t2=Number(document.getElementById('op-t2-'+id).value)||0;
+  var t3=Number(document.getElementById('op-t3-'+id).value)||0;
+  var soma=t1+t2+t3;
+  if(soma===0){
+    var p=Math.round(tot/3);
+    document.getElementById('op-t1-'+id).value=p||'';
+    document.getElementById('op-t2-'+id).value=p||'';
+    document.getElementById('op-t3-'+id).value=(tot-p*2)||'';
   } else {
-    // Distribui proporcionalmente mantendo as proporções atuais
-    const novoT1 = Math.round(tot * t1 / somaTurnos);
-    const novoT2 = Math.round(tot * t2 / somaTurnos);
-    const novoT3 = tot - novoT1 - novoT2;
-    document.getElementById('op-t1-' + id).value = novoT1 || '';
-    document.getElementById('op-t2-' + id).value = novoT2 || '';
-    document.getElementById('op-t3-' + id).value = novoT3 >= 0 ? novoT3 : 0;
+    var nt1=Math.round(tot*t1/soma);
+    var nt2=Math.round(tot*t2/soma);
+    var nt3=tot-nt1-nt2;
+    document.getElementById('op-t1-'+id).value=nt1||'';
+    document.getElementById('op-t2-'+id).value=nt2||'';
+    document.getElementById('op-t3-'+id).value=nt3>=0?nt3||'':'';
   }
 }
 
-// Turno muda → recalcula total e o turno restante
-function opTurnoChange(id, turnoAlterado) {
-  const t1 = Number(document.getElementById('op-t1-' + id).value) || 0;
-  const t2 = Number(document.getElementById('op-t2-' + id).value) || 0;
-  const t3 = Number(document.getElementById('op-t3-' + id).value) || 0;
-  const tot = Number(document.getElementById('op-tot-' + id).value) || 0;
-  const soma = t1 + t2 + t3;
-
-  // Atualiza total
-  document.getElementById('op-tot-' + id).value = soma || '';
-
-  // Se total estava definido e dois turnos estão preenchidos, calcula o terceiro
-  if (tot > 0) {
-    if (turnoAlterado === 1 && t2 > 0 && t3 === 0) {
-      const resto = Math.max(0, tot - t1 - t2);
-      document.getElementById('op-t3-' + id).value = resto || '';
-      document.getElementById('op-tot-' + id).value = tot;
-    } else if (turnoAlterado === 2 && t1 > 0 && t3 === 0) {
-      const resto = Math.max(0, tot - t1 - t2);
-      document.getElementById('op-t3-' + id).value = resto || '';
-      document.getElementById('op-tot-' + id).value = tot;
-    } else if (turnoAlterado === 3 && t1 > 0 && t2 > 0) {
-      document.getElementById('op-tot-' + id).value = soma || '';
+function opTurnChange(id,trn){
+  var t1=Number(document.getElementById('op-t1-'+id).value)||0;
+  var t2=Number(document.getElementById('op-t2-'+id).value)||0;
+  var t3=Number(document.getElementById('op-t3-'+id).value)||0;
+  var tot=Number(document.getElementById('op-tot-'+id).value)||0;
+  var soma=t1+t2+t3;
+  document.getElementById('op-tot-'+id).value=soma||'';
+  if(tot>0){
+    if(trn===1&&t2>0&&t3===0){
+      document.getElementById('op-t3-'+id).value=Math.max(0,tot-t1-t2)||'';
+      document.getElementById('op-tot-'+id).value=tot;
+    } else if(trn===2&&t1>0&&t3===0){
+      document.getElementById('op-t3-'+id).value=Math.max(0,tot-t1-t2)||'';
+      document.getElementById('op-tot-'+id).value=tot;
+    } else if(trn===3&&t1>0&&t2>0){
+      document.getElementById('op-tot-'+id).value=soma||'';
     }
   }
 }
 
-function coletarOPDia() {
-  const s = {};
-  setores.forEach(x => {
-    s[x.id] = {
-      tot: Number(document.getElementById('op-tot-' + x.id)?.value) || 0,
-      t1:  Number(document.getElementById('op-t1-' + x.id)?.value)  || 0,
-      t2:  Number(document.getElementById('op-t2-' + x.id)?.value)  || 0,
-      t3:  Number(document.getElementById('op-t3-' + x.id)?.value)  || 0,
-      cap: Number(document.getElementById('op-cap-' + x.id)?.value) || 0,
-      ativo: document.getElementById('op-at-' + x.id)?.checked !== false
-    };
+function coletarOP(){
+  var s={};
+  setores.forEach(function(x){
+    var tot=Number(document.getElementById('op-tot-'+x.id)&&document.getElementById('op-tot-'+x.id).value)||0;
+    var t1=Number(document.getElementById('op-t1-'+x.id)&&document.getElementById('op-t1-'+x.id).value)||0;
+    var t2=Number(document.getElementById('op-t2-'+x.id)&&document.getElementById('op-t2-'+x.id).value)||0;
+    var t3=Number(document.getElementById('op-t3-'+x.id)&&document.getElementById('op-t3-'+x.id).value)||0;
+    var cap=Number(document.getElementById('op-cap-'+x.id)&&document.getElementById('op-cap-'+x.id).value)||0;
+    var at=document.getElementById('op-at-'+x.id);
+    s[x.id]={tot:tot,t1:t1,t2:t2,t3:t3,cap:cap,ativo:at?at.checked:true};
   });
   return s;
 }
 
-function salvarOPDia() {
-  if (!opDiaSelecionado) { toast('Selecione um dia!', 'error'); return; }
-  const s = coletarOPDia();
-  ops = ops.filter(o => o.data !== opDiaSelecionado);
-  ops.push({
-    data: opDiaSelecionado,
-    ref:  document.getElementById('op-ref').value,
-    resp: document.getElementById('op-resp').value,
-    s, ts: new Date().toISOString()
-  });
-  localStorage.setItem('v1_ops', JSON.stringify(ops));
+function salvarOPDia(){
+  if(!opDiaSel){toast('Selecione um dia!','e');return;}
+  var s=coletarOP();
+  ops=ops.filter(function(o){return o.data!==opDiaSel;});
+  ops.push({data:opDiaSel,ref:document.getElementById('op-ref').value,resp:document.getElementById('op-resp').value,s:s,ts:new Date().toISOString()});
+  localStorage.setItem('v1_ops',JSON.stringify(ops));
   renderOPSemana();
-  toast('OP de ' + fmtD(opDiaSelecionado) + ' salva!');
+  toast('OP de '+fmtD(opDiaSel)+' salva!');
 }
 
-function salvarOPSemana() {
-  if (!opDiaSelecionado) { toast('Selecione um dia da semana primeiro!', 'error'); return; }
-  salvarOPDia();
-  renderOPResumoSemana(getSegundaDaSemana(opDiaSelecionado.slice(0,10)));
-  toast('Semana salva!');
-}
-
-function copiarOPDiaAnterior() {
-  if (!opDiaSelecionado) { toast('Selecione um dia!', 'error'); return; }
-  const d = new Date(opDiaSelecionado + 'T12:00:00');
-  d.setDate(d.getDate() - 1);
-  const dkAnterior = d.toISOString().split('T')[0];
-  const opAnterior = ops.find(o => o.data === dkAnterior);
-  if (!opAnterior) { toast('Sem OP no dia anterior', 'warning'); return; }
-
-  // Copia valores para os campos
-  setores.forEach(x => {
-    const sd = opAnterior.s?.[x.id] || {};
-    if (document.getElementById('op-tot-' + x.id)) document.getElementById('op-tot-' + x.id).value = sd.tot || '';
-    if (document.getElementById('op-t1-' + x.id))  document.getElementById('op-t1-' + x.id).value  = sd.t1  || '';
-    if (document.getElementById('op-t2-' + x.id))  document.getElementById('op-t2-' + x.id).value  = sd.t2  || '';
-    if (document.getElementById('op-t3-' + x.id))  document.getElementById('op-t3-' + x.id).value  = sd.t3  || '';
-    if (document.getElementById('op-cap-' + x.id)) document.getElementById('op-cap-' + x.id).value = sd.cap || '';
+function copiarOPDiaAnterior(){
+  if(!opDiaSel){toast('Selecione um dia!','e');return;}
+  var d=new Date(opDiaSel+'T12:00:00'); d.setDate(d.getDate()-1);
+  var dk=d.toISOString().split('T')[0];
+  var op=ops.find(function(o){return o.data===dk;});
+  if(!op){toast('Sem OP no dia anterior','w');return;}
+  setores.forEach(function(x){
+    var sd=(op.s&&op.s[x.id])||{};
+    var el; 
+    el=document.getElementById('op-tot-'+x.id); if(el) el.value=sd.tot||'';
+    el=document.getElementById('op-t1-'+x.id);  if(el) el.value=sd.t1||'';
+    el=document.getElementById('op-t2-'+x.id);  if(el) el.value=sd.t2||'';
+    el=document.getElementById('op-t3-'+x.id);  if(el) el.value=sd.t3||'';
+    el=document.getElementById('op-cap-'+x.id); if(el) el.value=sd.cap||'';
   });
-  toast('OP de ' + fmtD(dkAnterior) + ' copiada!');
+  toast('OP de '+fmtD(dk)+' copiada!');
 }
 
-function renderOPResumoSemana(seg) {
-  const container = document.getElementById('opResumoSemana');
-  const diasNomes = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  let html = '<div style="overflow-x:auto;"><table class="prod-table"><thead><tr><th>Setor</th>';
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(seg); d.setDate(d.getDate() + i);
-    const dk = d.toISOString().split('T')[0];
-    const isHoje = dk === today();
-    html += '<th style="' + (isHoje ? 'color:var(--yellow)' : '') + '">' + diasNomes[d.getDay()] + '<br><span style="font-size:10px;font-weight:400;">' + fmtD(dk) + '</span></th>';
+function getMetaTot(data,sid){ var op=ops.find(function(o){return o.data===data;}); return(op&&op.s&&op.s[sid]&&op.s[sid].tot)||0; }
+function getMetaTurn(data,sid,t){ var op=ops.find(function(o){return o.data===data;}); var sd=op&&op.s&&op.s[sid]||{}; return t==='T1'?sd.t1||0:t==='T2'?sd.t2||0:sd.t3||0; }
+
+function renderOPResumo(seg){
+  var c=document.getElementById('opResumoSemana');
+  var diasN=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+  var html='<div class="tw"><table><thead><tr><th>Setor</th>';
+  for(var i=0;i<7;i++){
+    var d=new Date(seg); d.setDate(d.getDate()+i);
+    var dk=d.toISOString().split('T')[0];
+    html+='<th style="text-align:center;'+(dk===today()?'color:var(--yellow)':'')+'">';
+    html+=diasN[i]+'<br><span style="font-size:10px;font-weight:400;">'+fmtD(dk)+'</span></th>';
   }
-  html += '<th>Total Semana</th></tr></thead><tbody>';
-
-  setores.forEach(s => {
-    html += '<tr><td>' + s.nome + ' <span class="op-unid">' + s.unid + '</span></td>';
-    let totalSemana = 0;
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(seg); d.setDate(d.getDate() + i);
-      const dk = d.toISOString().split('T')[0];
-      const op = ops.find(o => o.data === dk);
-      const tot = op?.s?.[s.id]?.tot || 0;
-      totalSemana += tot;
-      html += '<td style="' + (tot > 0 ? 'color:var(--green);font-weight:600;' : 'color:var(--text3);') + '">' + (tot > 0 ? tot.toLocaleString('pt-BR') : '—') + '</td>';
+  html+='</tr></thead><tbody>';
+  setores.forEach(function(s){
+    html+='<tr><td>'+s.nome+'</td>';
+    for(var i=0;i<7;i++){
+      var d=new Date(seg); d.setDate(d.getDate()+i);
+      var dk=d.toISOString().split('T')[0];
+      var tot=getMetaTot(dk,s.id);
+      html+='<td style="text-align:center;">'+(tot>0?'<strong style="color:var(--green);">'+tot.toLocaleString('pt-BR')+'</strong>':'<span style="color:var(--text3);">—</span>')+'</td>';
     }
-    html += '<td style="font-weight:700;color:var(--green);">' + (totalSemana > 0 ? totalSemana.toLocaleString('pt-BR') : '—') + '</td></tr>';
+    html+='</tr>';
   });
-
-  html += '</tbody></table></div>';
-  container.innerHTML = html;
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
 }
 
-// Mantém compatibilidade com o restante do app
-function renderOPRows() { renderOPDia(); }
-function distrib(id) { opTotalChange(id); }
-function salvarOP() { salvarOPDia(); }
-function carregarOPData() { renderOPDia(); }
-
-function getMetaTurno(data,sid,turno){
-  const op=ops.find(o=>o.data===data);
-  const d=op?.s?.[sid]||{};
-  return turno==='T1'?d.t1||0:turno==='T2'?d.t2||0:turno==='T3'?d.t3||0:d.tot||0;
-}
-function getMetaTot(data,sid){return(ops.find(o=>o.data===data)?.s?.[sid]||{}).tot||0;}
-
-// APT SETOR SELECT
+// ===== APT =====
 function renderAptSetor(){
-  const sel=document.getElementById('apt-setor');
-  sel.innerHTML='<option value="">— Selecione —</option>';
-  setores.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.nome;sel.appendChild(o);});
+  var sel=document.getElementById('apt-setor');
+  setores.forEach(function(s){
+    var o=document.createElement('option');
+    o.value=s.id; o.textContent=s.nome;
+    sel.appendChild(o);
+  });
 }
 
 function renderAptProd(){
-  const sid=document.getElementById('apt-setor').value;
-  const turno=document.getElementById('apt-turno').value;
-  const data=document.getElementById('apt-data').value;
-  const s=setores.find(x=>x.id===sid);
-  const c=document.getElementById('aptProdFields');
-  if(!s){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno acima.</p>';return;}
-  const meta=getMetaTurno(data,sid,turno);
-  c.innerHTML=`
-    <div class="grid-3">
-      <div class="form-group">
-        <label class="form-label">Qtd. Produzida (${s.unid})</label>
-        <input type="number" id="apt-prod" class="form-control" min="0" placeholder="0" oninput="calcEfic()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Meta do Turno (OP)</label>
-        <input type="number" id="apt-meta" class="form-control" value="${meta}" placeholder="${meta||'Sem OP'}">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Eficiência Calculada</label>
-        <div id="eficVal" style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;color:var(--text2);padding:4px 0;">—</div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Observação de Produção</label>
-      <input type="text" id="apt-prod-obs" class="form-control" placeholder="Ex: produto X não foi produzido por falta de MP...">
-    </div>`;
+  var sid=document.getElementById('apt-setor').value;
+  var turno=document.getElementById('apt-turno').value;
+  var data=document.getElementById('apt-data').value;
+  var s=setores.find(function(x){return x.id===sid;});
+  var c=document.getElementById('aptProdF');
+  if(!s){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno.</p>';return;}
+  var meta=getMetaTurn(data,sid,turno);
+  c.innerHTML='<div class="g3">'+
+    '<div class="fg"><label class="fl">Qtd. Produzida ('+s.unid+')</label><input type="number" id="apt-prod" class="fc" min="0" placeholder="0" oninput="calcEfic()"></div>'+
+    '<div class="fg"><label class="fl">Meta do Turno (OP)</label><input type="number" id="apt-meta" class="fc" value="'+meta+'" placeholder="'+(meta||'Sem OP')+'"></div>'+
+    '<div class="fg"><label class="fl">Eficiencia</label><div id="eficV" style="font-family:\'Barlow Condensed\',sans-serif;font-size:28px;font-weight:800;color:var(--text2);padding:5px 0;">—</div></div>'+
+    '</div>'+
+    '<div class="fg"><label class="fl">Obs. de Producao</label><input type="text" id="apt-pobs" class="fc" placeholder="Observacao..."></div>';
 }
 
 function calcEfic(){
-  const prod=Number(document.getElementById('apt-prod')?.value)||0;
-  const meta=Number(document.getElementById('apt-meta')?.value)||0;
-  const el=document.getElementById('eficVal');
-  if(!el)return;
+  var prod=Number(document.getElementById('apt-prod')&&document.getElementById('apt-prod').value)||0;
+  var meta=Number(document.getElementById('apt-meta')&&document.getElementById('apt-meta').value)||0;
+  var el=document.getElementById('eficV'); if(!el) return;
   if(!meta){el.textContent='—';el.style.color='var(--text2)';return;}
-  const p=Math.round(prod/meta*100);
+  var p=Math.round(prod/meta*100);
   el.textContent=p+'%';
   el.style.color=p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
 }
 
-// PARADAS
 function addParada(){
-  pCount++;const id=pCount;
-  const div=document.createElement('div');
-  div.className='parada-item';div.id='par-'+id;
-  div.innerHTML=`
-    <div class="grid-3" style="margin-bottom:10px;">
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Equipamento</label>
-        <input type="text" class="form-control" id="p-eq-${id}" placeholder="Ex: CUB 10, Esteira...">
-      </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Tipo de Parada</label>
-        <select class="form-control" id="p-tp-${id}">${TIPOS_PARADA.map(t=>`<option>${t}</option>`).join('')}</select>
-      </div>
-      <div style="display:flex;gap:6px;align-items:end;">
-        <div class="form-group" style="margin:0;flex:1;">
-          <label class="form-label">Início</label>
-          <input type="time" class="form-control" id="p-in-${id}">
-        </div>
-        <div class="form-group" style="margin:0;flex:1;">
-          <label class="form-label">Fim</label>
-          <input type="time" class="form-control" id="p-fi-${id}">
-        </div>
-        <button class="btn btn-danger btn-sm" style="margin-bottom:2px;" onclick="document.getElementById('par-${id}').remove()">✕</button>
-      </div>
-    </div>
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Descrição / Causa</label>
-      <input type="text" class="form-control" id="p-ds-${id}" placeholder="Descreva o problema e causa...">
-    </div>`;
+  pCount++; var id=pCount;
+  var div=document.createElement('div');
+  div.className='pi'; div.id='par-'+id;
+  var opts=TIPOS_P.map(function(t){return '<option>'+t+'</option>';}).join('');
+  div.innerHTML='<div class="g3" style="margin-bottom:8px;">'+
+    '<div class="fg" style="margin:0;"><label class="fl">Equipamento</label><input type="text" class="fc" id="p-eq-'+id+'" placeholder="Ex: CUB 10..."></div>'+
+    '<div class="fg" style="margin:0;"><label class="fl">Tipo</label><select class="fc" id="p-tp-'+id+'">'+opts+'</select></div>'+
+    '<div style="display:flex;gap:5px;align-items:end;">'+
+      '<div class="fg" style="margin:0;flex:1;"><label class="fl">Inicio</label><input type="time" class="fc" id="p-in-'+id+'"></div>'+
+      '<div class="fg" style="margin:0;flex:1;"><label class="fl">Fim</label><input type="time" class="fc" id="p-fi-'+id+'"></div>'+
+      '<button class="btn btn-d btn-sm" style="margin-bottom:1px;" onclick="document.getElementById(\'par-'+id+'\').remove()">X</button>'+
+    '</div></div>'+
+    '<div class="fg" style="margin:0;"><label class="fl">Descricao</label><input type="text" class="fc" id="p-ds-'+id+'" placeholder="Causa..."></div>';
   document.getElementById('paradasList').appendChild(div);
 }
 
-function addDificuldade(){
-  dCount++;const id=dCount;
-  const div=document.createElement('div');
-  div.className='dificuldade-item';div.id='dif-'+id;
-  div.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Tipo</label>
-        <select class="form-control" id="d-tp-${id}">${TIPOS_DIFIC.map(t=>`<option>${t}</option>`).join('')}</select>
-      </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Descrição</label>
-        <input type="text" class="form-control" id="d-ds-${id}" placeholder="Descreva...">
-      </div>
-      <button class="btn btn-danger btn-sm" style="margin-bottom:2px;" onclick="document.getElementById('dif-${id}').remove()">✕</button>
-    </div>`;
+function addDific(){
+  dCount++; var id=dCount;
+  var div=document.createElement('div');
+  div.className='di'; div.id='dif-'+id;
+  var opts=TIPOS_D.map(function(t){return '<option>'+t+'</option>';}).join('');
+  div.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">'+
+    '<div class="fg" style="margin:0;"><label class="fl">Tipo</label><select class="fc" id="d-tp-'+id+'">'+opts+'</select></div>'+
+    '<div class="fg" style="margin:0;"><label class="fl">Descricao</label><input type="text" class="fc" id="d-ds-'+id+'" placeholder="Descreva..."></div>'+
+    '<button class="btn btn-d btn-sm" style="margin-bottom:1px;" onclick="document.getElementById(\'dif-'+id+'\').remove()">X</button>'+
+    '</div>';
   document.getElementById('dificuldadesList').appendChild(div);
 }
 
+function calcMin(a,b){
+  if(!a||!b) return 0;
+  var ha=parseInt(a.split(':')[0]),ma=parseInt(a.split(':')[1]);
+  var hb=parseInt(b.split(':')[0]),mb=parseInt(b.split(':')[1]);
+  return Math.max(0,(hb*60+mb)-(ha*60+ma));
+}
+
 function colParadas(){
-  return[...document.querySelectorAll('[id^=par-]')].map(el=>{
-    const id=el.id.split('-')[1];
-    const ini=document.getElementById('p-in-'+id)?.value||'';
-    const fim=document.getElementById('p-fi-'+id)?.value||'';
-    return{eq:document.getElementById('p-eq-'+id)?.value||'',tp:document.getElementById('p-tp-'+id)?.value||'',ini,fim,min:calcMin(ini,fim),ds:document.getElementById('p-ds-'+id)?.value||''};
+  return Array.from(document.querySelectorAll('[id^=par-]')).map(function(el){
+    var id=el.id.split('-')[1];
+    var ini=document.getElementById('p-in-'+id)&&document.getElementById('p-in-'+id).value||'';
+    var fim=document.getElementById('p-fi-'+id)&&document.getElementById('p-fi-'+id).value||'';
+    return{eq:document.getElementById('p-eq-'+id)&&document.getElementById('p-eq-'+id).value||'',
+           tp:document.getElementById('p-tp-'+id)&&document.getElementById('p-tp-'+id).value||'',
+           ini:ini,fim:fim,min:calcMin(ini,fim),
+           ds:document.getElementById('p-ds-'+id)&&document.getElementById('p-ds-'+id).value||''};
   });
 }
 
 function colDifs(){
-  return[...document.querySelectorAll('[id^=dif-]')].map(el=>{
-    const id=el.id.split('-')[1];
-    return{tp:document.getElementById('d-tp-'+id)?.value||'',ds:document.getElementById('d-ds-'+id)?.value||''};
+  return Array.from(document.querySelectorAll('[id^=dif-]')).map(function(el){
+    var id=el.id.split('-')[1];
+    return{tp:document.getElementById('d-tp-'+id)&&document.getElementById('d-tp-'+id).value||'',
+           ds:document.getElementById('d-ds-'+id)&&document.getElementById('d-ds-'+id).value||''};
   });
 }
 
-function calcMin(a,b){
-  if(!a||!b)return 0;
-  const[ha,ma]=a.split(':').map(Number);
-  const[hb,mb]=b.split(':').map(Number);
-  return Math.max(0,(hb*60+mb)-(ha*60+ma));
-}
-
-// SALVAR APT
 function salvarApt(){
-  const data=document.getElementById('apt-data').value;
-  const turno=document.getElementById('apt-turno').value;
-  const sid=document.getElementById('apt-setor').value;
-  const resp=document.getElementById('apt-resp').value;
-  if(!data||!turno||!sid){toast('Preencha Data, Turno e Setor!','error');return;}
-  const s=setores.find(x=>x.id===sid);
-  const prod=Number(document.getElementById('apt-prod')?.value)||0;
-  const meta=Number(document.getElementById('apt-meta')?.value)||0;
-  const efic=meta>0?Math.round(prod/meta*100):null;
-  const apt={
-    id:Date.now(),data,turno,sid,setorNome:s?.nome||sid,unid:s?.unid||'',resp,
-    prod,meta,efic,prodObs:document.getElementById('apt-prod-obs')?.value||'',
-    presentes:Number(document.getElementById('apt-presentes').value)||0,
-    ausencias:Number(document.getElementById('apt-ausencias').value)||0,
-    recAt:Number(document.getElementById('apt-rec-at').value)||0,
-    recAd:Number(document.getElementById('apt-rec-ad').value)||0,
+  var data=document.getElementById('apt-data').value;
+  var turno=document.getElementById('apt-turno').value;
+  var sid=document.getElementById('apt-setor').value;
+  var resp=document.getElementById('apt-resp').value;
+  if(!data||!turno||!sid){toast('Preencha Data, Turno e Setor!','e');return;}
+  var s=setores.find(function(x){return x.id===sid;});
+  var prod=Number(document.getElementById('apt-prod')&&document.getElementById('apt-prod').value)||0;
+  var meta=Number(document.getElementById('apt-meta')&&document.getElementById('apt-meta').value)||0;
+  var efic=meta>0?Math.round(prod/meta*100):null;
+  var apt={
+    id:Date.now(),data:data,turno:turno,sid:sid,setorNome:s?s.nome:sid,unid:s?s.unid:'',resp:resp,
+    prod:prod,meta:meta,efic:efic,
+    pobs:document.getElementById('apt-pobs')&&document.getElementById('apt-pobs').value||'',
+    presentes:Number(document.getElementById('apt-pres').value)||0,
+    ausencias:Number(document.getElementById('apt-aus').value)||0,
+    recAt:Number(document.getElementById('apt-rat').value)||0,
+    recAd:Number(document.getElementById('apt-rad').value)||0,
     paradas:colParadas(),difs:colDifs(),
-    desvio:document.getElementById('apt-desvio').value,
-    utensilio:document.getElementById('apt-utensilio').value,
-    recurso:document.getElementById('apt-recurso').value,
+    desv:document.getElementById('apt-desv').value,
+    uten:document.getElementById('apt-uten').value,
+    rec:document.getElementById('apt-rec').value,
     obs:document.getElementById('apt-obs').value,
     ts:new Date().toISOString()
   };
   apts.push(apt);
   localStorage.setItem('v1_apts',JSON.stringify(apts));
-  if(cfg.sheets) envSheets(apt);
+  if(cfg.sheets) envSh(apt);
   toast('Apontamento salvo!');
   limparApt();
 }
 
 function limparApt(){
-  ['apt-turno','apt-setor','apt-resp','apt-presentes','apt-ausencias','apt-rec-at','apt-rec-ad','apt-obs'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?'':'';
+  ['apt-turno','apt-setor','apt-resp','apt-pres','apt-aus','apt-rat','apt-rad','apt-obs'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?'':'';
   });
-  ['apt-desvio','apt-utensilio','apt-recurso'].forEach(id=>document.getElementById(id).value='Não');
-  document.getElementById('aptProdFields').innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione data, turno e setor acima.</p>';
+  document.getElementById('apt-desv').value='Nao';
+  document.getElementById('apt-uten').value='Nao';
+  document.getElementById('apt-rec').value='Nao';
+  document.getElementById('aptProdF').innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione data, turno e setor.</p>';
   document.getElementById('paradasList').innerHTML='';
   document.getElementById('dificuldadesList').innerHTML='';
-  pCount=0;dCount=0;
+  pCount=0; dCount=0;
   document.getElementById('apt-data').value=today();
 }
 
-// CONSOLIDADO
-function renderConsolidado(){
-  const data=document.getElementById('cons-data').value;
-  const lista=apts.filter(a=>a.data===data);
-  const tbody=document.getElementById('consolidadoBody');
-  const empty=document.getElementById('consolidadoEmpty');
+// ===== CONSOLIDADO =====
+function renderCons(){
+  var data=document.getElementById('cons-data').value;
+  var lista=apts.filter(function(a){return a.data===data;});
+  var tbody=document.getElementById('consBody');
+  var empty=document.getElementById('consEmpty');
   empty.classList.add('hidden');
-
-  tbody.innerHTML=setores.map(s=>{
-    const t1=lista.find(a=>a.sid===s.id&&a.turno==='T1');
-    const t2=lista.find(a=>a.sid===s.id&&a.turno==='T2');
-    const t3=lista.find(a=>a.sid===s.id&&a.turno==='T3');
-    const totProd=(t1?.prod||0)+(t2?.prod||0)+(t3?.prod||0);
-    const meta=getMetaTot(data,s.id);
-    const efic=meta>0?Math.round(totProd/meta*100):null;
-    const aus=(t1?.ausencias||0)+(t2?.ausencias||0)+(t3?.ausencias||0);
-    const par=(t1?.paradas?.length||0)+(t2?.paradas?.length||0)+(t3?.paradas?.length||0);
-    const ec=efic===null?'var(--text2)':efic>=100?'var(--green)':efic>=80?'var(--yellow)':'var(--red)';
-    return `<tr>
-      <td>${s.nome}</td>
-      <td>${t1?t1.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>'}</td>
-      <td>${t2?t2.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>'}</td>
-      <td>${t3?t3.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>'}</td>
-      <td style="font-weight:700;">${totProd.toLocaleString('pt-BR')}</td>
-      <td>${meta>0?meta.toLocaleString('pt-BR'):'<span style="color:var(--text3)">Sem OP</span>'}</td>
-      <td><span style="font-size:11px;color:var(--text2);letter-spacing:1px;">${s.unid}</span></td>
-      <td style="font-weight:700;color:${ec}">${efic!==null?efic+'%':'—'}</td>
-      <td>${aus>0?`<span style="color:var(--orange);font-weight:600;">${aus}</span>`:aus}</td>
-      <td>${par>0?`<span class="badge badge-orange">⚠ ${par}</span>`:`<span class="badge badge-green">✓ 0</span>`}</td>
-    </tr>`;
+  var tProd=0,tAus=0,tPar=0;
+  tbody.innerHTML=setores.map(function(s){
+    var t1=lista.find(function(a){return a.sid===s.id&&a.turno==='T1';});
+    var t2=lista.find(function(a){return a.sid===s.id&&a.turno==='T2';});
+    var t3=lista.find(function(a){return a.sid===s.id&&a.turno==='T3';});
+    var tp=(t1?t1.prod:0)+(t2?t2.prod:0)+(t3?t3.prod:0);
+    var meta=getMetaTot(data,s.id);
+    var efic=meta>0?Math.round(tp/meta*100):null;
+    var aus=(t1?t1.ausencias:0)+(t2?t2.ausencias:0)+(t3?t3.ausencias:0);
+    var par=(t1?t1.paradas.length:0)+(t2?t2.paradas.length:0)+(t3?t3.paradas.length:0);
+    tProd+=tp; tAus+=aus; tPar+=par;
+    var ec2=efic===null?'var(--text2)':efic>=100?'var(--green)':efic>=80?'var(--yellow)':'var(--red)';
+    return '<tr><td>'+s.nome+'</td>'+
+      '<td>'+(t1?t1.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>')+'</td>'+
+      '<td>'+(t2?t2.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>')+'</td>'+
+      '<td>'+(t3?t3.prod.toLocaleString('pt-BR'):'<span style="color:var(--text3)">—</span>')+'</td>'+
+      '<td style="font-weight:700;">'+tp.toLocaleString('pt-BR')+'</td>'+
+      '<td>'+(meta>0?meta.toLocaleString('pt-BR'):'<span style="color:var(--text3)">Sem OP</span>')+'</td>'+
+      '<td><span class="ounid">'+s.unid+'</span></td>'+
+      '<td style="font-weight:700;color:'+ec2+'">'+(efic!==null?efic+'%':'—')+'</td>'+
+      '<td>'+(aus>0?'<span style="color:var(--orange);">'+aus+'</span>':aus)+'</td>'+
+      '<td>'+(par>0?'<span class="badge bo">⚠ '+par+'</span>':'<span class="badge bg">✓ 0</span>')+'</td></tr>';
   }).join('');
-
-  // total geral
-  const tProd=lista.reduce((s,a)=>s+a.prod,0);
-  const tAus=lista.reduce((s,a)=>s+a.ausencias,0);
-  const tPar=lista.reduce((s,a)=>s+(a.paradas?.length||0),0);
-  tbody.innerHTML+=`<tr class="total-row">
-    <td>TOTAL GERAL</td><td>—</td><td>—</td><td>—</td>
-    <td>${tProd.toLocaleString('pt-BR')}</td><td>—</td><td>—</td><td>—</td>
-    <td>${tAus}</td><td>${tPar}</td>
-  </tr>`;
+  tbody.innerHTML+='<tr class="tr"><td>TOTAL</td><td>—</td><td>—</td><td>—</td><td>'+tProd.toLocaleString('pt-BR')+'</td><td>—</td><td>—</td><td>—</td><td>'+tAus+'</td><td>'+tPar+'</td></tr>';
 }
 
-function exportConsolidadoCSV(){
-  const data=document.getElementById('cons-data').value;
-  const lista=apts.filter(a=>a.data===data);
-  const rows=[['DATA PROD','SETOR','MANHA','TARDE','NOITE','TOTAL','UNID','EFICIENCIA','ABSENTEISMO','PARADAS']];
-  setores.forEach(s=>{
-    const t1=lista.find(a=>a.sid===s.id&&a.turno==='T1');
-    const t2=lista.find(a=>a.sid===s.id&&a.turno==='T2');
-    const t3=lista.find(a=>a.sid===s.id&&a.turno==='T3');
-    const tot=(t1?.prod||0)+(t2?.prod||0)+(t3?.prod||0);
-    const meta=getMetaTot(data,s.id);
-    const efic=meta>0?Math.round(tot/meta*100)+'%':'';
-    const aus=(t1?.ausencias||0)+(t2?.ausencias||0)+(t3?.ausencias||0);
-    const par=(t1?.paradas?.length||0)+(t2?.paradas?.length||0)+(t3?.paradas?.length||0);
-    rows.push([data,s.nome,t1?.prod||0,t2?.prod||0,t3?.prod||0,tot,s.unid,efic,aus,par]);
+function expConsCSV(){
+  var data=document.getElementById('cons-data').value;
+  var lista=apts.filter(function(a){return a.data===data;});
+  var rows=[['DATA','SETOR','T1','T2','T3','TOTAL','META','UNID','EFIC','AUS','PARADAS']];
+  setores.forEach(function(s){
+    var t1=lista.find(function(a){return a.sid===s.id&&a.turno==='T1';});
+    var t2=lista.find(function(a){return a.sid===s.id&&a.turno==='T2';});
+    var t3=lista.find(function(a){return a.sid===s.id&&a.turno==='T3';});
+    var tp=(t1?t1.prod:0)+(t2?t2.prod:0)+(t3?t3.prod:0);
+    var meta=getMetaTot(data,s.id);
+    var efic=meta>0?Math.round(tp/meta*100)+'%':'';
+    var aus=(t1?t1.ausencias:0)+(t2?t2.ausencias:0)+(t3?t3.ausencias:0);
+    var par=(t1?t1.paradas.length:0)+(t2?t2.paradas.length:0)+(t3?t3.paradas.length:0);
+    rows.push([data,s.nome,t1?t1.prod:0,t2?t2.prod:0,t3?t3.prod:0,tp,meta,s.unid,efic,aus,par]);
   });
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
-  a.download=`consolidado-${data}.csv`;a.click();
+  var el=document.createElement('a');
+  el.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv;charset=utf-8'}));
+  el.download='consolidado-'+data+'.csv'; el.click();
 }
 
-// HISTÓRICO
+// ===== HISTORICO =====
 function renderHist(lista){
-  const tbody=document.getElementById('histBody');
-  const empty=document.getElementById('histEmpty');
+  var tbody=document.getElementById('histBody');
+  var empty=document.getElementById('histEmpty');
   if(!lista.length){tbody.innerHTML='';empty.classList.remove('hidden');return;}
   empty.classList.add('hidden');
-  tbody.innerHTML=[...lista].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).map(a=>{
-    const ec=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
-    return `<tr>
-      <td>${fmtD(a.data)}</td>
-      <td><span class="badge badge-gray">${a.turno}</span></td>
-      <td>${a.setorNome}</td>
-      <td>${a.resp||'—'}</td>
-      <td>${a.prod?.toLocaleString('pt-BR')||0} <span style="font-size:10px;color:var(--text3)">${a.unid}</span></td>
-      <td>${a.meta>0?a.meta.toLocaleString('pt-BR'):'—'}</td>
-      <td style="font-weight:700;color:${ec}">${a.efic!=null?a.efic+'%':'—'}</td>
-      <td>${a.presentes}</td>
-      <td>${a.ausencias>0?`<span style="color:var(--orange)">${a.ausencias}</span>`:a.ausencias}</td>
-      <td>${a.paradas?.length>0?`<span class="badge badge-red">⚠ ${a.paradas.length}</span>`:`<span class="badge badge-green">✓ 0</span>`}</td>
-      <td style="display:flex;gap:6px;">
-        <button class="btn btn-secondary btn-sm" onclick="verDet(${a.id})">Ver</button>
-        <button class="btn btn-danger btn-sm" onclick="delApt(${a.id})">✕</button>
-      </td>
-    </tr>`;
+  tbody.innerHTML=lista.slice().sort(function(a,b){return new Date(b.ts)-new Date(a.ts);}).map(function(a){
+    var ec2=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
+    return '<tr>'+
+      '<td>'+fmtD(a.data)+'</td>'+
+      '<td><span class="badge bgr">'+a.turno+'</span></td>'+
+      '<td>'+a.setorNome+'</td>'+
+      '<td>'+(a.resp||'—')+'</td>'+
+      '<td>'+(a.prod||0).toLocaleString('pt-BR')+' <span style="font-size:10px;color:var(--text3);">'+a.unid+'</span></td>'+
+      '<td>'+(a.meta>0?a.meta.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td style="font-weight:700;color:'+ec2+'">'+(a.efic!=null?a.efic+'%':'—')+'</td>'+
+      '<td>'+a.presentes+'</td>'+
+      '<td>'+(a.ausencias>0?'<span style="color:var(--orange);">'+a.ausencias+'</span>':a.ausencias)+'</td>'+
+      '<td>'+(a.paradas&&a.paradas.length>0?'<span class="badge br">⚠ '+a.paradas.length+'</span>':'<span class="badge bg">✓ 0</span>')+'</td>'+
+      '<td style="display:flex;gap:5px;">'+
+        '<button class="btn btn-s btn-sm" onclick="verDet('+a.id+')">Ver</button>'+
+        '<button class="btn btn-d btn-sm" onclick="delApt('+a.id+')">✕</button>'+
+      '</td></tr>';
   }).join('');
 }
 
-function filtrarHist(){
-  const ini=document.getElementById('filt-ini').value;
-  const fim=document.getElementById('filt-fim').value;
-  const sid=document.getElementById('filt-setor').value;
-  const t=document.getElementById('filt-turno').value;
-  let l=[...apts];
-  if(ini)l=l.filter(a=>a.data>=ini);
-  if(fim)l=l.filter(a=>a.data<=fim);
-  if(sid)l=l.filter(a=>a.sid===sid);
-  if(t)l=l.filter(a=>a.turno===t);
+function filtHist(){
+  var ini=document.getElementById('fi').value;
+  var fim=document.getElementById('ff').value;
+  var sid=document.getElementById('fst').value;
+  var t=document.getElementById('ftu').value;
+  var l=apts.slice();
+  if(ini) l=l.filter(function(a){return a.data>=ini;});
+  if(fim) l=l.filter(function(a){return a.data<=fim;});
+  if(sid) l=l.filter(function(a){return a.sid===sid;});
+  if(t) l=l.filter(function(a){return a.turno===t;});
   renderHist(l);
 }
 
-function limparFiltros(){
-  const td=today();
-  document.getElementById('filt-ini').value=td;
-  document.getElementById('filt-fim').value=td;
-  document.getElementById('filt-setor').value='';
-  document.getElementById('filt-turno').value='';
+function limFilt(){
+  var td=today();
+  document.getElementById('fi').value=td;
+  document.getElementById('ff').value=td;
+  document.getElementById('fst').value='';
+  document.getElementById('ftu').value='';
   renderHist(apts);
 }
 
 function delApt(id){
-  if(!confirm('Deletar?'))return;
-  apts=apts.filter(a=>a.id!==id);
+  if(!confirm('Deletar?')) return;
+  apts=apts.filter(function(a){return a.id!==id;});
   localStorage.setItem('v1_apts',JSON.stringify(apts));
-  renderHist(apts);toast('Removido');
+  renderHist(apts); toast('Removido');
 }
 
-function populateFiltroSetor(){
-  const sel=document.getElementById('filt-setor');
-  setores.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.nome;sel.appendChild(o);});
+function popFiltSetor(){
+  var sel=document.getElementById('fst');
+  setores.forEach(function(s){
+    var o=document.createElement('option'); o.value=s.id; o.textContent=s.nome; sel.appendChild(o);
+  });
 }
 
-// DETALHE
 function verDet(id){
-  const a=apts.find(x=>x.id===id);if(!a)return;
-  const ec=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
-  const parHTML=(a.paradas||[]).map(p=>`
-    <div style="background:var(--bg3);border-left:3px solid var(--orange);padding:10px;margin-bottom:8px;border-radius:2px;">
-      <strong>${p.eq||'Equip.'}</strong> — ${p.tp}<br>
-      <span style="color:var(--text2);font-size:12px;">${p.ini||'?'} → ${p.fi||p.fim||'?'} (${p.min} min) | ${p.ds}</span>
-    </div>`).join('')||'<p style="color:var(--text2);font-size:13px;">Sem paradas</p>';
-  const difHTML=(a.difs||[]).map(d=>`
-    <div style="background:var(--bg3);border-left:3px solid var(--yellow);padding:10px;margin-bottom:8px;border-radius:2px;">
-      <strong>${d.tp}</strong><br>
-      <span style="color:var(--text2);font-size:12px;">${d.ds}</span>
-    </div>`).join('')||'<p style="color:var(--text2);font-size:13px;">Sem dificuldades</p>';
-
-  document.getElementById('modalContent').innerHTML=`
-    <div class="grid-4" style="margin-bottom:16px;">
-      <div class="kpi-card green"><div class="kpi-label">Data</div><div style="font-size:18px;font-weight:700;">${fmtD(a.data)}</div></div>
-      <div class="kpi-card blue"><div class="kpi-label">Turno — Setor</div><div style="font-size:15px;font-weight:700;">${a.turno} — ${a.setorNome}</div></div>
-      <div class="kpi-card green"><div class="kpi-label">Produção</div><div style="font-size:24px;font-weight:800;">${a.prod?.toLocaleString('pt-BR')||0} <span style="font-size:12px;">${a.unid}</span></div></div>
-      <div class="kpi-card ${a.efic>=100?'green':a.efic>=80?'yellow':'red'}">
-        <div class="kpi-label">Eficiência</div>
-        <div style="font-size:28px;font-weight:800;color:${ec}">${a.efic!=null?a.efic+'%':'—'}</div>
-        <div style="font-size:11px;color:var(--text2)">Meta: ${a.meta>0?a.meta.toLocaleString('pt-BR'):'Sem OP'}</div>
-      </div>
-    </div>
-    <div class="grid-4" style="margin-bottom:16px;">
-      <div><div class="kpi-label">Presentes</div><div style="font-size:20px;font-weight:700;">${a.presentes}</div></div>
-      <div><div class="kpi-label">Ausências</div><div style="font-size:20px;font-weight:700;color:var(--orange)">${a.ausencias}</div></div>
-      <div><div class="kpi-label">Rec. Atrasadas</div><div style="font-size:20px;font-weight:700;">${a.recAt||0}</div></div>
-      <div><div class="kpi-label">Rec. Adiantadas</div><div style="font-size:20px;font-weight:700;">${a.recAd||0}</div></div>
-    </div>
-    <div class="divider"></div>
-    <div class="card-title" style="margin-bottom:8px;">⚠ Paradas</div>${parHTML}
-    <div class="divider"></div>
-    <div class="card-title" style="margin-bottom:8px;">📌 Dificuldades</div>${difHTML}
-    ${a.obs?`<div class="divider"></div><div class="card-title" style="margin-bottom:8px;">💬 Comentários</div><p style="font-size:13px;color:var(--text2)">${a.obs}</p>`:''}
-  `;
+  var a=apts.find(function(x){return x.id===id;}); if(!a) return;
+  var ec2=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
+  var parH=(a.paradas||[]).map(function(p){
+    return '<div style="background:var(--bg3);border-left:3px solid var(--orange);padding:9px;margin-bottom:7px;border-radius:2px;">'+
+      '<strong>'+(p.eq||'Equip.')+'</strong> — '+p.tp+'<br>'+
+      '<span style="color:var(--text2);font-size:12px;">'+(p.ini||'?')+' - '+(p.fim||'?')+' ('+p.min+' min) | '+p.ds+'</span></div>';
+  }).join('')||'<p style="color:var(--text2);font-size:13px;">Sem paradas</p>';
+  var difH=(a.difs||[]).map(function(d){
+    return '<div style="background:var(--bg3);border-left:3px solid var(--yellow);padding:9px;margin-bottom:7px;border-radius:2px;">'+
+      '<strong>'+d.tp+'</strong><br><span style="color:var(--text2);font-size:12px;">'+d.ds+'</span></div>';
+  }).join('')||'<p style="color:var(--text2);font-size:13px;">Sem dificuldades</p>';
+  document.getElementById('modalC').innerHTML=
+    '<div class="g4" style="margin-bottom:14px;">'+
+      '<div class="kpi g"><div class="kl">Data</div><div style="font-size:17px;font-weight:700;">'+fmtD(a.data)+'</div></div>'+
+      '<div class="kpi b"><div class="kl">Turno / Setor</div><div style="font-size:14px;font-weight:700;">'+a.turno+' — '+a.setorNome+'</div></div>'+
+      '<div class="kpi g"><div class="kl">Producao</div><div style="font-size:22px;font-weight:800;">'+(a.prod||0).toLocaleString('pt-BR')+' <span style="font-size:11px;">'+a.unid+'</span></div></div>'+
+      '<div class="kpi '+(a.efic>=100?'g':a.efic>=80?'y':'r')+'"><div class="kl">Eficiencia</div><div style="font-size:26px;font-weight:800;color:'+ec2+'">'+(a.efic!=null?a.efic+'%':'—')+'</div></div>'+
+    '</div>'+
+    '<div class="divider"></div>'+
+    '<div class="ctitle" style="margin-bottom:7px;">Paradas</div>'+parH+
+    '<div class="divider"></div>'+
+    '<div class="ctitle" style="margin-bottom:7px;">Dificuldades</div>'+difH+
+    (a.obs?'<div class="divider"></div><div class="ctitle" style="margin-bottom:7px;">Comentarios</div><p style="font-size:13px;color:var(--text2);">'+a.obs+'</p>':'');
   document.getElementById('modalDet').style.display='flex';
 }
 
-// DASHBOARD
+// ===== DASHBOARD =====
 function renderDash(){
-  const data=document.getElementById('dash-data').value;
-  const dh=apts.filter(a=>a.data===data);
-  const tPar=dh.reduce((s,a)=>s+(a.paradas?.length||0),0);
-  const tAus=dh.reduce((s,a)=>s+a.ausencias,0);
-  const efics=dh.filter(a=>a.efic!=null).map(a=>a.efic);
-  const em=efics.length?Math.round(efics.reduce((s,v)=>s+v,0)/efics.length):null;
-  document.getElementById('kpi-apt').textContent=dh.length;
-  document.getElementById('kpi-par').textContent=tPar;
-  document.getElementById('kpi-abs').textContent=tAus;
-  document.getElementById('kpi-efic').textContent=em!=null?em+'%':'—';
-  document.getElementById('kpi-set').textContent=new Set(dh.map(a=>a.sid)).size;
-
-  // efic por setor
-  const dE=document.getElementById('dashEfic');
+  var data=document.getElementById('dash-data').value;
+  var dh=apts.filter(function(a){return a.data===data;});
+  var tPar=dh.reduce(function(s,a){return s+(a.paradas?a.paradas.length:0);},0);
+  var tAus=dh.reduce(function(s,a){return s+a.ausencias;},0);
+  var efics=dh.filter(function(a){return a.efic!=null;}).map(function(a){return a.efic;});
+  var em=efics.length?Math.round(efics.reduce(function(s,v){return s+v;},0)/efics.length):null;
+  document.getElementById('ki-apt').textContent=dh.length;
+  document.getElementById('ki-par').textContent=tPar;
+  document.getElementById('ki-abs').textContent=tAus;
+  document.getElementById('ki-efi').textContent=em!=null?em+'%':'—';
+  document.getElementById('ki-set').textContent=new Set(dh.map(function(a){return a.sid;})).size;
+  var dE=document.getElementById('dashEfic');
   if(dh.length){
-    const map={};
-    dh.forEach(a=>{if(!map[a.setorNome])map[a.setorNome]={p:0,m:0};map[a.setorNome].p+=a.prod||0;map[a.setorNome].m+=a.meta||0;});
-    dE.innerHTML=Object.entries(map).map(([n,v])=>{
-      const p=v.m>0?Math.round(v.p/v.m*100):null;
-      const c=p===null?'var(--text2)':p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
-      return `<div style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:13px;">${n}</span>
-          <span style="font-size:13px;font-weight:700;color:${c}">${p!=null?p+'%':'Sem OP'}</span>
-        </div>
-        <div class="progress-bar-wrap"><div class="progress-bar ${p>=100?'green':p>=80?'orange':'red'}" style="width:${Math.min(p||0,100)}%"></div></div>
-      </div>`;
+    var map={};
+    dh.forEach(function(a){if(!map[a.setorNome])map[a.setorNome]={p:0,m:0};map[a.setorNome].p+=a.prod||0;map[a.setorNome].m+=a.meta||0;});
+    dE.innerHTML=Object.entries(map).map(function(e){
+      var n=e[0],v=e[1];
+      var p=v.m>0?Math.round(v.p/v.m*100):null;
+      var c=p===null?'var(--text2)':p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
+      return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;">'+n+'</span><span style="font-size:12px;font-weight:700;color:'+c+'">'+(p!=null?p+'%':'Sem OP')+'</span></div><div class="pbw"><div class="pb '+(p>=100?'g':p>=80?'o':'r')+'" style="width:'+Math.min(p||0,100)+'%"></div></div></div>';
     }).join('');
-  }else{dE.innerHTML='<div class="empty-state"><div class="icon">📊</div><p>Sem dados</p></div>';}
-
-  // paradas
-  const dP=document.getElementById('dashPar');
-  const pars=dh.flatMap(a=>(a.paradas||[]).map(p=>({...p,setor:a.setorNome,turno:a.turno}))).slice(0,8);
-  dP.innerHTML=pars.length?pars.map(p=>`
-    <div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
-      <span style="color:var(--orange);">⚠</span>
-      <div><div style="font-size:13px;font-weight:600;">${p.eq||'Equip.'} — ${p.tp}</div>
-      <div style="font-size:11px;color:var(--text2)">${p.setor} | ${p.turno} | ${p.min} min | ${p.ds||''}</div></div>
-    </div>`).join(''):'<div class="empty-state"><div class="icon">✅</div><p>Sem paradas</p></div>';
-
-  // turnos
-  const dT=document.getElementById('dashTurnos');
+  } else {dE.innerHTML='<div class="es"><div class="ei">📊</div><p>Sem dados</p></div>';}
+  var dP=document.getElementById('dashPar');
+  var pars=dh.flatMap(function(a){return(a.paradas||[]).map(function(p){return Object.assign({},p,{setor:a.setorNome,turno:a.turno});});}).slice(0,8);
+  dP.innerHTML=pars.length?pars.map(function(p){
+    return '<div style="display:flex;gap:7px;padding:7px 0;border-bottom:1px solid var(--border);">'+
+      '<span style="color:var(--orange);">⚠</span>'+
+      '<div><div style="font-size:12px;font-weight:600;">'+(p.eq||'Equip.')+' — '+p.tp+'</div>'+
+      '<div style="font-size:11px;color:var(--text2);">'+p.setor+' | '+p.turno+' | '+p.min+' min</div></div></div>';
+  }).join(''):'<div class="es"><div class="ei">✅</div><p>Sem paradas</p></div>';
+  var dT=document.getElementById('dashTurn');
   if(dh.length){
-    dT.innerHTML=`<div class="grid-3">${['T1','T2','T3'].map(t=>{
-      const ta=dh.filter(a=>a.turno===t);
-      const par=ta.reduce((s,a)=>s+(a.paradas?.length||0),0);
-      const aus=ta.reduce((s,a)=>s+a.ausencias,0);
-      const ef=ta.filter(a=>a.efic!=null).map(a=>a.efic);
-      const em2=ef.length?Math.round(ef.reduce((s,v)=>s+v,0)/ef.length):null;
-      return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:14px;">
-        <div class="kpi-label">${t==='T1'?'Turno 1 — Manhã':t==='T2'?'Turno 2 — Tarde':'Turno 3 — Noite'}</div>
-        <div style="font-size:22px;font-weight:700;margin:8px 0;">${ta.length} <span style="font-size:12px;color:var(--text2)">setores</span></div>
-        <div style="font-size:12px;color:${em2!=null?em2>=100?'var(--green)':em2>=80?'var(--yellow)':'var(--red)':'var(--text2)'}">⚡ Efic. média: ${em2!=null?em2+'%':'—'}</div>
-        <div style="font-size:12px;color:${par>0?'var(--orange)':'var(--text2)'}">⚠ ${par} paradas</div>
-        <div style="font-size:12px;color:${aus>0?'var(--orange)':'var(--text2)'}">👤 ${aus} ausências</div>
-      </div>`;
-    }).join('')}</div>`;
-  }else{dT.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Sem dados</p></div>';}
+    dT.innerHTML='<div class="g3">'+['T1','T2','T3'].map(function(t){
+      var ta=dh.filter(function(a){return a.turno===t;});
+      var par=ta.reduce(function(s,a){return s+(a.paradas?a.paradas.length:0);},0);
+      var aus=ta.reduce(function(s,a){return s+a.ausencias;},0);
+      var ef=ta.filter(function(a){return a.efic!=null;}).map(function(a){return a.efic;});
+      var em2=ef.length?Math.round(ef.reduce(function(s,v){return s+v;},0)/ef.length):null;
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:13px;">'+
+        '<div class="kl">'+(t==='T1'?'T1 — Manha':t==='T2'?'T2 — Tarde':'T3 — Noite')+'</div>'+
+        '<div style="font-size:20px;font-weight:700;margin:7px 0;">'+ta.length+' <span style="font-size:11px;color:var(--text2);">setores</span></div>'+
+        '<div style="font-size:11px;color:'+(em2!=null?em2>=100?'var(--green)':em2>=80?'var(--yellow)':'var(--red)':'var(--text2)')+'">Efic.: '+(em2!=null?em2+'%':'—')+'</div>'+
+        '<div style="font-size:11px;color:'+(par>0?'var(--orange)':'var(--text2)')+'">⚠ '+par+' paradas</div>'+
+        '<div style="font-size:11px;color:'+(aus>0?'var(--orange)':'var(--text2)')+'">👤 '+aus+' ausencias</div></div>';
+    }).join('')+'</div>';
+  } else {dT.innerHTML='<div class="es"><div class="ei">📋</div><p>Sem dados</p></div>';}
 }
 
-// CONFIG
-function renderConfigSetores(){
-  document.getElementById('configSetores').innerHTML=setores.map(s=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-      <span style="font-size:13px;">${s.nome} <span style="font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-left:6px;">${s.unid}</span></span>
-      <button class="btn btn-danger btn-sm" onclick="rmSetor('${s.id}')">✕</button>
-    </div>`).join('');
+// ===== PERFORMANCE =====
+function mmovEl(arr,idx,janela){
+  var win=arr.slice(Math.max(0,idx-janela+1),idx+1).filter(function(v){return v!==null&&v>0;});
+  return win.length?Math.round(win.reduce(function(a,b){return a+b;},0)/win.length):null;
+}
+function limites(arr,idx,janela){
+  var win=arr.slice(Math.max(0,idx-janela+1),idx+1).filter(function(v){return v!==null&&v>0;});
+  if(win.length<3) return{li:null,ls:null};
+  var med=win.reduce(function(a,b){return a+b;},0)/win.length;
+  var std=Math.sqrt(win.reduce(function(s,v){return s+Math.pow(v-med,2);},0)/win.length);
+  return{li:Math.round(med-std),ls:Math.round(med+std)};
+}
+
+async function renderPerf(){
+  var data=document.getElementById('perf-data').value;
+  var nsem=parseInt(document.getElementById('perf-sem').value);
+  if(!data){toast('Selecione a data!','e');return;}
+  if(cfg.sheets){
+    toast('Buscando dados do Sheets...','w');
+    try{
+      var url=cfg.sheets+'?acao=getPerformance&dias='+(nsem*7);
+      var resp=await fetch(url);
+      var sd=await resp.json();
+      if(Array.isArray(sd)&&sd.length>0){
+        var dc=sd.map(function(d){
+          return{
+            data:String(d.Data||''),dia:String(d.DiaSemana||''),
+            volResf:Number(d.VolResfriado)||null,mmResf:Number(d.MM28_Resf)||null,
+            limResf:{li:Number(d.LI_Resf)||0,ls:Number(d.LS_Resf)||0},
+            volCong:Number(d.VolCongelado)||null,mmCong:Number(d.MM28_Cong)||null,
+            limCong:{li:Number(d.LI_Cong)||0,ls:Number(d.LS_Cong)||0},
+            flv:Number(d.FLV_kg)||null,mmFlv:Number(d.MM28_FLV)||null,
+            limFlv:{li:Number(d.LI_FLV)||0,ls:Number(d.LS_FLV)||0},
+            acougue:Number(d.Acougue_kg)||null,mmAc:Number(d.MM28_Ac)||null,
+            limAc:{li:Number(d.LI_Ac)||0,ls:Number(d.LS_Ac)||0},
+            temDados:true
+          };
+        });
+        renderBlocoPerf('pResf',dc,'volResf','mmResf','limResf','#00C853');
+        renderBlocoPerf('pCong',dc,'volCong','mmCong','limCong','#2979FF');
+        renderBlocoPerf('pFLV',dc,'flv','mmFlv','limFlv','#FFD600');
+        renderBlocoPerf('pAc',dc,'acougue','mmAc','limAc','#FF6D00');
+        renderTblPerf(dc);
+        toast('Dados do Sheets carregados!');
+        return;
+      }
+    }catch(e){toast('Sheets offline — dados locais','w');}
+  }
+  toast('Sem dados disponiveis','w');
+}
+
+function renderBlocoPerf(cid,dados,campo,mmCampo,limCampo,cor){
+  var container=document.getElementById(cid);
+  var rec=dados.filter(function(d){return d[campo]!==null&&d[campo]>0;}).slice(-14);
+  if(!rec.length){container.innerHTML='<div class="es"><div class="ei">📭</div><p>Sem dados</p></div>';return;}
+  var max=Math.max.apply(null,rec.map(function(d){return Math.max(d[campo]||0,d[mmCampo]||0,(d[limCampo]&&d[limCampo].ls)||0);}));
+  var vals=rec.map(function(d){return d[campo];}).filter(function(v){return v;});
+  var media=vals.length?Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length):0;
+  var ult=rec[rec.length-1];
+  var pen=rec.length>1?rec[rec.length-2]:null;
+  var tend='—';
+  if(pen&&ult[campo]&&pen[campo]) tend=ult[campo]>pen[campo]?'▲':ult[campo]<pen[campo]?'▼':'—';
+  var tc=tend==='▲'?'var(--green)':tend==='▼'?'var(--red)':'var(--text2)';
+  var tcl=tend==='▲'?'g':tend==='▼'?'r':'y';
+  var lim=ult[limCampo]||{};
+  var status='✓ Normal',scor='var(--green)',scl='g';
+  if(lim.li&&ult[campo]){
+    if(ult[campo]<lim.li){status='⚠ Abaixo LI';scor='var(--red)';scl='r';}
+    else if(ult[campo]>lim.ls){status='⚡ Acima LS';scor='var(--orange)';scl='o';}
+  }
+  var svgW=Math.max(700,rec.length*74);
+  var svgB='';
+  var polyPts=[];
+  rec.forEach(function(d,i){
+    var x=i*74+10;
+    var barH=max>0?Math.round((d[campo]||0)/max*130):0;
+    var bc=(d[campo]&&lim.li&&d[campo]<lim.li)?'#FF1744':(d[campo]&&lim.ls&&d[campo]>lim.ls)?'#FF6D00':cor;
+    var v1k=d[campo]?(d[campo]/1000).toFixed(0)+'k':'';
+    svgB+='<rect x="'+x+'" y="'+(150-barH)+'" width="52" height="'+barH+'" fill="'+bc+'" opacity="0.85" rx="2"/>';
+    if(barH>0) svgB+='<text x="'+(x+26)+'" y="'+(150-barH-4)+'" text-anchor="middle" fill="'+bc+'" font-size="10">'+v1k+'</text>';
+    svgB+='<text x="'+(x+26)+'" y="168" text-anchor="middle" fill="#5a6a5a" font-size="10">'+(d.dia||'')+'</text>';
+    if(d[mmCampo]&&max>0){
+      var my=150-Math.round(d[mmCampo]/max*130);
+      svgB+='<circle cx="'+(x+26)+'" cy="'+my+'" r="3" fill="white" opacity="0.9"/>';
+      polyPts.push((x+26)+','+my);
+    }
+    if(d[limCampo]&&d[limCampo].li&&max>0){
+      var ly=150-Math.round(d[limCampo].li/max*130);
+      var lsy=150-Math.round(d[limCampo].ls/max*130);
+      svgB+='<line x1="'+x+'" y1="'+ly+'" x2="'+(x+52)+'" y2="'+ly+'" stroke="#FF1744" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
+      svgB+='<line x1="'+x+'" y1="'+lsy+'" x2="'+(x+52)+'" y2="'+lsy+'" stroke="#FF6D00" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
+    }
+  });
+  if(polyPts.length>1) svgB+='<polyline points="'+polyPts.join(' ')+'" fill="none" stroke="white" stroke-width="1.5" opacity="0.6"/>';
+  container.innerHTML=
+    '<div class="g4" style="margin-bottom:14px;">'+
+      '<div class="kpi g"><div class="kl">Ultimo Dia</div><div style="font-size:24px;font-weight:800;">'+(ult[campo]||0).toLocaleString('pt-BR')+'</div><div class="ks">'+fmtD(ult.data)+' · '+(ult.dia||'')+'</div></div>'+
+      '<div class="kpi b"><div class="kl">Media Periodo</div><div style="font-size:24px;font-weight:800;">'+media.toLocaleString('pt-BR')+'</div><div class="ks">ultimos '+vals.length+' dias</div></div>'+
+      '<div class="kpi '+tcl+'"><div class="kl">Tendencia</div><div style="font-size:34px;font-weight:800;color:'+tc+'">'+tend+'</div></div>'+
+      '<div class="kpi '+scl+'"><div class="kl">Status Controle</div><div style="font-size:14px;font-weight:700;color:'+scor+';margin-top:5px;">'+status+'</div><div class="ks">LI: '+(lim.li?lim.li.toLocaleString('pt-BR'):'—')+' / LS: '+(lim.ls?lim.ls.toLocaleString('pt-BR'):'—')+'</div></div>'+
+    '</div>'+
+    '<div style="overflow-x:auto;"><svg width="'+svgW+'" height="180" style="display:block;">'+svgB+'</svg></div>'+
+    '<div style="display:flex;gap:14px;margin-top:7px;font-size:11px;color:var(--text2);">'+
+      '<span>█ <span style="color:'+cor+'">Producao</span></span>'+
+      '<span>● <span style="color:white;opacity:.7">Media Movel</span></span>'+
+      '<span>-- <span style="color:#FF1744">LI (-1σ)</span></span>'+
+      '<span>-- <span style="color:#FF6D00">LS (+1σ)</span></span>'+
+    '</div>';
+}
+
+function renderTblPerf(dados){
+  var tbody=document.getElementById('perfTbl');
+  var empty=document.getElementById('perfEmpty');
+  var com=dados.filter(function(d){return d.temDados;});
+  if(!com.length){tbody.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  tbody.innerHTML=com.slice().reverse().map(function(d){
+    var rc=d.volResf&&d.limResf&&d.limResf.li&&d.volResf<d.limResf.li?'var(--red)':d.volResf&&d.limResf&&d.limResf.ls&&d.volResf>d.limResf.ls?'var(--orange)':d.volResf?'var(--green)':'var(--text3)';
+    return '<tr>'+
+      '<td>'+fmtD(d.data)+'</td>'+
+      '<td><span class="badge bgr">'+(d.dia||'')+'</span></td>'+
+      '<td style="font-weight:700;color:'+rc+'">'+(d.volResf?d.volResf.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td style="color:var(--text2);">'+(d.mmResf?d.mmResf.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td style="color:var(--red);font-size:12px;">'+(d.limResf&&d.limResf.li?d.limResf.li.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td style="color:var(--orange);font-size:12px;">'+(d.limResf&&d.limResf.ls?d.limResf.ls.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td style="font-weight:700;color:var(--blue);">'+(d.volCong?d.volCong.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td style="color:var(--text2);">'+(d.mmCong?d.mmCong.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td>'+(d.flv?d.flv.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td>'+(d.acougue?d.acougue.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td>'+(d.volResf?(d.limResf&&d.limResf.li&&d.volResf<d.limResf.li?'<span class="badge br">⚠ Baixo</span>':d.limResf&&d.limResf.ls&&d.volResf>d.limResf.ls?'<span class="badge bo">⚡ Alto</span>':'<span class="badge bg">✓ OK</span>'):'<span class="badge bgr">Sem dados</span>')+'</td>'+
+      '</tr>';
+  }).join('');
+}
+
+// ===== CONFIG =====
+function renderCfgSetores(){
+  document.getElementById('cfgSetores').innerHTML=setores.map(function(s){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'+
+      '<span style="font-size:13px;">'+s.nome+' <span class="ounid" style="margin-left:5px;">'+s.unid+'</span></span>'+
+      '<button class="btn btn-d btn-sm" onclick="rmSetor(\''+s.id+'\')">✕</button></div>';
+  }).join('');
 }
 
 function addSetor(){
-  const nome=document.getElementById('novo-setor-nome').value.trim();
-  const unid=document.getElementById('novo-setor-unid').value;
-  if(!nome)return;
-  const id=nome.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-  if(setores.find(s=>s.id===id)){toast('Já existe!','error');return;}
-  setores.push({id,nome,unid});
+  var nome=document.getElementById('ns-nome').value.trim();
+  var unid=document.getElementById('ns-unid').value;
+  if(!nome) return;
+  var id=nome.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  if(setores.find(function(s){return s.id===id;})){toast('Ja existe!','e');return;}
+  setores.push({id:id,nome:nome,unid:unid});
   localStorage.setItem('v1_setores',JSON.stringify(setores));
-  document.getElementById('novo-setor-nome').value='';
-  renderConfigSetores();renderOPRows();renderAptSetor();
-  toast('Setor adicionado!');
+  document.getElementById('ns-nome').value='';
+  renderCfgSetores(); renderAptSetor(); toast('Setor adicionado!');
 }
 
 function rmSetor(id){
-  if(!confirm('Remover setor?'))return;
-  setores=setores.filter(s=>s.id!==id);
+  if(!confirm('Remover setor?')) return;
+  setores=setores.filter(function(s){return s.id!==id;});
   localStorage.setItem('v1_setores',JSON.stringify(setores));
-  renderConfigSetores();renderOPRows();renderAptSetor();
-  toast('Removido');
+  renderCfgSetores(); toast('Removido');
 }
 
-function salvarConfig(){
-  cfg.sheets=document.getElementById('cfg-sheets').value;
-  cfg.demanda=document.getElementById('cfg-demanda').value;
+function salvarCfg(){
+  cfg.sheets=document.getElementById('cfg-sh').value;
+  cfg.demanda=document.getElementById('cfg-df').value;
   localStorage.setItem('v1_cfg',JSON.stringify(cfg));
   toast('Config salva!');
 }
 
 async function testarConn(){
-  const url=document.getElementById('cfg-sheets').value;
-  if(!url){toast('Insira a URL!','warning');return;}
-  try{await fetch(url+'?test=1',{mode:'no-cors'});document.getElementById('cfg-status').innerHTML='<span style="color:var(--green)">✓ URL acessível</span>';}
-  catch{document.getElementById('cfg-status').innerHTML='<span style="color:var(--red)">✕ Erro de conexão</span>';}
+  var url=document.getElementById('cfg-sh').value;
+  if(!url){toast('Insira a URL!','w');return;}
+  try{
+    await fetch(url+'?acao=ping');
+    document.getElementById('cfg-st').innerHTML='<span style="color:var(--green)">✓ Conectado!</span>';
+  }catch(e){
+    document.getElementById('cfg-st').innerHTML='<span style="color:var(--red)">✕ Erro de conexao</span>';
+  }
 }
 
-async function envSheets(a){
-  try{await fetch(cfg.sheets,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'apontamento',dados:a})});}catch{}
+async function envSh(apt){
+  if(!cfg.sheets) return;
+  try{await fetch(cfg.sheets,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'apontamento',dados:apt})});}catch(e){}
 }
 
 function expJSON(){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify({apts,ops},null,2)],{type:'application/json'}));
-  a.download=`v1-backup-${today()}.json`;a.click();
+  var el=document.createElement('a');
+  el.href=URL.createObjectURL(new Blob([JSON.stringify({apts:apts,ops:ops},null,2)],{type:'application/json'}));
+  el.download='v1-backup-'+today()+'.json'; el.click();
 }
 
 function expCSV(){
-  if(!apts.length){toast('Sem dados','warning');return;}
-  const rows=[['ID','Data','Turno','Setor','Responsavel','Producao','Unid','Meta','Efic%','Presentes','Ausencias','Paradas']];
-  apts.forEach(a=>rows.push([a.id,a.data,a.turno,a.setorNome,a.resp,a.prod,a.unid,a.meta,a.efic!=null?a.efic+'%':'',a.presentes,a.ausencias,a.paradas?.length||0]));
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
-  a.download=`v1-apts-${today()}.csv`;a.click();
+  if(!apts.length){toast('Sem dados','w');return;}
+  var rows=[['ID','Data','Turno','Setor','Resp','Prod','Unid','Meta','Efic','Presentes','Ausencias','Paradas']];
+  apts.forEach(function(a){rows.push([a.id,a.data,a.turno,a.setorNome,a.resp,a.prod,a.unid,a.meta,a.efic!=null?a.efic+'%':'',a.presentes,a.ausencias,a.paradas?a.paradas.length:0]);});
+  var el=document.createElement('a');
+  el.href=URL.createObjectURL(new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv;charset=utf-8'}));
+  el.download='v1-apts-'+today()+'.csv'; el.click();
 }
 
-function limparTudo(){
-  if(!confirm('Apaga TUDO?'))return;
-  apts=[];ops=[];
+function limTudo(){
+  if(!confirm('Apaga TUDO?')) return;
+  apts=[]; ops=[];
   localStorage.setItem('v1_apts','[]');
   localStorage.setItem('v1_ops','[]');
-  toast('Dados limpos','warning');
-}
-
-// ===== PERFORMANCE OPERACIONAL =====
-
-// Converte ciclos em KG pelos fatores da planilha
-const KG_FATOR = { forno: 60, vario: 20, caldeira: 25 };
-
-function ciclosToKG(setor, qtd) {
-  return (KG_FATOR[setor] || 1) * qtd;
-}
-
-function getDiasSemana(dataFim, nSemanas) {
-  const dias = [];
-  const fim = new Date(dataFim + 'T12:00:00');
-  const ini = new Date(fim);
-  ini.setDate(ini.getDate() - (nSemanas * 7));
-  for (let d = new Date(ini); d <= fim; d.setDate(d.getDate() + 1)) {
-    dias.push(d.toISOString().split('T')[0]);
-  }
-  return dias;
-}
-
-function mediaMovel(arr, n) {
-  // Calcula a média móvel de n dias
-  const res = [];
-  for (let i = 0; i < arr.length; i++) {
-    const slice = arr.slice(Math.max(0, i - n + 1), i + 1).filter(v => v !== null);
-    res.push(slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null);
-  }
-  return res;
-}
-
-function desvio(arr, media) {
-  const vals = arr.filter(v => v !== null);
-  if (vals.length < 2) return 0;
-  const m = media !== undefined ? media : vals.reduce((a, b) => a + b, 0) / vals.length;
-  return Math.sqrt(vals.reduce((s, v) => s + Math.pow(v - m, 2), 0) / vals.length);
-}
-
-function diasSemana(data) {
-  const dias = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'];
-  return dias[new Date(data + 'T12:00:00').getDay()];
-}
-
-async function renderPerformance() {
-  const dataFim = document.getElementById('perf-data').value;
-  const nSemanas = parseInt(document.getElementById('perf-semanas').value);
-  if (!dataFim) { toast('Selecione a data!', 'error'); return; }
-
-  // Tenta buscar do Google Sheets
-  if (cfg.sheets) {
-    toast('Buscando dados do Sheets...', 'warning');
-    try {
-      const url = cfg.sheets + '?acao=getPerformance&dias=' + (nSemanas * 7);
-      const resp = await fetch(url);
-      const sheetsData = await resp.json();
-      if (Array.isArray(sheetsData) && sheetsData.length > 0) {
-        const dadosConv = sheetsData.map(function(d) {
-          return {
-            data: d.Data, dia: d.DiaSemana,
-            volResf: Number(d.VolResfriado)||null, mmResf: Number(d.MM28_Resf)||null,
-            limResf: {li: Number(d.LI_Resf)||0, ls: Number(d.LS_Resf)||0},
-            volCong: Number(d.VolCongelado)||null, mmCong: Number(d.MM28_Cong)||null,
-            limCong: {li: Number(d.LI_Cong)||0, ls: Number(d.LS_Cong)||0},
-            flv: Number(d.FLV_kg)||null, mmFlv: Number(d.MM28_FLV)||null,
-            limFlv: {li: Number(d.LI_FLV)||0, ls: Number(d.LS_FLV)||0},
-            acougue: Number(d.Acougue_kg)||null, mmAc: Number(d.MM28_Ac)||null,
-            limAc: {li: Number(d.LI_Ac)||0, ls: Number(d.LS_Ac)||0},
-            temDados: true
-          };
-        });
-        renderBlocoPerf('perfResfriamento', dadosConv, 'volResf', 'mmResf', 'limResf', 'Volume Resfriado (KG)', '#00C853');
-        renderBlocoPerf('perfCongelamento', dadosConv, 'volCong', 'mmCong', 'limCong', 'Volume Congelado (KG)', '#2979FF');
-        renderBlocoPerf('perfFLV',          dadosConv, 'flv',     'mmFlv',  'limFlv',  'FLV (KG)',              '#FFD600');
-        renderBlocoPerf('perfAcougue',      dadosConv, 'acougue', 'mmAc',   'limAc',   'Acougue (KG)',          '#FF6D00');
-        renderTabelaPerf(dadosConv);
-        toast('Dados carregados do Sheets!');
-        return;
-      }
-    } catch(e) {
-      toast('Sheets offline — usando dados locais', 'warning');
-    }
-  }
-
-  const dias = getDiasSemana(dataFim, nSemanas);
-
-  // Para cada dia, agrupa apontamentos
-  const dados = dias.map(data => {
-    const da = apts.filter(a => a.data === data);
-
-    // RESFRIAMENTO — Forno (CICLO→KG) + Vário (CICLO→KG) + Caldeira (CICLO→KG)
-    const forno    = da.filter(a => a.sid === 'forno').reduce((s, a) => s + a.prod, 0);
-    const vario    = da.filter(a => a.sid === 'vario').reduce((s, a) => s + a.prod, 0);
-    const caldeira = da.filter(a => a.sid === 'caldeira').reduce((s, a) => s + a.prod, 0);
-    const kgForno    = forno * KG_FATOR.forno;
-    const kgVario    = vario * KG_FATOR.vario;
-    const kgCaldeira = caldeira * KG_FATOR.caldeira;
-    const volResf = kgForno + kgVario + kgCaldeira;
-
-    // CONGELAMENTO — Marmitas + Saquinhos
-    const marmitas   = da.filter(a => a.sid === 'marmitas').reduce((s, a) => s + a.prod, 0);
-    const saquinhos  = da.filter(a => a.sid === 'saquinhos').reduce((s, a) => s + a.prod, 0);
-    // Kg: marmitas * fator de peso médio (~0.32), saquinhos * fator (~0.14)
-    const kgMarmitas  = Math.round(marmitas * 0.32);
-    const kgSaquinhos = Math.round(saquinhos * 0.14);
-    const volCong = kgMarmitas + kgSaquinhos;
-
-    // FLV
-    const flv = da.filter(a => a.sid === 'flv').reduce((s, a) => s + a.prod, 0);
-
-    // Açougue
-    const acougue = da.filter(a => a.sid === 'acougue').reduce((s, a) => s + a.prod, 0);
-
-    return {
-      data, dia: diasSemana(data),
-      volResf: volResf || null,
-      kgForno, kgVario, kgCaldeira,
-      volCong: volCong || null,
-      kgMarmitas, kgSaquinhos,
-      flv: flv || null,
-      acougue: acougue || null,
-      temDados: da.length > 0
-    };
-  });
-
-  // Calcula médias móveis (4 semanas = 28 dias, mas usamos janela de 28 entradas)
-  const resfArr  = dados.map(d => d.volResf);
-  const congArr  = dados.map(d => d.volCong);
-  const flvArr   = dados.map(d => d.flv);
-  const acArr    = dados.map(d => d.acougue);
-
-  const mmResf = mediaMovel(resfArr, 28);
-  const mmCong = mediaMovel(congArr, 28);
-  const mmFlv  = mediaMovel(flvArr, 28);
-  const mmAc   = mediaMovel(acArr, 28);
-
-  // Limites ±1σ (calculado sobre a janela de 4 semanas anteriores)
-  function limites(arr, idx) {
-    const win = arr.slice(Math.max(0, idx - 27), idx + 1).filter(v => v !== null);
-    if (win.length < 2) return { li: null, ls: null, med: null };
-    const med = win.reduce((a, b) => a + b, 0) / win.length;
-    const std = Math.sqrt(win.reduce((s, v) => s + Math.pow(v - med, 2), 0) / win.length);
-    return { li: Math.round(med - std), ls: Math.round(med + std), med: Math.round(med) };
-  }
-
-  // Enriquece dados com estatísticas
-  const dadosEnriq = dados.map((d, i) => ({
-    ...d,
-    mmResf:  mmResf[i]  ? Math.round(mmResf[i])  : null,
-    limResf: limites(resfArr, i),
-    mmCong:  mmCong[i]  ? Math.round(mmCong[i])  : null,
-    limCong: limites(congArr, i),
-    mmFlv:   mmFlv[i]   ? Math.round(mmFlv[i])   : null,
-    limFlv:  limites(flvArr, i),
-    mmAc:    mmAc[i]    ? Math.round(mmAc[i])    : null,
-    limAc:   limites(acArr, i),
-  }));
-
-  renderBlocoPerf('perfResfriamento', dadosEnriq, 'volResf', 'mmResf', 'limResf', 'Volume Resfriado (KG)', '#00C853');
-  renderBlocoPerf('perfCongelamento', dadosEnriq, 'volCong', 'mmCong', 'limCong', 'Volume Congelado (KG)', '#2979FF');
-  renderBlocoPerf('perfFLV', dadosEnriq, 'flv', 'mmFlv', 'limFlv', 'FLV (KG)', '#FFD600');
-  renderBlocoPerf('perfAcougue', dadosEnriq, 'acougue', 'mmAc', 'limAc', 'Açougue (KG)', '#FF6D00');
-  renderTabelaPerf(dadosEnriq);
-}
-
-function renderBlocoPerf(containerId, dados, campo, mmCampo, limCampo, label, cor) {
-  const container = document.getElementById(containerId);
-  const recentes = dados.filter(function(d){ return d[campo] !== null; }).slice(-14);
-  if (!recentes.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>Sem dados no período</p></div>';
-    return;
-  }
-
-  const max = Math.max.apply(null, recentes.map(function(d){ return Math.max(d[campo]||0, d[mmCampo]||0, (d[limCampo]&&d[limCampo].ls)||0); }));
-  const vals = recentes.map(function(d){ return d[campo]; }).filter(function(v){ return v; });
-  const media = vals.length ? Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length) : 0;
-  const ultimo = recentes[recentes.length-1];
-  const penultimo = recentes.length>1 ? recentes[recentes.length-2] : null;
-  let tendencia = '—';
-  if (penultimo && ultimo[campo] && penultimo[campo]) {
-    tendencia = ultimo[campo] > penultimo[campo] ? '▲' : ultimo[campo] < penultimo[campo] ? '▼' : '—';
-  }
-  const tendCor = tendencia==='▲' ? 'var(--green)' : tendencia==='▼' ? 'var(--red)' : 'var(--text2)';
-  const tendClass = tendencia==='▲' ? 'green' : tendencia==='▼' ? 'red' : 'yellow';
-
-  const lim = ultimo[limCampo] || {};
-  let status = '✓ Normal';
-  let statusCor = 'var(--green)';
-  let statusClass = 'green';
-  if (lim.li !== undefined && ultimo[campo] !== null) {
-    if (ultimo[campo] < lim.li) { status='⚠ Abaixo LI'; statusCor='var(--red)'; statusClass='red'; }
-    else if (ultimo[campo] > lim.ls) { status='⚡ Acima LS'; statusCor='var(--orange)'; statusClass='orange'; }
-  }
-
-  // Monta SVG separado
-  const svgW = Math.max(700, recentes.length * 72);
-  let svgBars = '';
-  let polyPoints = [];
-  recentes.forEach(function(d, i) {
-    const x = i * 72 + 10;
-    const barH = max > 0 ? Math.round((d[campo]||0)/max*130) : 0;
-    const barColor = (d[campo] && lim.li && d[campo]<lim.li) ? '#FF1744'
-      : (d[campo] && lim.ls && d[campo]>lim.ls) ? '#FF6D00' : cor;
-    const yBar = 150 - barH;
-    const val1k = d[campo] ? (d[campo]/1000).toFixed(0)+'k' : '';
-    svgBars += '<rect x="'+x+'" y="'+yBar+'" width="52" height="'+barH+'" fill="'+barColor+'" opacity="0.85" rx="2"/>';
-    svgBars += '<text x="'+(x+26)+'" y="168" text-anchor="middle" fill="#5a6a5a" font-size="10" font-family="sans-serif">'+d.dia+'</text>';
-    if (barH > 0) svgBars += '<text x="'+(x+26)+'" y="'+(yBar-4)+'" text-anchor="middle" fill="'+barColor+'" font-size="10" font-family="sans-serif" font-weight="700">'+val1k+'</text>';
-    if (d[mmCampo] && max>0) {
-      const mmY = 150 - Math.round(d[mmCampo]/max*130);
-      svgBars += '<circle cx="'+(x+26)+'" cy="'+mmY+'" r="3" fill="white" opacity="0.9"/>';
-      polyPoints.push((x+26)+','+mmY);
-    }
-    if (d[limCampo] && d[limCampo].li && max>0) {
-      const liY = 150 - Math.round(d[limCampo].li/max*130);
-      const lsY = 150 - Math.round(d[limCampo].ls/max*130);
-      svgBars += '<line x1="'+x+'" y1="'+liY+'" x2="'+(x+52)+'" y2="'+liY+'" stroke="#FF1744" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
-      svgBars += '<line x1="'+x+'" y1="'+lsY+'" x2="'+(x+52)+'" y2="'+lsY+'" stroke="#FF6D00" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>';
-    }
-  });
-  if (polyPoints.length > 1) {
-    svgBars += '<polyline points="'+polyPoints.join(' ')+'" fill="none" stroke="white" stroke-width="1.5" opacity="0.6"/>';
-  }
-
-  const liStr = lim.li ? lim.li.toLocaleString('pt-BR') : '—';
-  const lsStr = lim.ls ? lim.ls.toLocaleString('pt-BR') : '—';
-
-  container.innerHTML =
-    '<div class="grid-4" style="margin-bottom:16px;">' +
-      '<div class="kpi-card green"><div class="kpi-label">Último Dia</div>' +
-        '<div style="font-size:26px;font-weight:800;">'+(ultimo[campo]||0).toLocaleString('pt-BR')+'</div>' +
-        '<div style="font-size:11px;color:var(--text2)">'+fmtD(limparData(ultimo.data))+' · '+ultimo.dia+'</div></div>' +
-      '<div class="kpi-card blue"><div class="kpi-label">Média Período</div>' +
-        '<div style="font-size:26px;font-weight:800;">'+media.toLocaleString('pt-BR')+'</div>' +
-        '<div style="font-size:11px;color:var(--text2)">últimos '+vals.length+' dias</div></div>' +
-      '<div class="kpi-card '+tendClass+'"><div class="kpi-label">Tendência</div>' +
-        '<div style="font-size:36px;font-weight:800;color:'+tendCor+'">'+tendencia+'</div>' +
-        '<div style="font-size:11px;color:var(--text2)">vs. dia anterior</div></div>' +
-      '<div class="kpi-card '+statusClass+'"><div class="kpi-label">Status Controle</div>' +
-        '<div style="font-size:15px;font-weight:700;color:'+statusCor+';margin-top:6px;">'+status+'</div>' +
-        '<div style="font-size:11px;color:var(--text2)">LI: '+liStr+' / LS: '+lsStr+'</div></div>' +
-    '</div>' +
-    '<div style="overflow-x:auto;">' +
-      '<svg width="'+svgW+'" height="180" style="display:block;">'+svgBars+'</svg>' +
-    '</div>' +
-    '<div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--text2);">' +
-      '<span>█ <span style="color:'+cor+'">Produção</span></span>' +
-      '<span>● <span style="color:white;opacity:.7">Média Móvel</span></span>' +
-      '<span>-- <span style="color:#FF1744">LI (-1σ)</span></span>' +
-      '<span>-- <span style="color:#FF6D00">LS (+1σ)</span></span>' +
-    '</div>';
-}
-
-function renderTabelaPerf(dados) {
-  const tbody = document.getElementById('perfTabelaBody');
-  const empty = document.getElementById('perfEmpty');
-  const comDados = dados.filter(d => d.temDados);
-  if (!comDados.length) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-  tbody.innerHTML = [...comDados].reverse().map(d => {
-    const resfCor = d.volResf && d.limResf?.li && d.volResf < d.limResf.li ? 'var(--red)'
-      : d.volResf && d.limResf?.ls && d.volResf > d.limResf.ls ? 'var(--orange)'
-      : d.volResf ? 'var(--green)' : 'var(--text3)';
-    return `<tr>
-      <td>${fmtD(d.data)}</td>
-      <td><span class="badge badge-gray">${d.dia}</span></td>
-      <td style="font-weight:700;color:${resfCor}">${d.volResf?.toLocaleString('pt-BR') || '—'}</td>
-      <td style="color:var(--text2)">${d.mmResf?.toLocaleString('pt-BR') || '—'}</td>
-      <td style="color:var(--red);font-size:12px;">${d.limResf?.li?.toLocaleString('pt-BR') || '—'}</td>
-      <td style="color:var(--orange);font-size:12px;">${d.limResf?.ls?.toLocaleString('pt-BR') || '—'}</td>
-      <td style="font-weight:700;color:var(--blue)">${d.volCong?.toLocaleString('pt-BR') || '—'}</td>
-      <td style="color:var(--text2)">${d.mmCong?.toLocaleString('pt-BR') || '—'}</td>
-      <td>${d.flv?.toLocaleString('pt-BR') || '—'}</td>
-      <td>${d.acougue?.toLocaleString('pt-BR') || '—'}</td>
-      <td>${d.volResf ? (d.limResf?.li && d.volResf < d.limResf.li ? '<span class="badge badge-red">⚠ Baixo</span>' : d.limResf?.ls && d.volResf > d.limResf.ls ? '<span class="badge badge-orange">⚡ Alto</span>' : '<span class="badge badge-green">✓ OK</span>') : '<span class="badge badge-gray">Sem dados</span>'}</td>
-    </tr>`;
-  }).join('');
-}
-
-
-function limparData(d) {
-  if(!d) return '';
-  const s = String(d).trim();
-  // "19T03:00:00.000Z/05/2026" → "2026-05-19"
-  const m1 = s.match(/^(\d{1,2})T[^/]+\/(\d{2})\/(\d{4})/);
-  if(m1) return m1[3]+'-'+m1[2]+'-'+m1[1].padStart(2,'0');
-  // Já está no formato certo
-  return s;
-}
-
-function toast(msg,type='success'){
-  const d=document.createElement('div');
-  d.className='toast-msg'+(type==='error'?' error':type==='warning'?' warning':'');
-  d.textContent=msg;
-  document.getElementById('toast').appendChild(d);
-  setTimeout(()=>d.remove(),3500);
+  toast('Dados limpos','w');
 }
 
 init();
