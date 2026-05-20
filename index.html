@@ -613,7 +613,18 @@ function init(){
 }
 
 function today(){return new Date().toISOString().split('T')[0];}
-function fmtD(d){if(!d)return'—';const[y,m,v]=d.split('-');return`${v}/${m}/${y}`;}
+function fmtD(d){
+  if(!d) return '—';
+  // Limpa formato ISO do Sheets: "19T03:00:00.000Z/05/2026" → "2026-05-19"
+  let s = String(d).trim();
+  // Caso: "19T03:00:00.000Z/05/2026" — extrai dia/mes/ano
+  const m1 = s.match(/^(\d{1,2})T[^/]+\/(\d{2})\/(\d{4})/);
+  if(m1) return m1[1].padStart(2,'0')+'/'+m1[2]+'/'+m1[3];
+  // Caso normal: "2026-05-19"
+  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m2) return m2[3]+'/'+m2[2]+'/'+m2[1];
+  return s;
+}
 
 // NAV
 function showPage(p,btn){
@@ -1383,7 +1394,7 @@ function renderBlocoPerf(containerId, dados, campo, mmCampo, limCampo, label, co
     '<div class="grid-4" style="margin-bottom:16px;">' +
       '<div class="kpi-card green"><div class="kpi-label">Último Dia</div>' +
         '<div style="font-size:26px;font-weight:800;">'+(ultimo[campo]||0).toLocaleString('pt-BR')+'</div>' +
-        '<div style="font-size:11px;color:var(--text2)">'+fmtD(ultimo.data)+' · '+ultimo.dia+'</div></div>' +
+        '<div style="font-size:11px;color:var(--text2)">'+fmtD(limparData(ultimo.data))+' · '+ultimo.dia+'</div></div>' +
       '<div class="kpi-card blue"><div class="kpi-label">Média Período</div>' +
         '<div style="font-size:26px;font-weight:800;">'+media.toLocaleString('pt-BR')+'</div>' +
         '<div style="font-size:11px;color:var(--text2)">últimos '+vals.length+' dias</div></div>' +
@@ -1435,6 +1446,16 @@ function renderTabelaPerf(dados) {
   }).join('');
 }
 
+
+function limparData(d) {
+  if(!d) return '';
+  const s = String(d).trim();
+  // "19T03:00:00.000Z/05/2026" → "2026-05-19"
+  const m1 = s.match(/^(\d{1,2})T[^/]+\/(\d{2})\/(\d{4})/);
+  if(m1) return m1[3]+'-'+m1[2]+'-'+m1[1].padStart(2,'0');
+  // Já está no formato certo
+  return s;
+}
 
 function toast(msg,type='success'){
   const d=document.createElement('div');
