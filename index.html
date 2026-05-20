@@ -1365,14 +1365,16 @@ async function criarDemandaFlow(parada, apt){
     fonte: 'V1 Apontamentos'
   };
   try{
-    await fetch(cfg.demanda,{
+    var resp=await fetch(cfg.demanda,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({tipo:'nova_demanda',dados:demanda})
     });
-    toast('Demanda criada no Demanda Flow! OS: '+parada.os);
+    toast('Demanda enviada ao Demanda Flow! OS: '+parada.os);
   }catch(e){
-    toast('Erro ao criar demanda no Demanda Flow','e');
+    console.error('Demanda Flow erro:',e);
+    toast('Erro ao criar demanda: '+e.message,'e');
   }
 }
 
