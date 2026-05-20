@@ -528,44 +528,69 @@ function renderOPDia(){
 }
 
 function opTotChange(id){
+  // Quando o TOTAL muda → distribui proporcionalmente entre os turnos
   var tot=Number(document.getElementById('op-tot-'+id).value)||0;
   var t1=Number(document.getElementById('op-t1-'+id).value)||0;
   var t2=Number(document.getElementById('op-t2-'+id).value)||0;
   var t3=Number(document.getElementById('op-t3-'+id).value)||0;
   var soma=t1+t2+t3;
-  if(soma===0){
+  if(soma===0||tot===0){
+    // Sem proporção anterior — divide igual
     var p=Math.round(tot/3);
     document.getElementById('op-t1-'+id).value=p||'';
     document.getElementById('op-t2-'+id).value=p||'';
     document.getElementById('op-t3-'+id).value=(tot-p*2)||'';
   } else {
+    // Mantém proporção atual entre os turnos
     var nt1=Math.round(tot*t1/soma);
     var nt2=Math.round(tot*t2/soma);
     var nt3=tot-nt1-nt2;
     document.getElementById('op-t1-'+id).value=nt1||'';
     document.getElementById('op-t2-'+id).value=nt2||'';
-    document.getElementById('op-t3-'+id).value=nt3>=0?nt3||'':'';
+    document.getElementById('op-t3-'+id).value=Math.max(0,nt3)||'';
   }
 }
 
 function opTurnChange(id,trn){
+  // Quando um TURNO muda → meta total permanece fixa, demais turnos redistribuem o restante
+  var tot=Number(document.getElementById('op-tot-'+id).value)||0;
   var t1=Number(document.getElementById('op-t1-'+id).value)||0;
   var t2=Number(document.getElementById('op-t2-'+id).value)||0;
   var t3=Number(document.getElementById('op-t3-'+id).value)||0;
-  var tot=Number(document.getElementById('op-tot-'+id).value)||0;
-  var soma=t1+t2+t3;
-  document.getElementById('op-tot-'+id).value=soma||'';
-  if(tot>0){
-    if(trn===1&&t2>0&&t3===0){
-      document.getElementById('op-t3-'+id).value=Math.max(0,tot-t1-t2)||'';
-      document.getElementById('op-tot-'+id).value=tot;
-    } else if(trn===2&&t1>0&&t3===0){
-      document.getElementById('op-t3-'+id).value=Math.max(0,tot-t1-t2)||'';
-      document.getElementById('op-tot-'+id).value=tot;
-    } else if(trn===3&&t1>0&&t2>0){
-      document.getElementById('op-tot-'+id).value=soma||'';
-    }
+
+  if(tot===0){
+    // Sem total definido — apenas soma os turnos
+    document.getElementById('op-tot-'+id).value=(t1+t2+t3)||'';
+    return;
   }
+
+  // Total fixo — redistribui o restante entre os outros turnos proporcionalmente
+  if(trn===1){
+    // T1 mudou → redistribui restante entre T2 e T3
+    var resto=Math.max(0,tot-t1);
+    var somaOld=t2+t3;
+    if(somaOld===0){
+      var p=Math.round(resto/2);
+      document.getElementById('op-t2-'+id).value=p||'';
+      document.getElementById('op-t3-'+id).value=Math.max(0,resto-p)||'';
+    } else {
+      var nt2=Math.round(resto*t2/somaOld);
+      var nt3=Math.max(0,resto-nt2);
+      document.getElementById('op-t2-'+id).value=nt2||'';
+      document.getElementById('op-t3-'+id).value=nt3||'';
+    }
+  } else if(trn===2){
+    // T2 mudou → T3 pega o restante (T1 já está fixo)
+    var resto2=Math.max(0,tot-t1-t2);
+    document.getElementById('op-t3-'+id).value=resto2||'';
+  } else if(trn===3){
+    // T3 mudou → T2 pega o restante (T1 já está fixo)
+    var resto3=Math.max(0,tot-t1-t3);
+    document.getElementById('op-t2-'+id).value=resto3||'';
+  }
+
+  // Garante que total permanece visível e fixo
+  document.getElementById('op-tot-'+id).value=tot;
 }
 
 function coletarOP(){
