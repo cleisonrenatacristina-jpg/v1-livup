@@ -687,18 +687,29 @@ function renderAptProd(){
   var data=document.getElementById('apt-data').value;
   var s=setores.find(function(x){return x.id===sid;});
   var c=document.getElementById('aptProdF');
-  if(!s){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno.</p>';return;}
+  if(!s||!turno){c.innerHTML='<p style="color:var(--text2);font-size:13px;">Selecione setor e turno.</p>';return;}
   var meta=getMetaTurn(data,sid,turno);
-  var metaLabel = meta>0 ? meta.toLocaleString('pt-BR')+' '+s.unid : 'Sem OP cadastrada';
-  c.innerHTML='<div class="g3">'+
-    '<div class="fg"><label class="fl">Qtd. Produzida ('+s.unid+')</label><input type="number" id="apt-prod" class="fc" min="0" placeholder="0" oninput="calcEfic()"></div>'+
-    '<div class="fg"><label class="fl">Meta do Turno (OP) — Fixada</label>'+
-      '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:9px 12px;font-size:14px;color:'+(meta>0?'var(--green)':'var(--text3)')+';font-weight:600;">'+metaLabel+'</div>'+
-      '<input type="hidden" id="apt-meta" value="'+meta+'"></div>'+
-    '<div class="fg"><label class="fl">Eficiencia do Turno</label><div id="eficV" style="font-family:\'Barlow Condensed\',sans-serif;font-size:28px;font-weight:800;color:var(--text2);padding:5px 0;">—</div>'+
-      '<div id="eficBar" style="height:5px;background:var(--bg3);border-radius:2px;margin-top:5px;overflow:hidden;"><div id="eficFill" style="height:100%;border-radius:2px;width:0%;transition:width .5s;"></div></div></div>'+
+  var metaLabel=meta>0?meta.toLocaleString('pt-BR')+' '+s.unid:'Sem OP cadastrada';
+  var metaCor=meta>0?'var(--green)':'var(--text3)';
+  // Preserva valor de producao ja digitado
+  var prodAtual=document.getElementById('apt-prod')?document.getElementById('apt-prod').value:'';
+  var obsAtual=document.getElementById('apt-pobs')?document.getElementById('apt-pobs').value:'';
+  c.innerHTML=
+    '<div class="g3" style="margin-bottom:12px;">'+
+      '<div class="fg"><label class="fl">Qtd. Produzida ('+s.unid+')</label>'+
+        '<input type="number" id="apt-prod" class="fc" min="0" placeholder="0" value="'+prodAtual+'" oninput="calcEfic()"></div>'+
+      '<div class="fg"><label class="fl">Meta do Turno — Fixada pela OP</label>'+
+        '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:9px 12px;font-size:15px;color:'+metaCor+';font-weight:700;">'+metaLabel+'</div>'+
+        '<input type="hidden" id="apt-meta" value="'+meta+'"></div>'+
+      '<div class="fg"><label class="fl">Eficiencia do Turno</label>'+
+        '<div id="eficV" style="font-family:Barlow Condensed,sans-serif;font-size:32px;font-weight:800;color:var(--text2);">—</div>'+
+        '<div style="height:5px;background:var(--bg3);border-radius:2px;margin-top:5px;overflow:hidden;">'+
+          '<div id="eficFill" style="height:100%;border-radius:2px;width:0%;transition:width .4s;"></div></div></div>'+
     '</div>'+
-    '<div class="fg"><label class="fl">Obs. de Producao</label><input type="text" id="apt-pobs" class="fc" placeholder="Observacao..."></div>';
+    '<div class="fg"><label class="fl">Obs. de Producao</label>'+
+      '<input type="text" id="apt-pobs" class="fc" placeholder="Observacao..." value="'+obsAtual+'"></div>';
+  // Calcula eficiência imediatamente se já tiver produção
+  if(prodAtual) calcEfic();
 }
 
 function calcEfic(){
