@@ -750,6 +750,8 @@ function addParada(){
       '<div style="font-size:11px;color:var(--red);margin-top:4px;">⚠ Parada por Manutenção Corretiva exige número de O.S. para salvar</div>'+
     '</div>';
   document.getElementById('paradasList').appendChild(div);
+  // Chama imediatamente para mostrar O.S. se tipo já for Manutenção Corretiva
+  checkOS(id);
 }
 
 function addDific(){
