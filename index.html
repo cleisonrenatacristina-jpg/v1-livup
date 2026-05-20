@@ -359,7 +359,7 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
     <div class="card">
       <div class="ctitle">🔗 Integrações</div>
       <div class="fg"><label class="fl">URL Apps Script (Google Sheets)</label><input type="text" id="cfg-sh" class="fc" placeholder="https://script.google.com/..."></div>
-      <div class="fg"><label class="fl">URL Demanda Flow</label><input type="text" id="cfg-df" class="fc" placeholder="URL do Demanda Flow"></div>
+      <div class="fg"><label class="fl">URL Demanda Flow</label><input type="text" id="cfg-df" class="fc" placeholder="URL do Demanda Flow (já configurado)"></div>
       <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" onclick="salvarCfg()">✓ Salvar</button><button class="btn btn-s btn-sm" onclick="testarConn()">Testar</button></div>
       <div id="cfg-st" style="margin-top:9px;font-size:13px;"></div>
     </div>
@@ -400,6 +400,7 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
 var apts = JSON.parse(localStorage.getItem('v1_apts')||'[]');
 var ops  = JSON.parse(localStorage.getItem('v1_ops')||'[]');
 var cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{}');
+if(!cfg.demanda) cfg.demanda='https://script.google.com/macros/s/AKfycbxi2F3c-fM61-JSX0qD5hKGcMq9qZ7PNm-mLr7C4t83IYF1-q1rTc4GD4oPhf8e8_YHKQ/exec';
 if(!cfg.sheets) cfg.sheets = 'https://script.google.com/macros/s/AKfycbx6BR0Ms09raTR1v2hPTKAZ_tOkeRuG2mxMkpwKIcJVqq7_4O5I9WpK7gK2nK_iAuK5/exec';
 
 var setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
@@ -870,6 +871,14 @@ function salvarApt(){
   apts.push(apt);
   localStorage.setItem('v1_apts',JSON.stringify(apts));
   if(cfg.sheets) envSh(apt);
+  // Cria demanda no Demanda Flow para cada parada Corretiva com OS
+  if(cfg.demanda){
+    apt.paradas.forEach(function(p){
+      if(p.tp==='Manutencao Corretiva' && p.os && p.os.trim()){
+        criarDemandaFlow(p, apt);
+      }
+    });
+  }
   toast('Apontamento salvo!');
   limparApt();
 }
@@ -1329,6 +1338,42 @@ async function testarConn(){
 async function envSh(apt){
   if(!cfg.sheets) return;
   try{await fetch(cfg.sheets,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'apontamento',dados:apt})});}catch(e){}
+}
+
+async function criarDemandaFlow(parada, apt){
+  if(!cfg.demanda) return;
+  var s=setores.find(function(x){return x.id===apt.sid;});
+  var desc='Parada registrada no V1 Apontamentos. '+
+    'Equipamento: '+(parada.eq||'')+' | '+
+    'OS: '+parada.os+' | '+
+    'Descricao: '+(parada.ds||'')+' | '+
+    'Inicio: '+(parada.ini||'')+' Fim: '+(parada.fim||'')+' | '+
+    'Duracao: '+parada.min+' min';
+  var demanda={
+    id: 'V1-'+apt.id+'-'+parada.os,
+    titulo: 'Manutencao Corretiva - '+(parada.eq||'Equipamento')+' | OS: '+parada.os,
+    descricao: desc,
+    setor: s?s.nome:apt.setorNome,
+    equipamento: parada.eq||'',
+    os: parada.os,
+    prioridade: 'alta',
+    status: 'aguardando',
+    origem: 'V1 — '+apt.data+' '+apt.turno,
+    responsavel: apt.resp||'',
+    dataEntrega: apt.data,
+    criadoEm: new Date().toISOString(),
+    fonte: 'V1 Apontamentos'
+  };
+  try{
+    await fetch(cfg.demanda,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({tipo:'nova_demanda',dados:demanda})
+    });
+    toast('Demanda criada no Demanda Flow! OS: '+parada.os);
+  }catch(e){
+    toast('Erro ao criar demanda no Demanda Flow','e');
+  }
 }
 
 async function syncTodos(){
