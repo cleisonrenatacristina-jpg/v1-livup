@@ -394,10 +394,40 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
     </div>
     <div class="card">
       <div class="ctitle">🔗 Integrações</div>
-      <div class="fg"><label class="fl">URL Apps Script (Google Sheets)</label><input type="text" id="cfg-sh" class="fc" placeholder="https://script.google.com/..."></div>
-      <div class="fg"><label class="fl">URL Demanda Flow</label><input type="text" id="cfg-df" class="fc" placeholder="URL do Demanda Flow (já configurado)"></div>
-      <div style="display:flex;gap:8px;"><button class="btn btn-p btn-sm" onclick="salvarCfg()">✓ Salvar</button><button class="btn btn-s btn-sm" onclick="testarConn()">Testar</button></div>
-      <div id="cfg-st" style="margin-top:9px;font-size:13px;"></div>
+
+      <!-- MODO BLOQUEADO -->
+      <div id="cfg-int-locked">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;">
+            <span style="font-size:12px;color:var(--text2);flex:1;">🔒 Google Sheets: <span style="color:var(--green);font-size:11px;" id="cfg-sh-preview">configurado</span></span>
+            <span style="font-size:11px;color:var(--text3);">🔐</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;">
+            <span style="font-size:12px;color:var(--text2);flex:1;">🔒 Demanda Flow: <span style="color:var(--green);font-size:11px;" id="cfg-df-preview">configurado</span></span>
+            <span style="font-size:11px;color:var(--text3);">🔐</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <input type="password" id="cfg-senha-input" class="fc" placeholder="Senha para editar URLs..." style="flex:1;" onkeydown="if(event.key==='Enter')desbloquearIntegracoes()"/>
+          <button class="btn btn-w btn-sm" onclick="desbloquearIntegracoes()">🔓 Desbloquear</button>
+        </div>
+        <div id="cfg-senha-erro" style="font-size:11px;color:var(--red);margin-top:5px;display:none;">Senha incorreta!</div>
+      </div>
+
+      <!-- MODO DESBLOQUEADO -->
+      <div id="cfg-int-unlocked" style="display:none;">
+        <div style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.3);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--yellow);">
+          🔓 Modo edição ativo — URLs visíveis
+        </div>
+        <div class="fg"><label class="fl">URL Apps Script (Google Sheets)</label><input type="text" id="cfg-sh" class="fc" placeholder="https://script.google.com/..."></div>
+        <div class="fg"><label class="fl">URL Demanda Flow</label><input type="text" id="cfg-df" class="fc" placeholder="URL do Demanda Flow..."></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-p btn-sm" onclick="salvarCfgSeguro()">✓ Salvar e Bloquear</button>
+          <button class="btn btn-s btn-sm" onclick="testarConn()">Testar</button>
+          <button class="btn btn-d btn-sm" onclick="bloquearIntegracoes()">🔒 Cancelar</button>
+        </div>
+        <div id="cfg-st" style="margin-top:9px;font-size:13px;"></div>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -414,6 +444,7 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
       <button class="btn btn-s btn-sm" onclick="expJSON()">⬇ JSON</button>
       <button class="btn btn-s btn-sm" onclick="expCSV()">⬇ CSV</button>
       <button class="btn btn-d btn-sm" onclick="limTudo()">🗑 Limpar Tudo</button>
+      <button class="btn btn-w btn-sm" onclick="trocarSenhaCfg()">🔑 Trocar Senha</button>
     </div>
   </div>
 </div>
@@ -566,8 +597,8 @@ function init(){
     var el=document.getElementById(id); if(el) el.value=td;
   });
   document.getElementById('op-semana').value=td;
-  if(cfg.sheets) document.getElementById('cfg-sh').value=cfg.sheets;
-  if(cfg.demanda) document.getElementById('cfg-df').value=cfg.demanda;
+  // cfg-sh e cfg-df só ficam visíveis após senha
+  initCfgIntegracoes();
   opDiaSel=td;
   renderOPSemana();
   renderAptSetor();
@@ -1680,6 +1711,67 @@ function rmSetor(id){
   setores=setores.filter(function(s){return s.id!==id;});
   localStorage.setItem('v1_setores',JSON.stringify(setores));
   renderCfgSetores(); toast('Removido');
+}
+
+// ===== INTEGRAÇÕES COM SENHA =====
+var CFG_SENHA = localStorage.getItem('v1_cfg_senha') || 'livup2026';
+
+function initCfgIntegracoes(){
+  // Atualiza previews
+  var shPrev = document.getElementById('cfg-sh-preview');
+  var dfPrev = document.getElementById('cfg-df-preview');
+  if(shPrev) shPrev.textContent = cfg.sheets ? '✅ configurado' : '⚠ não configurado';
+  if(dfPrev) dfPrev.textContent = cfg.demanda ? '✅ configurado' : '⚠ não configurado';
+}
+
+function desbloquearIntegracoes(){
+  var inp = document.getElementById('cfg-senha-input');
+  var erro = document.getElementById('cfg-senha-erro');
+  var senha = inp ? inp.value : '';
+  var senhaAtual = localStorage.getItem('v1_cfg_senha') || 'livup2026';
+  if(senha !== senhaAtual){
+    if(erro) erro.style.display='block';
+    if(inp) inp.value='';
+    return;
+  }
+  if(erro) erro.style.display='none';
+  if(inp) inp.value='';
+  // Mostra modo edição
+  document.getElementById('cfg-int-locked').style.display='none';
+  document.getElementById('cfg-int-unlocked').style.display='block';
+  // Preenche campos
+  if(cfg.sheets) document.getElementById('cfg-sh').value=cfg.sheets;
+  if(cfg.demanda) document.getElementById('cfg-df').value=cfg.demanda;
+}
+
+function bloquearIntegracoes(){
+  document.getElementById('cfg-int-locked').style.display='block';
+  document.getElementById('cfg-int-unlocked').style.display='none';
+  document.getElementById('cfg-sh').value='';
+  document.getElementById('cfg-df').value='';
+  initCfgIntegracoes();
+}
+
+function salvarCfgSeguro(){
+  var sh = document.getElementById('cfg-sh').value.trim();
+  var df = document.getElementById('cfg-df').value.trim();
+  if(sh) cfg.sheets = sh;
+  if(df) cfg.demanda = df;
+  localStorage.setItem('v1_cfg', JSON.stringify(cfg));
+  bloquearIntegracoes();
+  toast('URLs salvas e bloqueadas! ✅');
+}
+
+function trocarSenhaCfg(){
+  var senhaAtual = prompt('Senha atual:');
+  var senhaReal = localStorage.getItem('v1_cfg_senha') || 'livup2026';
+  if(senhaAtual !== senhaReal){ toast('Senha incorreta!','e'); return; }
+  var novaSenha = prompt('Nova senha:');
+  if(!novaSenha || novaSenha.length < 4){ toast('Senha muito curta (mín. 4 caracteres)','e'); return; }
+  var confirma = prompt('Confirme a nova senha:');
+  if(novaSenha !== confirma){ toast('Senhas não conferem!','e'); return; }
+  localStorage.setItem('v1_cfg_senha', novaSenha);
+  toast('Senha alterada com sucesso! ✅');
 }
 
 function salvarCfg(){
