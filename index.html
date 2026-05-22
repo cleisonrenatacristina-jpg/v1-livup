@@ -248,6 +248,12 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
         <input type="date" id="cons-data" class="fc" style="width:170px;"></div>
       <button class="btn btn-p btn-sm" onclick="renderCons()">Gerar</button>
       <button class="btn btn-s btn-sm" onclick="expConsCSV()">⬇ CSV</button>
+      <button class="btn btn-s btn-sm" onclick="expConsPDF()">📄 PDF</button>
+      <button class="btn btn-w btn-sm" onclick="envConsWA()" style="background:#25d366;color:#fff;border:none;">📲 WhatsApp</button>
+      <button class="btn btn-w btn-sm" onclick="envConsSlack()" style="background:#4a154b;color:#fff;border:none;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+        Slack
+      </button>
     </div>
   </div>
   <div class="card">
@@ -1076,6 +1082,152 @@ function renderCons(){
       '<td>'+(par>0?'<span class="badge bo">⚠ '+par+'</span>':'<span class="badge bg">✓ 0</span>')+'</td></tr>';
   }).join('');
   tbody.innerHTML+='<tr class="tr"><td>TOTAL</td><td>—</td><td>—</td><td>—</td><td>'+tProd.toLocaleString('pt-BR')+'</td><td>—</td><td>—</td><td>—</td><td>'+tAus+'</td><td>'+tPar+'</td></tr>';
+}
+
+// ===== CONSOLIDADO HELPERS =====
+function getConsData(){
+  var data=document.getElementById('cons-data').value;
+  if(!data){toast('Selecione a data!','e');return null;}
+  var lista=apts.filter(function(a){return a.data===data;});
+  var linhas=[];
+  var tProd=0,tAus=0,tPar=0;
+  setores.forEach(function(s){
+    var t1=lista.find(function(a){return a.sid===s.id&&a.turno==='T1';});
+    var t2=lista.find(function(a){return a.sid===s.id&&a.turno==='T2';});
+    var t3=lista.find(function(a){return a.sid===s.id&&a.turno==='T3';});
+    var tp=(t1?t1.prod:0)+(t2?t2.prod:0)+(t3?t3.prod:0);
+    var meta=getMetaTot(data,s.id);
+    var efic=meta>0?Math.round(tp/meta*100):null;
+    var aus=(t1?t1.ausencias:0)+(t2?t2.ausencias:0)+(t3?t3.ausencias:0);
+    var par=(t1?t1.paradas.length:0)+(t2?t2.paradas.length:0)+(t3?t3.paradas.length:0);
+    if(tp>0||meta>0){
+      tProd+=tp; tAus+=aus; tPar+=par;
+      linhas.push({nome:s.nome,unid:s.unid,t1:t1?t1.prod:0,t2:t2?t2.prod:0,t3:t3?t3.prod:0,tp:tp,meta:meta,efic:efic,aus:aus,par:par});
+    }
+  });
+  return {data:data,linhas:linhas,tProd:tProd,tAus:tAus,tPar:tPar};
+}
+
+function fmtDataBR(data){
+  if(!data) return '';
+  var p=data.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+// ===== PDF =====
+function expConsPDF(){
+  var d=getConsData(); if(!d) return;
+  var linhas=d.linhas;
+  if(!linhas.length){toast('Sem dados para gerar PDF!','e');return;}
+
+  var rows=linhas.map(function(s){
+    var c=s.efic===null?'#888':s.efic>=100?'#00C853':s.efic>=80?'#FFD600':'#FF1744';
+    return '<tr>'+
+      '<td style="font-weight:700;">'+s.nome+'</td>'+
+      '<td>'+s.t1.toLocaleString('pt-BR')+'</td>'+
+      '<td>'+s.t2.toLocaleString('pt-BR')+'</td>'+
+      '<td>'+s.t3.toLocaleString('pt-BR')+'</td>'+
+      '<td style="font-weight:700;">'+s.tp.toLocaleString('pt-BR')+'</td>'+
+      '<td>'+(s.meta>0?s.meta.toLocaleString('pt-BR'):'—')+'</td>'+
+      '<td>'+s.unid+'</td>'+
+      '<td style="font-weight:700;color:'+c+';">'+(s.efic!==null?s.efic+'%':'—')+'</td>'+
+      '<td>'+(s.aus>0?'<b style="color:#FF6D00;">'+s.aus+'</b>':s.aus)+'</td>'+
+      '<td>'+(s.par>0?'<b style="color:#FF6D00;">⚠ '+s.par+'</b>':'✓ 0')+'</td>'+
+      '</tr>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<title>Consolidado '+fmtDataBR(d.data)+'</title>'+
+    '<style>'+
+    'body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:24px;}'+
+    'h1{font-size:18px;color:#0a0e0a;margin-bottom:4px;}'+
+    '.sub{font-size:12px;color:#666;margin-bottom:16px;}'+
+    'table{width:100%;border-collapse:collapse;margin-top:12px;}'+
+    'th{background:#0a0e0a;color:#00C853;padding:8px 10px;text-align:left;font-size:11px;letter-spacing:.5px;}'+
+    'td{padding:7px 10px;border-bottom:1px solid #eee;}'+
+    'tr:last-child td{font-weight:700;background:#f5f5f5;border-top:2px solid #ccc;}'+
+    '.footer{margin-top:20px;font-size:10px;color:#999;text-align:right;}'+
+    '</style></head><body>'+
+    '<h1>📊 Consolidado do Dia — '+fmtDataBR(d.data)+'</h1>'+
+    '<div class="sub">Gerado em '+new Date().toLocaleString('pt-BR')+' · V1 Apontamentos LivUp</div>'+
+    '<table>'+
+    '<thead><tr><th>Setor</th><th>T1 Manhã</th><th>T2 Tarde</th><th>T3 Noite</th><th>Total</th><th>Meta</th><th>Unid.</th><th>Efic%</th><th>Absent.</th><th>Paradas</th></tr></thead>'+
+    '<tbody>'+rows+
+    '<tr><td>TOTAL</td><td>—</td><td>—</td><td>—</td><td>'+d.tProd.toLocaleString('pt-BR')+'</td><td>—</td><td>—</td><td>—</td><td>'+d.tAus+'</td><td>'+d.tPar+'</td></tr>'+
+    '</tbody></table>'+
+    '<div class="footer">V1 Apontamentos · LivUp</div>'+
+    '</body></html>';
+
+  var win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){win.print();},500);
+}
+
+// ===== WHATSAPP =====
+function envConsWA(){
+  var d=getConsData(); if(!d) return;
+  if(!d.linhas.length){toast('Gere o consolidado primeiro!','e');return;}
+    var linhas_wa = [];
+  linhas_wa.push('Total: ' + d.tProd.toLocaleString('pt-BR'));
+  d.linhas.forEach(function(s){
+    var eficStr = s.efic !== null ? s.efic + '%' : '-';
+    var status = s.efic === null ? '' : s.efic >= 100 ? ' OK' : s.efic >= 80 ? ' Atencao' : ' Baixo';
+    var linha = s.nome + ' (' + s.unid + '): T1=' + s.t1 + ' T2=' + s.t2 + ' T3=' + s.t3 + ' | Total=' + s.tp + ' Efic=' + eficStr + status;
+    if(s.aus > 0) linha += ' | Aus=' + s.aus;
+    if(s.par > 0) linha += ' | Par=' + s.par;
+    linhas_wa.push(linha);
+  });
+  linhas_wa.push('Ausencias=' + d.tAus + ' Paradas=' + d.tPar);
+  linhas_wa.push('V1 Apontamentos LivUp');
+  var msg = 'Consolidado ' + fmtDataBR(d.data) + '\n\n' + linhas_wa.join('\n');
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ===== SLACK =====
+async function envConsSlack(){
+  var webhook=localStorage.getItem('v1_slack_webhook')||'';
+  if(!webhook){
+    webhook=prompt('Cole a Webhook URL do Slack (https://hooks.slack.com/services/...):');
+    if(!webhook) return;
+    if(!webhook.startsWith('https://hooks.slack.com/')){toast('URL inválida!','e');return;}
+    localStorage.setItem('v1_slack_webhook',webhook);
+  }
+  var d=getConsData(); if(!d) return;
+  if(!d.linhas.length){toast('Gere o consolidado primeiro!','e');return;}
+
+  var fields=d.linhas.map(function(s){
+    var eficStr=s.efic!==null?s.efic+'%':'-';
+    var status=s.efic===null?'':s.efic>=100?' OK':s.efic>=80?' Atencao':' Baixo';
+    var txt='*'+s.nome+'*\nTotal: '+s.tp.toLocaleString('pt-BR')+' '+s.unid+' | Efic: '+eficStr+status+(s.par>0?' | Paradas: '+s.par:'');
+    return {type:'mrkdwn',text:txt};
+  });
+
+  var msg={
+    text:'Consolidado do Dia - '+fmtDataBR(d.data),
+    blocks:[
+      {type:'header',text:{type:'plain_text',text:'Consolidado - '+fmtDataBR(d.data),emoji:true}},
+      {type:'section',fields:fields.slice(0,10)},
+      {type:'divider'},
+      {type:'section',fields:[
+        {type:'mrkdwn',text:'*Total produzido:*\n'+d.tProd.toLocaleString('pt-BR')},
+        {type:'mrkdwn',text:'*Ausencias:*\n'+d.tAus},
+        {type:'mrkdwn',text:'*Paradas:*\n'+d.tPar},
+      ]},
+      {type:'context',elements:[{type:'mrkdwn',text:'_V1 Apontamentos · LivUp_'}]}
+    ]
+  };
+
+  try{
+    toast('Enviando para o Slack...','w');
+    var resp=await fetch(webhook,{method:'POST',body:JSON.stringify(msg)});
+    if(resp.ok) toast('✅ Enviado no Slack!');
+    else{
+      localStorage.removeItem('v1_slack_webhook');
+      toast('Erro ao enviar. Verifique a URL.','e');
+    }
+  }catch(e){toast('Erro: '+e.message,'e');}
 }
 
 function expConsCSV(){
