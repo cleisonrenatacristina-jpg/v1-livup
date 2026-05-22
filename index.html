@@ -384,15 +384,7 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
       <div class="ctitle">🏭 Setores</div>
       <div id="cfgSetores"></div>
       <div class="divider"></div>
-      <!-- Importar equipamentos do backup do Demanda Flow -->
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:10px;margin-bottom:10px;">
-        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">📥 Importar equipamentos do <b>Demanda Flow</b>:<br><span style="font-size:10px;">No app Demanda Flow clique em 💾 → baixe o backup JSON → selecione aqui</span></div>
-        <div style="display:flex;gap:7px;align-items:center;">
-          <input type="file" id="df-backup-input" accept=".json" style="display:none;" onchange="importarEquipamentosBackupDF(event)"/>
-          <button class="btn btn-w btn-sm" onclick="document.getElementById('df-backup-input').click()">📂 Selecionar backup Demanda Flow</button>
-          <span id="df-import-status" style="font-size:11px;color:var(--text2);"></span>
-        </div>
-      </div>
+
       <div style="display:flex;gap:7px;align-items:end;">
         <div class="fg" style="flex:1;margin:0;"><label class="fl">Nome</label><input type="text" id="ns-nome" class="fc" placeholder="Ex: Embalagem"></div>
         <div class="fg" style="flex:1;margin:0;"><label class="fl">Unidade</label>
