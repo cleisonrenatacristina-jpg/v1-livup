@@ -384,6 +384,15 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
       <div class="ctitle">🏭 Setores</div>
       <div id="cfgSetores"></div>
       <div class="divider"></div>
+      <!-- Importar equipamentos do backup do Demanda Flow -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:10px;margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">📥 Importar equipamentos do <b>Demanda Flow</b>:<br><span style="font-size:10px;">No app Demanda Flow clique em 💾 → baixe o backup JSON → selecione aqui</span></div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <input type="file" id="df-backup-input" accept=".json" style="display:none;" onchange="importarEquipamentosBackupDF(event)"/>
+          <button class="btn btn-w btn-sm" onclick="document.getElementById('df-backup-input').click()">📂 Selecionar backup Demanda Flow</button>
+          <span id="df-import-status" style="font-size:11px;color:var(--text2);"></span>
+        </div>
+      </div>
       <div style="display:flex;gap:7px;align-items:end;">
         <div class="fg" style="flex:1;margin:0;"><label class="fl">Nome</label><input type="text" id="ns-nome" class="fc" placeholder="Ex: Embalagem"></div>
         <div class="fg" style="flex:1;margin:0;"><label class="fl">Unidade</label>
@@ -1574,6 +1583,53 @@ function salvarModalSetor(){
   renderCfgSetores(); renderAptSetor();
   fecharModalSetor();
   toast('Setor atualizado!');
+}
+
+function importarEquipamentosBackupDF(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var payload = JSON.parse(e.target.result);
+      var dados = payload.dados || payload;
+      var dfSetoresImport = dados.setores || [];
+      if(!dfSetoresImport.length){ toast('Nenhum setor encontrado no backup!','e'); return; }
+
+      var totalImportados = 0;
+      setores = setores.map(function(s){
+        // Busca setor equivalente no Demanda Flow pelo nome
+        var dfS = dfSetoresImport.find(function(x){
+          return x.nome && x.nome.toLowerCase() === s.nome.toLowerCase();
+        });
+        if(!dfS || !dfS.equipamentos || !dfS.equipamentos.length) return s;
+
+        // Mescla equipamentos sem duplicar
+        var equipsAtuais = s.equipamentos || [];
+        var novos = 0;
+        dfS.equipamentos.forEach(function(e){
+          var nome = typeof e==='string'?e:(e.nome||'');
+          if(!nome) return;
+          if(!equipsAtuais.find(function(x){return (typeof x==='string'?x:(x.nome||''))===nome;})){
+            equipsAtuais.push(typeof e==='string'?{nome:e,kgh:0}:e);
+            novos++;
+            totalImportados++;
+          }
+        });
+        return Object.assign({}, s, {equipamentos: equipsAtuais});
+      });
+
+      localStorage.setItem('v1_setores', JSON.stringify(setores));
+      renderCfgSetores();
+      var status = document.getElementById('df-import-status');
+      if(status) status.textContent = '✅ '+totalImportados+' equipamentos importados!';
+      toast(totalImportados>0 ? totalImportados+' equipamentos importados do Demanda Flow!' : 'Todos já estavam importados');
+      event.target.value = '';
+    }catch(err){
+      toast('Erro ao ler backup: '+err.message,'e');
+    }
+  };
+  reader.readAsText(file);
 }
 
 function importarEquipamentosDF(){
