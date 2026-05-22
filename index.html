@@ -297,9 +297,21 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
 <!-- DASHBOARD -->
 <div id="page-dash" class="hidden">
   <div class="stitle">Dashboard <span class="sub">Visão geral operacional</span></div>
-  <div style="display:flex;gap:10px;align-items:end;margin-bottom:18px;">
+
+  <!-- FILTROS -->
+  <div style="display:flex;gap:10px;align-items:end;margin-bottom:18px;flex-wrap:wrap;">
     <div><label class="fl">Data</label><input type="date" id="dash-data" class="fc" style="width:165px;" onchange="renderDash()"></div>
+    <div><label class="fl">Período paradas</label>
+      <select id="dash-periodo" class="fc" style="width:140px;" onchange="renderDash()">
+        <option value="7">Últimos 7 dias</option>
+        <option value="14">Últimos 14 dias</option>
+        <option value="30" selected>Últimos 30 dias</option>
+        <option value="90">Últimos 90 dias</option>
+      </select>
+    </div>
   </div>
+
+  <!-- KPIs -->
   <div class="g5" style="margin-bottom:18px;">
     <div class="kpi g"><div class="kl">Apontamentos</div><div class="kv" id="ki-apt">0</div><div class="ks">do dia</div></div>
     <div class="kpi o"><div class="kl">Paradas</div><div class="kv" id="ki-par">0</div><div class="ks">ocorrências</div></div>
@@ -307,11 +319,34 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
     <div class="kpi b"><div class="kl">Efic. Média</div><div class="kv" id="ki-efi">—</div><div class="ks">do dia</div></div>
     <div class="kpi g"><div class="kl">Setores</div><div class="kv" id="ki-set">0</div><div class="ks">ativos</div></div>
   </div>
-  <div class="g2">
+
+  <!-- LINHA 1: Eficiência + Paradas -->
+  <div class="g2" style="margin-bottom:14px;">
     <div class="card"><div class="ctitle">📊 Eficiência por Setor</div><div id="dashEfic"><div class="es"><div class="ei">📊</div><p>Sem dados</p></div></div></div>
     <div class="card"><div class="ctitle">⚠ Paradas do Dia</div><div id="dashPar"><div class="es"><div class="ei">✅</div><p>Sem paradas</p></div></div></div>
   </div>
-  <div class="card"><div class="ctitle">📋 Resumo por Turno</div><div id="dashTurn"><div class="es"><div class="ei">📋</div><p>Sem dados</p></div></div></div>
+
+  <!-- LINHA 2: Apontamentos por turno/setor -->
+  <div class="card" style="margin-bottom:14px;"><div class="ctitle">📋 Apontamentos por Turno/Setor</div><div id="dashTurn"><div class="es"><div class="ei">📋</div><p>Sem dados</p></div></div></div>
+
+  <!-- LINHA 3: Paradas por equipamento (período) -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ctitle">🔧 Paradas por Equipamento <span id="dash-par-periodo-label" style="font-size:11px;color:var(--text2);font-weight:400;"></span></div>
+    <div id="dashParEquip"><div class="es"><div class="ei">🔧</div><p>Sem dados</p></div></div>
+  </div>
+
+  <!-- LINHA 4: Apontamentos por turno (barras históricas) -->
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="ctitle">📈 Produção por Turno <span style="font-size:11px;color:var(--text2);font-weight:400;">(período)</span></div>
+      <div id="dashProdTurno"><div class="es"><div class="ei">📈</div><p>Sem dados</p></div></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">✅ Demandas por Status</div>
+      <div id="dashDemandas"><div class="es"><div class="ei">✅</div><p>Sem dados</p></div></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- PERFORMANCE -->
@@ -1106,6 +1141,7 @@ function verDet(id){
 // ===== DASHBOARD =====
 function renderDash(){
   var data=document.getElementById('dash-data').value;
+  var periodo=parseInt(document.getElementById('dash-periodo')?document.getElementById('dash-periodo').value:30)||30;
   var dh=apts.filter(function(a){return a.data===data;});
   var tPar=dh.reduce(function(s,a){return s+(a.paradas?a.paradas.length:0);},0);
   var tAus=dh.reduce(function(s,a){return s+a.ausencias;},0);
@@ -1116,26 +1152,32 @@ function renderDash(){
   document.getElementById('ki-abs').textContent=tAus;
   document.getElementById('ki-efi').textContent=em!=null?em+'%':'—';
   document.getElementById('ki-set').textContent=new Set(dh.map(function(a){return a.sid;})).size;
+
+  // === EFICIÊNCIA POR SETOR ===
   var dE=document.getElementById('dashEfic');
   if(dh.length){
     var map={};
     dh.forEach(function(a){if(!map[a.setorNome])map[a.setorNome]={p:0,m:0};map[a.setorNome].p+=a.prod||0;map[a.setorNome].m+=a.meta||0;});
-    dE.innerHTML=Object.entries(map).map(function(e){
+    dE.innerHTML=Object.entries(map).sort(function(a,b){var pa=a[1].m>0?a[1].p/a[1].m:0,pb=b[1].m>0?b[1].p/b[1].m:0;return pb-pa;}).map(function(e){
       var n=e[0],v=e[1];
       var p=v.m>0?Math.round(v.p/v.m*100):null;
       var c=p===null?'var(--text2)':p>=100?'var(--green)':p>=80?'var(--yellow)':'var(--red)';
       var cSet=getCorSetorNome(n);
-      return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;font-weight:600;color:'+cSet+';">'+n+'</span><span style="font-size:12px;font-weight:700;color:'+c+'">'+(p!=null?p+'%':'Sem OP')+'</span></div><div class="pbw"><div class="pb '+(p>=100?'g':p>=80?'o':'r')+'" style="width:'+Math.min(p||0,100)+'%"></div></div></div>';
+      return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;font-weight:600;color:'+cSet+';">'+n+'</span><span style="font-size:12px;font-weight:700;color:'+c+'">'+(p!=null?p+'%':'Sem OP')+'</span></div><div class="pbw"><div class="pb '+(p!=null&&p>=100?'g':p!=null&&p>=80?'o':'r')+'" style="width:'+Math.min(p||0,100)+'%"></div></div></div>';
     }).join('');
   } else {dE.innerHTML='<div class="es"><div class="ei">📊</div><p>Sem dados</p></div>';}
+
+  // === PARADAS DO DIA ===
   var dP=document.getElementById('dashPar');
   var pars=dh.flatMap(function(a){return(a.paradas||[]).map(function(p){return Object.assign({},p,{setor:a.setorNome,turno:a.turno});});}).slice(0,8);
   dP.innerHTML=pars.length?pars.map(function(p){
     return '<div style="display:flex;gap:7px;padding:7px 0;border-bottom:1px solid var(--border);">'+
       '<span style="color:var(--orange);">⚠</span>'+
       '<div><div style="font-size:12px;font-weight:600;">'+(p.eq||'Equip.')+' — '+p.tp+'</div>'+
-      '<div style="font-size:11px;color:var(--text2);">'+p.setor+' | '+p.turno+' | '+p.min+' min</div></div></div>';
+      '<div style="font-size:11px;color:var(--text2);">'+p.setor+' | '+p.turno+' | '+p.min+' min'+(p.os?' | OS: '+p.os:'')+'</div></div></div>';
   }).join(''):'<div class="es"><div class="ei">✅</div><p>Sem paradas</p></div>';
+
+  // === APONTAMENTOS POR TURNO/SETOR ===
   var dT=document.getElementById('dashTurn');
   if(dh.length){
     dT.innerHTML='<div class="g3">'+['T1','T2','T3'].map(function(t){
@@ -1145,14 +1187,96 @@ function renderDash(){
       var ef=ta.filter(function(a){return a.efic!=null;}).map(function(a){return a.efic;});
       var em2=ef.length?Math.round(ef.reduce(function(s,v){return s+v;},0)/ef.length):null;
       return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:13px;">'+
-        '<div class="kl">'+(t==='T1'?'T1 — Manha':t==='T2'?'T2 — Tarde':'T3 — Noite')+'</div>'+
+        '<div class="kl">'+(t==='T1'?'T1 — Manhã':t==='T2'?'T2 — Tarde':'T3 — Noite')+'</div>'+
         '<div style="font-size:20px;font-weight:700;margin:7px 0;">'+ta.length+' <span style="font-size:11px;color:var(--text2);">setores</span></div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">'+ta.map(function(x){return '<span style="font-size:10px;font-weight:700;color:'+getCorSetor(x.sid)+'">'+x.setorNome+'</span>';}).join('<span style="color:var(--text3);"> · </span>')+'</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">'+ta.map(function(x){return '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;background:'+getCorSetor(x.sid)+'22;color:'+getCorSetor(x.sid)+'">'+x.setorNome+'</span>';}).join('')+'</div>'+
         '<div style="font-size:11px;color:'+(em2!=null?em2>=100?'var(--green)':em2>=80?'var(--yellow)':'var(--red)':'var(--text2)')+'">Efic.: '+(em2!=null?em2+'%':'—')+'</div>'+
         '<div style="font-size:11px;color:'+(par>0?'var(--orange)':'var(--text2)')+'">⚠ '+par+' paradas</div>'+
-        '<div style="font-size:11px;color:'+(aus>0?'var(--orange)':'var(--text2)')+'">👤 '+aus+' ausencias</div></div>';
+        '<div style="font-size:11px;color:'+(aus>0?'var(--orange)':'var(--text2)')+'">👤 '+aus+' ausências</div></div>';
     }).join('')+'</div>';
   } else {dT.innerHTML='<div class="es"><div class="ei">📋</div><p>Sem dados</p></div>';}
+
+  // === PARADAS POR EQUIPAMENTO (PERÍODO) ===
+  var dtLabel=document.getElementById('dash-par-periodo-label');
+  if(dtLabel) dtLabel.textContent='— últimos '+periodo+' dias';
+  var dataLim=new Date(); dataLim.setDate(dataLim.getDate()-periodo);
+  var dataLimStr=dataLim.toISOString().slice(0,10);
+  var aptsPeriodo=apts.filter(function(a){return a.data>=dataLimStr;});
+  var equips={};
+  aptsPeriodo.forEach(function(a){
+    (a.paradas||[]).forEach(function(p){
+      var eq=p.eq||'Sem equip.';
+      if(!equips[eq]) equips[eq]={nome:eq,n:0,min:0,setores:new Set(),corretivas:0};
+      equips[eq].n++; equips[eq].min+=p.min||0;
+      equips[eq].setores.add(a.setorNome);
+      if(p.tp&&p.tp.toLowerCase().includes('corretiva')) equips[eq].corretivas++;
+    });
+  });
+  var equipList=Object.values(equips).sort(function(a,b){return b.n-a.n;});
+  var dPE=document.getElementById('dashParEquip');
+  if(dPE){
+    if(equipList.length){
+      var maxN=equipList[0].n;
+      dPE.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+
+        equipList.slice(0,10).map(function(e){
+          var pct=Math.round(e.n/maxN*100);
+          return '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;">'+
+            '<span style="font-size:12px;font-weight:600;color:var(--orange);">🔧 '+e.nome+'</span>'+
+            '<span style="font-size:11px;color:var(--text2);">'+e.n+' par. · '+e.min+' min'+(e.corretivas>0?' · <span style=color:var(--red)>'+e.corretivas+' corr.</span>':'')+'</span></div>'+
+            '<div class="pbw"><div class="pb o" style="width:'+pct+'%"></div></div>'+
+            '<div style="font-size:10px;color:var(--text3);margin-top:2px;">'+[...e.setores].join(', ')+'</div></div>';
+        }).join('')+'</div>';
+    } else {dPE.innerHTML='<div class="es"><div class="ei">🔧</div><p>Sem paradas no período</p></div>';}
+  }
+
+  // === PRODUÇÃO POR TURNO (PERÍODO) ===
+  var turnoProd={'T1':[],'T2':[],'T3':[]};
+  aptsPeriodo.forEach(function(a){if(a.turno&&turnoProd[a.turno])turnoProd[a.turno].push(a.prod||0);});
+  var dPT=document.getElementById('dashProdTurno');
+  if(dPT){
+    var cores={'T1':'var(--green)','T2':'var(--yellow)','T3':'var(--blue)'};
+    var nomes={'T1':'Manhã','T2':'Tarde','T3':'Noite'};
+    var totais={'T1':0,'T2':0,'T3':0};
+    ['T1','T2','T3'].forEach(function(t){totais[t]=turnoProd[t].reduce(function(s,v){return s+v;},0);});
+    var maxT=Math.max(totais.T1,totais.T2,totais.T3)||1;
+    if(totais.T1+totais.T2+totais.T3>0){
+      dPT.innerHTML='<div style="display:flex;flex-direction:column;gap:12px;">'+
+        ['T1','T2','T3'].map(function(t){
+          var tot=totais[t]; var med=turnoProd[t].length?Math.round(tot/turnoProd[t].length):0;
+          var pct=Math.round(tot/maxT*100);
+          return '<div><div style="display:flex;justify-content:space-between;margin-bottom:4px;">'+
+            '<span style="font-size:13px;font-weight:700;color:'+cores[t]+';">'+t+' — '+nomes[t]+'</span>'+
+            '<span style="font-size:11px;color:var(--text2);">'+turnoProd[t].length+' apt. · média '+med+'</span></div>'+
+            '<div class="pbw" style="height:10px;"><div style="height:100%;width:'+pct+'%;background:'+cores[t]+';border-radius:3px;"></div></div></div>';
+        }).join('')+'</div>';
+    } else {dPT.innerHTML='<div class="es"><div class="ei">📈</div><p>Sem dados no período</p></div>';}
+  }
+
+  // === DEMANDAS CORRETIVAS COM OS ===
+  var dD=document.getElementById('dashDemandas');
+  if(dD){
+    var demAbertas=0,demFechadas=0;
+    aptsPeriodo.forEach(function(a){
+      (a.paradas||[]).forEach(function(p){
+        if(p.tp&&p.tp.toLowerCase().includes('corretiva')&&p.os){
+          if(p.status==='concluida') demFechadas++; else demAbertas++;
+        }
+      });
+    });
+    var total=demAbertas+demFechadas;
+    if(total>0){
+      var pctA=Math.round(demAbertas/total*100),pctF=100-pctA;
+      dD.innerHTML='<div style="display:flex;flex-direction:column;gap:14px;">'+
+        '<div style="display:flex;gap:16px;justify-content:center;">'+
+        '<div style="text-align:center;"><div style="font-size:28px;font-weight:700;color:var(--orange);">'+demAbertas+'</div><div style="font-size:11px;color:var(--text2);">Abertas</div></div>'+
+        '<div style="text-align:center;"><div style="font-size:28px;font-weight:700;color:var(--green);">'+demFechadas+'</div><div style="font-size:11px;color:var(--text2);">Concluídas</div></div></div>'+
+        '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px;">Abertas '+pctA+'% · Concluídas '+pctF+'%</div>'+
+        '<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;">'+
+        '<div style="width:'+pctA+'%;background:var(--orange);"></div>'+
+        '<div style="width:'+pctF+'%;background:var(--green);"></div></div></div>'+
+        '<div style="font-size:10px;color:var(--text3);text-align:center;">Demandas corretivas c/ O.S. — últimos '+periodo+' dias</div></div>';
+    } else {dD.innerHTML='<div class="es"><div class="ei">✅</div><p>Nenhuma demanda corretiva no período</p></div>';}
+  }
 }
 
 // ===== PERFORMANCE =====
