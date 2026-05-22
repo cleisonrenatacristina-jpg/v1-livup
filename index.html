@@ -436,6 +436,79 @@ var apts = JSON.parse(localStorage.getItem('v1_apts')||'[]');
 var ops  = JSON.parse(localStorage.getItem('v1_ops')||'[]');
 var cfg  = JSON.parse(localStorage.getItem('v1_cfg')||'{}');
 if(!cfg.demanda) cfg.demanda='https://script.google.com/macros/s/AKfycbxi2F3c-fM61-JSX0qD5hKGcMq9qZ7PNm-mLr7C4t83IYF1-q1rTc4GD4oPhf8e8_YHKQ/exec';
+
+// Cache de setores/equipamentos do Demanda Flow
+var dfSetores = JSON.parse(localStorage.getItem('v1_df_setores')||'[]');
+
+// Busca setores e equipamentos do Demanda Flow
+function buscarEquipamentosDF(){
+  var dfUrl = cfg.demanda;
+  if(!dfUrl) return;
+  var script = document.createElement('script');
+  var cb = 'dfSetoresCallback_'+Date.now();
+  window[cb] = function(data){
+    try{
+      delete window[cb];
+      document.body.removeChild(script);
+      if(data && data.setores){
+        dfSetores = data.setores;
+        localStorage.setItem('v1_df_setores', JSON.stringify(dfSetores));
+      }
+    }catch(e){}
+  };
+  script.onerror = function(){ try{delete window[cb];document.body.removeChild(script);}catch(e){} };
+  script.src = dfUrl + '?acao=getSetores&callback=' + cb;
+  document.body.appendChild(script);
+}
+
+// Retorna equipamentos de um setor pelo nome
+function getEquipamentosSetor(setorNome){
+  if(!setorNome) return [];
+  var s = dfSetores.find(function(x){
+    return x.nome && x.nome.toLowerCase() === setorNome.toLowerCase();
+  });
+  return (s && s.equipamentos) ? s.equipamentos : [];
+}
+
+// Atualiza select de equipamentos na parada com dados dos setores do V1
+function atualizarSelectEquipamento(id, setorNome){
+  var sel = document.getElementById('p-eq-'+id);
+  if(!sel) return;
+  // Busca nos setores do V1
+  var setor = setores.find(function(s){ return s.nome === setorNome; });
+  var equips = (setor && setor.equipamentos) ? setor.equipamentos : [];
+  // Se não achou nos setores V1, tenta nos setores do Demanda Flow
+  if(!equips.length) equips = getEquipamentosSetor(setorNome);
+  if(equips.length){
+    // Cria datalist para autocomplete editável
+    var dlId = 'dl-eq-'+id;
+    var dl = document.getElementById(dlId);
+    if(!dl){ dl = document.createElement('datalist'); dl.id = dlId; document.body.appendChild(dl); }
+    dl.innerHTML = equips.map(function(e){
+      var nome = typeof e === 'string' ? e : (e.nome||'');
+      return '<option value="'+nome+'">';
+    }).join('');
+    // Troca select por input com datalist se ainda for select
+    if(sel.tagName === 'SELECT'){
+      var inp = document.createElement('input');
+      inp.type = 'text'; inp.className = 'fc'; inp.id = 'p-eq-'+id;
+      inp.placeholder = 'Selecione ou digite o equipamento...';
+      inp.setAttribute('list', dlId);
+      inp.style.borderColor = 'var(--green)';
+      sel.parentNode.replaceChild(inp, sel);
+    } else {
+      sel.setAttribute('list', dlId);
+      sel.style.borderColor = 'var(--green)';
+    }
+  } else {
+    if(sel.tagName === 'SELECT'){
+      var inp2 = document.createElement('input');
+      inp2.type = 'text'; inp2.className = 'fc'; inp2.id = 'p-eq-'+id;
+      inp2.placeholder = 'Ex: CUB 10...';
+      sel.parentNode.replaceChild(inp2, sel);
+    }
+  }
+}
 if(!cfg.sheets) cfg.sheets = 'https://script.google.com/macros/s/AKfycbx6BR0Ms09raTR1v2hPTKAZ_tOkeRuG2mxMkpwKIcJVqq7_4O5I9WpK7gK2nK_iAuK5/exec';
 
 var setores = JSON.parse(localStorage.getItem('v1_setores')||JSON.stringify([
@@ -786,7 +859,7 @@ function addParada(){
   div.className='pi'; div.id='par-'+id;
   var opts=TIPOS_P.map(function(t){return '<option>'+t+'</option>';}).join('');
   div.innerHTML='<div class="g3" style="margin-bottom:8px;">'+
-    '<div class="fg" style="margin:0;"><label class="fl">Equipamento</label><input type="text" class="fc" id="p-eq-'+id+'" placeholder="Ex: CUB 10..."></div>'+
+    '<div class="fg" style="margin:0;"><label class="fl">Equipamento</label><select class="fc" id="p-eq-'+id+'"><option value="">Selecione o equipamento...</option></select></div>'+
     '<div class="fg" style="margin:0;"><label class="fl">Tipo de Parada</label><select class="fc" id="p-tp-'+id+'" onchange="checkOS('+id+')">'+opts+'</select></div>'+
     '<div style="display:flex;gap:5px;align-items:end;">'+
       '<div class="fg" style="margin:0;flex:1;"><label class="fl">Inicio</label><input type="time" class="fc" id="p-in-'+id+'"></div>'+
@@ -800,6 +873,13 @@ function addParada(){
       '<div style="font-size:11px;color:var(--red);margin-top:4px;">⚠ Parada por Manutenção Corretiva exige número de O.S. para salvar</div>'+
     '</div>';
   document.getElementById('paradasList').appendChild(div);
+  // Atualiza select de equipamentos com setor atual
+  var setorAtual = document.getElementById('apt-setor') ? 
+    document.getElementById('apt-setor').options[document.getElementById('apt-setor').selectedIndex]?.text || '' : '';
+  // Tenta pegar o nome do setor selecionado
+  var sidAtual = document.getElementById('apt-setor') ? document.getElementById('apt-setor').value : '';
+  var setorObj = setores.find(function(s){return s.id===sidAtual;});
+  if(setorObj) atualizarSelectEquipamento(id, setorObj.nome);
   // Chama imediatamente para mostrar O.S. se tipo já for Manutenção Corretiva
   checkOS(id);
 }
@@ -1555,6 +1635,7 @@ function limTudo(){
 }
 
 init();
+buscarEquipamentosDF();
 </script>
 </body>
 </html>
