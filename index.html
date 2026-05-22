@@ -2,6 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#E8174B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="V1 LivUp">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>V1 — Apontamentos Liv Up</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -133,7 +139,11 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
   <button class="nb" onclick="pg('hist',this)">📁 Histórico</button>
   <button class="nb" onclick="pg('dash',this)">📈 Dashboard</button>
   <button class="nb" onclick="pg('perf',this)">📉 Performance</button>
+  <button class="nb" onclick="pg('ia',this)">🤖 IA</button>
   <button class="nb" onclick="pg('cfg',this)">⚙️ Config</button>
+  <button id="btn-instalar" onclick="instalarApp()" style="display:none;align-items:center;gap:5px;background:#E8174B;border:none;color:#fff;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px;">
+    📲 Instalar App
+  </button>
 </nav>
 <main>
 
@@ -382,6 +392,46 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
   </div>
 </div>
 
+<!-- IA -->
+<div id="page-ia" class="hidden">
+  <div class="stitle">🤖 Inteligência Artificial <span class="sub">Análise preditiva de paradas e performance</span></div>
+
+  <div class="g2" style="margin-bottom:14px;">
+    <!-- Alertas automáticos -->
+    <div class="card">
+      <div class="ctitle">⚠️ Alertas de Paradas</div>
+      <div id="ia-alertas"><div class="es"><div class="ei">🔍</div><p>Analisando histórico...</p></div></div>
+    </div>
+    <!-- Equipamentos críticos -->
+    <div class="card">
+      <div class="ctitle">🔧 Equipamentos Críticos</div>
+      <div id="ia-equips"><div class="es"><div class="ei">🔧</div><p>Calculando...</p></div></div>
+    </div>
+  </div>
+
+  <!-- Análise IA com Claude -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ctitle">🧠 Análise Inteligente</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn btn-p btn-sm" onclick="iaAnalisarOperacao()">🔍 Analisar Operação</button>
+      <button class="btn btn-s btn-sm" onclick="iaPreverParadas()">⚡ Prever Paradas</button>
+      <button class="btn btn-s btn-sm" onclick="iaRelatorio()">📋 Relatório Executivo</button>
+    </div>
+    <div id="ia-resultado" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:14px;min-height:80px;font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;">
+      Clique em um dos botões acima para gerar uma análise com IA.
+    </div>
+    <div id="ia-loading" style="display:none;text-align:center;padding:20px;">
+      <div style="font-size:13px;color:var(--text2);">🤖 Analisando dados com IA...</div>
+    </div>
+  </div>
+
+  <!-- Tendências de Performance -->
+  <div class="card">
+    <div class="ctitle">📈 Tendências de Performance</div>
+    <div id="ia-tendencias"><div class="es"><div class="ei">📈</div><p>Calculando tendências...</p></div></div>
+  </div>
+</div>
+
 <!-- CONFIG -->
 <div id="page-cfg" class="hidden">
   <div class="stitle">Configurações</div>
@@ -622,6 +672,7 @@ function pg(p,btn){
   if(p==='dash') renderDash();
   if(p==='cons') renderCons();
   if(p==='perf') renderPerf();
+  if(p==='ia') iaInit();
 }
 
 // ===== OP SEMANAL =====
@@ -2039,6 +2090,252 @@ function limTudo(){
   toast('Dados limpos','w');
 }
 
+// ════════════════════════════════════════════════════════
+// MÓDULO DE INTELIGÊNCIA ARTIFICIAL
+// ════════════════════════════════════════════════════════
+
+function iaInit(){
+  iaCalcularAlertas();
+  iaCalcularEquipCriticos();
+  iaCalcularTendencias();
+}
+
+// ─── ALERTAS AUTOMÁTICOS ─────────────────────────────────
+function iaCalcularAlertas(){
+  var el = document.getElementById('ia-alertas');
+  if(!el) return;
+  var alertas = [];
+  var hoje = new Date();
+  var d30 = new Date(); d30.setDate(d30.getDate()-30);
+  var d30str = d30.toISOString().slice(0,10);
+  var recentes = apts.filter(function(a){ return a.data >= d30str; });
+
+  // Verifica setores com eficiência abaixo de 80% recorrente
+  setores.forEach(function(s){
+    var aptsSe = recentes.filter(function(a){ return a.sid === s.id && a.efic !== null; });
+    if(aptsSe.length < 3) return;
+    var baixos = aptsSe.filter(function(a){ return a.efic < 80; });
+    var pct = Math.round(baixos.length / aptsSe.length * 100);
+    if(pct >= 40){
+      alertas.push({
+        tipo: 'efic', nivel: pct >= 70 ? 'r' : 'o',
+        msg: '⚠ ' + s.nome + ': eficiência abaixo de 80% em ' + pct + '% dos turnos nos últimos 30 dias',
+        detalhe: aptsSe.length + ' turnos analisados'
+      });
+    }
+  });
+
+  // Verifica dias sem apontamento (gaps)
+  setores.forEach(function(s){
+    var ultApt = apts.filter(function(a){ return a.sid === s.id; })
+      .sort(function(a,b){ return b.data.localeCompare(a.data); })[0];
+    if(ultApt){
+      var diff = Math.round((hoje - new Date(ultApt.data + 'T12:00:00')) / 86400000);
+      if(diff >= 3){
+        alertas.push({
+          tipo: 'gap', nivel: diff >= 7 ? 'r' : 'o',
+          msg: '📋 ' + s.nome + ': sem apontamento há ' + diff + ' dias',
+          detalhe: 'Último: ' + ultApt.data
+        });
+      }
+    }
+  });
+
+  // Verifica absenteísmo alto
+  setores.forEach(function(s){
+    var aptsSe = recentes.filter(function(a){ return a.sid === s.id; });
+    var totalAus = aptsSe.reduce(function(t,a){ return t + (a.ausencias||0); }, 0);
+    var media = aptsSe.length ? totalAus / aptsSe.length : 0;
+    if(media >= 2){
+      alertas.push({
+        tipo: 'abs', nivel: 'o',
+        msg: '👤 ' + s.nome + ': média de ' + media.toFixed(1) + ' ausências/turno nos últimos 30 dias',
+        detalhe: aptsSe.length + ' turnos · ' + totalAus + ' ausências totais'
+      });
+    }
+  });
+
+  if(!alertas.length){
+    el.innerHTML = '<div class="es"><div class="ei">✅</div><p>Nenhum alerta crítico identificado nos últimos 30 dias</p></div>';
+    return;
+  }
+
+  el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;">' +
+    alertas.map(function(a){
+      var cor = a.nivel === 'r' ? 'var(--red)' : 'var(--orange)';
+      return '<div style="background:var(--bg3);border-left:3px solid '+cor+';border-radius:0 4px 4px 0;padding:9px 12px;">' +
+        '<div style="font-size:12px;font-weight:600;color:'+cor+';">'+a.msg+'</div>' +
+        '<div style="font-size:10px;color:var(--text3);margin-top:3px;">'+a.detalhe+'</div>' +
+        '</div>';
+    }).join('') + '</div>';
+}
+
+// ─── EQUIPAMENTOS CRÍTICOS ────────────────────────────────
+function iaCalcularEquipCriticos(){
+  var el = document.getElementById('ia-equips');
+  if(!el) return;
+  var d90 = new Date(); d90.setDate(d90.getDate()-90);
+  var d90str = d90.toISOString().slice(0,10);
+  var recentes = apts.filter(function(a){ return a.data >= d90str; });
+  var equips = {};
+
+  recentes.forEach(function(a){
+    (a.paradas||[]).forEach(function(p){
+      var eq = p.eq || 'Sem equip.';
+      if(!equips[eq]) equips[eq] = { n:0, min:0, corretivas:0, setores:new Set(), datas:[] };
+      equips[eq].n++;
+      equips[eq].min += p.min||0;
+      equips[eq].setores.add(a.setorNome||'');
+      equips[eq].datas.push(a.data);
+      if(p.tp && p.tp.toLowerCase().includes('corretiva')) equips[eq].corretivas++;
+    });
+  });
+
+  var lista = Object.entries(equips)
+    .map(function(e){ return Object.assign({nome:e[0]}, e[1]); })
+    .filter(function(e){ return e.n >= 2; })
+    .sort(function(a,b){ return b.corretivas !== a.corretivas ? b.corretivas - a.corretivas : b.n - a.n; })
+    .slice(0,6);
+
+  if(!lista.length){
+    el.innerHTML = '<div class="es"><div class="ei">✅</div><p>Nenhum equipamento crítico identificado</p></div>';
+    return;
+  }
+
+  el.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px;">' +
+    lista.map(function(e){
+      var risco = e.corretivas >= 3 ? 'var(--red)' : e.corretivas >= 1 ? 'var(--orange)' : 'var(--yellow)';
+      var riscoLabel = e.corretivas >= 3 ? '🔴 Alto' : e.corretivas >= 1 ? '🟠 Médio' : '🟡 Baixo';
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+        '<span style="font-size:12px;font-weight:700;color:var(--orange);">🔧 '+e.nome+'</span>' +
+        '<span style="font-size:11px;color:'+risco+';">'+riscoLabel+'</span>' +
+        '</div>' +
+        '<div style="font-size:10px;color:var(--text2);">' +
+        e.n+' paradas · '+e.min+' min parado · '+e.corretivas+' corretivas · Setores: '+[...e.setores].join(', ') +
+        '</div></div>';
+    }).join('') + '</div>';
+}
+
+// ─── TENDÊNCIAS ───────────────────────────────────────────
+function iaCalcularTendencias(){
+  var el = document.getElementById('ia-tendencias');
+  if(!el) return;
+  var d60 = new Date(); d60.setDate(d60.getDate()-60);
+  var d30 = new Date(); d30.setDate(d30.getDate()-30);
+  var d60str = d60.toISOString().slice(0,10);
+  var d30str = d30.toISOString().slice(0,10);
+
+  var tends = [];
+  setores.forEach(function(s){
+    var ant = apts.filter(function(a){ return a.sid===s.id && a.data>=d60str && a.data<d30str && a.efic!==null; });
+    var rec = apts.filter(function(a){ return a.sid===s.id && a.data>=d30str && a.efic!==null; });
+    if(ant.length < 3 || rec.length < 3) return;
+    var mAnt = ant.reduce(function(t,a){return t+a.efic;},0)/ant.length;
+    var mRec = rec.reduce(function(t,a){return t+a.efic;},0)/rec.length;
+    var delta = Math.round(mRec - mAnt);
+    tends.push({ nome: s.nome, mAnt: Math.round(mAnt), mRec: Math.round(mRec), delta: delta });
+  });
+
+  if(!tends.length){
+    el.innerHTML = '<div class="es"><div class="ei">📈</div><p>Dados insuficientes para calcular tendências</p></div>';
+    return;
+  }
+
+  tends.sort(function(a,b){ return a.delta - b.delta; });
+
+  el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;">' +
+    tends.map(function(t){
+      var cor = t.delta > 5 ? 'var(--green)' : t.delta < -5 ? 'var(--red)' : 'var(--yellow)';
+      var seta = t.delta > 0 ? '▲' : t.delta < 0 ? '▼' : '—';
+      var pct = Math.abs(t.delta);
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<span style="font-size:13px;font-weight:700;">'+t.nome+'</span>' +
+        '<span style="font-size:14px;font-weight:700;color:'+cor+';">'+seta+' '+pct+'%</span>' +
+        '</div>' +
+        '<div style="font-size:10px;color:var(--text2);margin-top:3px;">' +
+        'Período anterior: '+t.mAnt+'% → Últimos 30 dias: '+t.mRec+'%' +
+        '</div></div>';
+    }).join('') + '</div>';
+}
+
+// ─── ANÁLISE IA com Claude API ────────────────────────────
+async function iaChamarClaude(prompt){
+  var el = document.getElementById('ia-resultado');
+  var loading = document.getElementById('ia-loading');
+  el.style.display = 'none';
+  loading.style.display = 'block';
+
+  try{
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await resp.json();
+    var txt = (data.content||[]).map(function(c){ return c.text||''; }).join('');
+    loading.style.display = 'none';
+    el.style.display = 'block';
+    el.textContent = txt || 'Sem resposta da IA.';
+  } catch(e){
+    loading.style.display = 'none';
+    el.style.display = 'block';
+    el.textContent = 'Erro ao conectar com a IA: ' + e.message;
+  }
+}
+
+function iaGerarContexto(){
+  var d30 = new Date(); d30.setDate(d30.getDate()-30);
+  var d30str = d30.toISOString().slice(0,10);
+  var recentes = apts.filter(function(a){ return a.data >= d30str; });
+  var resumo = '';
+  setores.forEach(function(s){
+    var aptsSe = recentes.filter(function(a){ return a.sid===s.id; });
+    if(!aptsSe.length) return;
+    var efics = aptsSe.filter(function(a){ return a.efic!==null; }).map(function(a){ return a.efic; });
+    var mediaEfic = efics.length ? Math.round(efics.reduce(function(t,v){return t+v;},0)/efics.length) : null;
+    var totalAus = aptsSe.reduce(function(t,a){ return t+(a.ausencias||0); },0);
+    var totalPar = aptsSe.reduce(function(t,a){ return t+(a.paradas?a.paradas.length:0); },0);
+    resumo += '- ' + s.nome + ': efic media ' + (mediaEfic!==null?mediaEfic+'%':'sem dados') + ', ' + totalAus + ' ausencias, ' + totalPar + ' paradas (' + aptsSe.length + ' turnos)\n';
+  });
+  var equips = {};
+  recentes.forEach(function(a){
+    (a.paradas||[]).forEach(function(p){
+      var eq = p.eq||'sem equip';
+      equips[eq] = (equips[eq]||0)+1;
+    });
+  });
+  var topEquips = Object.entries(equips).sort(function(a,b){return b[1]-a[1];}).slice(0,5)
+    .map(function(e){ return e[0]+' ('+e[1]+'x)'; }).join(', ');
+  return 'Dados dos ultimos 30 dias da fabrica LivUp:\n\nSetores:\n' + resumo + '\nEquipamentos com mais paradas: ' + (topEquips||'nenhum') + '\n\nResponda em portugues de forma objetiva e profissional.';
+}
+
+function iaAnalisarOperacao(){
+  var ctx = iaGerarContexto();
+  var prompt = ctx + ' Faca uma analise executiva da operacao identificando os principais pontos de atencao, setores criticos e oportunidades de melhoria. Use linguagem direta e apresente em topicos.';
+  iaChamarClaude(prompt);
+}
+
+
+function iaPreverParadas(){
+  var ctx = iaGerarContexto();
+  var prompt = ctx + ' Baseado nesses dados, quais equipamentos e setores tem maior risco de parada nas proximas semanas? Justifique com base nos padroes observados e sugira acoes preventivas concretas.';
+  iaChamarClaude(prompt);
+}
+
+
+function iaRelatorio(){
+  var ctx = iaGerarContexto();
+  var prompt = ctx + ' Gere um relatorio executivo resumido (maximo 10 linhas) para apresentar ao presidente da empresa, destacando performance geral, principais riscos operacionais e 3 recomendacoes prioritarias.';
+  iaChamarClaude(prompt);
+}
+
+
 init();
 buscarEquipamentosDF();
 </script>
@@ -2076,5 +2373,35 @@ buscarEquipamentosDF();
     </div>
   </div>
 </div>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg){ console.log('SW registrado:', reg.scope); })
+      .catch(function(e){ console.log('SW erro:', e); });
+  });
+}
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredPrompt = e;
+  var btn = document.getElementById('btn-instalar');
+  if(btn) btn.style.display = 'flex';
+});
+function instalarApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(r){
+    deferredPrompt = null;
+    var btn = document.getElementById('btn-instalar');
+    if(btn) btn.style.display = 'none';
+  });
+}
+window.addEventListener('appinstalled', function(){
+  var btn = document.getElementById('btn-instalar');
+  if(btn) btn.style.display = 'none';
+  toast('App instalado!');
+});
+</script>
 </body>
 </html>
