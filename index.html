@@ -1496,10 +1496,120 @@ function renderTblPerf(dados){
 // ===== CONFIG =====
 function renderCfgSetores(){
   document.getElementById('cfgSetores').innerHTML=setores.map(function(s){
+    var nEq=(s.equipamentos||[]).length;
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'+
-      '<span style="font-size:13px;font-weight:600;color:'+(s.cor||'var(--text)')+'">'+s.nome+'</span> <span class="ounid" style="margin-left:5px;">('+s.unid+')</span>'+
-      '<button class="btn btn-d btn-sm" onclick="rmSetor(\''+s.id+'\')">✕</button></div>';
+      '<div>'+
+      '<span style="font-size:13px;font-weight:600;color:'+(s.cor||'var(--text)')+'">'+s.nome+'</span>'+
+      ' <span class="ounid" style="margin-left:5px;">('+s.unid+')</span>'+
+      (nEq>0?'<span style="font-size:10px;color:var(--green);margin-left:6px;">🔧 '+nEq+' equip.</span>':'<span style="font-size:10px;color:var(--text3);margin-left:6px;">sem equip.</span>')+
+      '</div>'+
+      '<div style="display:flex;gap:5px;">'+
+      '<button class="btn btn-w btn-sm" onclick="abrirModalSetor(\''+s.id+'\')">✏️ Editar</button>'+
+      '<button class="btn btn-d btn-sm" onclick="rmSetor(\''+s.id+'\')">✕</button>'+
+      '</div></div>';
   }).join('');
+}
+
+var _editSetorId=null;
+var _editEquipamentos=[];
+
+function abrirModalSetor(id){
+  var s=setores.find(function(x){return x.id===id;});
+  if(!s) return;
+  _editSetorId=id;
+  _editEquipamentos=JSON.parse(JSON.stringify(s.equipamentos||[]));
+  document.getElementById('ms-nome-v1').value=s.nome;
+  document.getElementById('ms-unid-v1').value=s.unid||'KG';
+  renderEquipModalV1();
+  document.getElementById('modal-setor-v1').style.display='flex';
+}
+
+function fecharModalSetor(){
+  document.getElementById('modal-setor-v1').style.display='none';
+  _editSetorId=null; _editEquipamentos=[];
+}
+
+function renderEquipModalV1(){
+  var el=document.getElementById('ms-equip-lista-v1');
+  var vazio=document.getElementById('ms-equip-vazio-v1');
+  if(!_editEquipamentos.length){el.innerHTML='';vazio.style.display='block';return;}
+  vazio.style.display='none';
+  el.innerHTML=_editEquipamentos.map(function(e,i){
+    var nome=typeof e==='string'?e:(e.nome||'');
+    var kgh=typeof e==='object'?(e.kgh||0):0;
+    return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:5px;">'+
+      '<span style="flex:1;font-size:13px;font-weight:600;">🔧 '+nome+'</span>'+
+      (kgh>0?'<span style="font-size:11px;color:var(--text2);">'+kgh+' kg/h</span>':'')+
+      '<button onclick="rmEquipV1('+i+')" style="background:#2a0a0a;border:none;color:var(--red);border-radius:3px;padding:2px 8px;cursor:pointer;font-size:11px;">✕</button>'+
+      '</div>';
+  }).join('');
+}
+
+function addEquipV1(){
+  var nome=document.getElementById('ms-eq-nome-v1').value.trim();
+  var kgh=parseFloat(document.getElementById('ms-eq-kgh-v1').value)||0;
+  if(!nome) return;
+  if(_editEquipamentos.find(function(e){return (typeof e==='string'?e:(e.nome||''))===nome;})){toast('Equipamento já existe!','e');return;}
+  _editEquipamentos.push({nome:nome,kgh:kgh});
+  document.getElementById('ms-eq-nome-v1').value='';
+  document.getElementById('ms-eq-kgh-v1').value='';
+  renderEquipModalV1();
+  document.getElementById('ms-eq-nome-v1').focus();
+}
+
+function rmEquipV1(idx){
+  _editEquipamentos.splice(idx,1);
+  renderEquipModalV1();
+}
+
+function salvarModalSetor(){
+  var nome=document.getElementById('ms-nome-v1').value.trim();
+  var unid=document.getElementById('ms-unid-v1').value;
+  if(!nome){toast('Nome obrigatório!','e');return;}
+  setores=setores.map(function(s){
+    if(s.id!==_editSetorId) return s;
+    return Object.assign({},s,{nome:nome,unid:unid,equipamentos:_editEquipamentos});
+  });
+  localStorage.setItem('v1_setores',JSON.stringify(setores));
+  renderCfgSetores(); renderAptSetor();
+  fecharModalSetor();
+  toast('Setor atualizado!');
+}
+
+function importarEquipamentosDF(){
+  // Importa equipamentos do Demanda Flow via getSetores
+  if(!cfg.demanda){toast('Configure a URL do Demanda Flow primeiro!','e');return;}
+  var cb='dfImpCallback_'+Date.now();
+  var script=document.createElement('script');
+  window[cb]=function(data){
+    try{
+      delete window[cb]; document.body.removeChild(script);
+      if(!data||!data.setores||!data.setores.length){toast('Nenhum setor encontrado no Demanda Flow','e');return;}
+      var setorAtual=setores.find(function(s){return s.id===_editSetorId;});
+      if(!setorAtual){return;}
+      var dfSetor=data.setores.find(function(s){
+        return s.nome&&s.nome.toLowerCase()===setorAtual.nome.toLowerCase();
+      });
+      if(!dfSetor||!dfSetor.equipamentos||!dfSetor.equipamentos.length){
+        toast('Setor "'+setorAtual.nome+'" não encontrado no Demanda Flow','e');return;
+      }
+      var importados=0;
+      dfSetor.equipamentos.forEach(function(e){
+        var nome=typeof e==='string'?e:(e.nome||'');
+        if(!nome) return;
+        if(!_editEquipamentos.find(function(x){return (typeof x==='string'?x:(x.nome||''))===nome;})){
+          _editEquipamentos.push(typeof e==='string'?{nome:e,kgh:0}:e);
+          importados++;
+        }
+      });
+      renderEquipModalV1();
+      toast(importados>0?importados+' equipamentos importados!':'Já estão todos importados');
+    }catch(ex){toast('Erro ao importar','e');}
+  };
+  script.onerror=function(){try{delete window[cb];document.body.removeChild(script);}catch(ex){}toast('Erro ao conectar com Demanda Flow','e');};
+  script.src=cfg.demanda+'?acao=getSetores&callback='+cb;
+  document.body.appendChild(script);
+  toast('Buscando equipamentos do Demanda Flow...','w');
 }
 
 function addSetor(){
@@ -1637,5 +1747,40 @@ function limTudo(){
 init();
 buscarEquipamentosDF();
 </script>
+
+<!-- MODAL EDITAR SETOR V1 -->
+<div id="modal-setor-v1" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)fecharModalSetor()">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:0;">
+    <div style="display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);">
+      <span style="font-size:14px;font-weight:700;flex:1;">✏️ Editar Setor</span>
+      <button onclick="fecharModalSetor()" style="background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;">×</button>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <div class="g2">
+        <div class="fg" style="margin:0;"><label class="fl">Nome</label><input type="text" id="ms-nome-v1" class="fc" placeholder="Nome do setor"/></div>
+        <div class="fg" style="margin:0;"><label class="fl">Unidade</label>
+          <select id="ms-unid-v1" class="fc"><option>KG</option><option>UNIDADES</option><option>CICLO</option><option>RECEITAS</option></select>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:12px;">
+        <div style="display:flex;align-items:center;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:700;color:var(--green);flex:1;">🔧 Equipamentos</span>
+          <button onclick="importarEquipamentosDF()" style="font-size:10px;padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;">📥 Importar do Demanda Flow</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <input type="text" id="ms-eq-nome-v1" class="fc" placeholder="Nome do equipamento..." style="flex:2;" onkeydown="if(event.key==='Enter')addEquipV1()"/>
+          <input type="number" id="ms-eq-kgh-v1" class="fc" placeholder="kg/h" style="flex:1;width:70px;" onkeydown="if(event.key==='Enter')addEquipV1()"/>
+          <button class="btn btn-p btn-sm" onclick="addEquipV1()">+</button>
+        </div>
+        <div id="ms-equip-lista-v1"></div>
+        <div id="ms-equip-vazio-v1" style="font-size:12px;color:var(--text3);text-align:center;padding:8px;">Nenhum equipamento cadastrado</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);">
+      <button class="btn btn-w btn-sm" onclick="fecharModalSetor()">Cancelar</button>
+      <button class="btn btn-p btn-sm" onclick="salvarModalSetor()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
