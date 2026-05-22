@@ -1538,9 +1538,12 @@ function renderEquipModalV1(){
   el.innerHTML=_editEquipamentos.map(function(e,i){
     var nome=typeof e==='string'?e:(e.nome||'');
     var kgh=typeof e==='object'?(e.kgh||0):0;
-    return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:8px 10px;margin-bottom:5px;">'+
+    return '<div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:7px 10px;margin-bottom:5px;">'+
       '<span style="flex:1;font-size:13px;font-weight:600;">🔧 '+nome+'</span>'+
-      (kgh>0?'<span style="font-size:11px;color:var(--text2);">'+kgh+' kg/h</span>':'')+
+      '<input type="number" min="0" step="0.1" value="'+(kgh||'')+'" placeholder="kg/h"'+
+      ' onchange="_editEquipamentos['+i+'].kgh=parseFloat(this.value)||0"'+
+      ' style="width:70px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:4px 6px;color:var(--text);font-size:12px;text-align:right;"/>'+
+      '<span style="font-size:10px;color:var(--text3);">kg/h</span>'+
       '<button onclick="rmEquipV1('+i+')" style="background:#2a0a0a;border:none;color:var(--red);border-radius:3px;padding:2px 8px;cursor:pointer;font-size:11px;">✕</button>'+
       '</div>';
   }).join('');
@@ -1813,7 +1816,6 @@ buscarEquipamentosDF();
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:12px;">
         <div style="display:flex;align-items:center;margin-bottom:10px;">
           <span style="font-size:12px;font-weight:700;color:var(--green);flex:1;">🔧 Equipamentos</span>
-          <button onclick="importarEquipamentosDF()" style="font-size:10px;padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;">📥 Importar do Demanda Flow</button>
         </div>
         <div style="display:flex;gap:6px;margin-bottom:8px;">
           <input type="text" id="ms-eq-nome-v1" class="fc" placeholder="Nome do equipamento..." style="flex:2;" onkeydown="if(event.key==='Enter')addEquipV1()"/>
