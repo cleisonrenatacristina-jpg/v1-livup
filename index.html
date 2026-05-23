@@ -292,10 +292,12 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
       <div class="fg"><label class="fl">Turno</label>
         <select id="ftu" class="fc"><option value="">Todos</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select></div>
     </div>
-    <div style="display:flex;gap:8px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-p btn-sm" onclick="filtHist()">Filtrar</button>
       <button class="btn btn-s btn-sm" onclick="limFilt()">Limpar</button>
+      <button class="btn btn-w btn-sm" onclick="buscarDoSheets()" style="background:#1a4a1a;border-color:#00C853;color:#00C853;">☁ Buscar do Sheets</button>
     </div>
+    <div id="hist-sync-status" style="font-size:12px;color:var(--text2);margin-top:6px;"></div>
   </div>
   <div class="card">
     <div class="tw"><table>
@@ -2035,6 +2037,53 @@ async function criarDemandaFlow(parada, apt){
   }catch(e){
     console.error('Demanda Flow erro:',e);
     toast('Erro ao criar demanda: '+e.message,'e');
+  }
+}
+
+async function buscarDoSheets(){
+  if(!cfg.sheets){ toast('Configure a URL do Sheets!','e'); return; }
+  var el = document.getElementById('hist-sync-status');
+  if(el) el.textContent = '⏳ Buscando dados do Sheets...';
+  try{
+    var resp = await fetch(cfg.sheets + '?acao=getHistorico');
+    var dados = await resp.json();
+    if(!Array.isArray(dados) || !dados.length){
+      if(el) el.textContent = 'Nenhum dado encontrado no Sheets.';
+      toast('Nenhum dado encontrado!','w');
+      return;
+    }
+    var novos = 0;
+    dados.forEach(function(d){
+      var id = d.ID || d.id;
+      if(!id) return;
+      if(apts.find(function(a){ return a.id === id; })) return;
+      // Mapeia campos do Sheets para o formato do app
+      apts.push({
+        id: id,
+        data: String(d.Data||'').slice(0,10),
+        turno: String(d.Turno||'T1'),
+        sid: (setores.find(function(s){ return s.nome===(d.Setor||''); })||{id:''}).id,
+        setorNome: String(d.Setor||''),
+        responsavel: String(d.Responsavel||''),
+        prod: Number(d.Producao)||0,
+        meta: Number(d.Meta)||0,
+        efic: d['Efic%'] ? parseInt(String(d['Efic%']).replace('%',''))||null : null,
+        ausencias: Number(d.Ausencias)||0,
+        paradas: [],
+        dificuldades: String(d.Dificuldades||''),
+        obs: String(d.Comentarios||''),
+        fonte: String(d.Fonte||'Sheets'),
+      });
+      novos++;
+    });
+    save();
+    renderHist(apts);
+    var msg = novos > 0 ? '✅ '+novos+' apontamentos importados do Sheets!' : '✅ Tudo já atualizado!';
+    if(el) el.textContent = msg;
+    toast(msg);
+  } catch(e){
+    if(el) el.textContent = '❌ Erro: ' + e.message;
+    toast('Erro ao buscar: '+e.message,'e');
   }
 }
 
