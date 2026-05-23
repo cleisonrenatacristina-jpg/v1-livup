@@ -1327,7 +1327,7 @@ function renderHist(lista){
       '<td><span class="badge bgr">'+a.turno+'</span></td>'+
       '<td style="color:'+corSet+';font-weight:700;">'+a.setorNome+'</td>'+
       '<td>'+(a.resp||'—')+'</td>'+
-      '<td>'+(a.prod||0).toLocaleString('pt-BR')+' <span style="font-size:10px;color:var(--text3);">'+a.unid+'</span></td>'+
+      '<td>'+(a.prod||0).toLocaleString('pt-BR')+(a.unid?' <span style="font-size:10px;color:var(--text3);">'+a.unid+'</span>':'')+'</td>'+
       '<td>'+(a.meta>0?a.meta.toLocaleString('pt-BR'):'—')+'</td>'+
       '<td style="font-weight:700;color:'+ec2+'">'+(a.efic!=null?a.efic+'%':'—')+'</td>'+
       '<td>'+a.presentes+'</td>'+
@@ -2085,7 +2085,17 @@ async function buscarDoSheets(){
         responsavel: String(d.Responsavel||''),
         prod: Number(d.Producao)||0,
         meta: Number(d.Meta)||0,
-        efic: d['Efic%'] ? parseInt(String(d['Efic%']).replace('%',''))||null : null,
+        efic: (function(){
+          var v = d['Efic%'];
+          if(!v && v!==0) return null;
+          var s = String(v).replace('%','').trim();
+          var n = parseFloat(s);
+          if(isNaN(n)) return null;
+          // Se vier como decimal (ex: 0.01 = 1%), converte para percentual
+          if(n > 0 && n < 1) n = Math.round(n * 100);
+          else n = Math.round(n);
+          return n || null;
+        })(),
         ausencias: Number(d.Ausencias)||0,
         paradas: [],
         dificuldades: String(d.Dificuldades||''),
