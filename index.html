@@ -479,6 +479,7 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
         </div>
         <div class="fg"><label class="fl">URL Apps Script (Google Sheets)</label><input type="text" id="cfg-sh" class="fc" placeholder="https://script.google.com/..."></div>
         <div class="fg"><label class="fl">URL Demanda Flow</label><input type="text" id="cfg-df" class="fc" placeholder="URL do Demanda Flow..."></div>
+        <div class="fg"><label class="fl">🤖 Chave de API IA (Anthropic) — opcional</label><input type="password" id="cfg-ia-key" class="fc" placeholder="sk-ant-... (deixe vazio para usar o Apps Script como proxy)"></div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-p btn-sm" onclick="salvarCfgSeguro()">✓ Salvar e Bloquear</button>
           <button class="btn btn-s btn-sm" onclick="testarConn()">Testar</button>
@@ -1955,6 +1956,7 @@ function desbloquearIntegracoes(){
   // Preenche campos
   if(cfg.sheets) document.getElementById('cfg-sh').value=cfg.sheets;
   if(cfg.demanda) document.getElementById('cfg-df').value=cfg.demanda;
+  var iaEl = document.getElementById('cfg-ia-key'); if(iaEl && cfg.iaKey) iaEl.value=cfg.iaKey;
 }
 
 function bloquearIntegracoes(){
@@ -1968,8 +1970,10 @@ function bloquearIntegracoes(){
 function salvarCfgSeguro(){
   var sh = document.getElementById('cfg-sh').value.trim();
   var df = document.getElementById('cfg-df').value.trim();
+  var iaKey = document.getElementById('cfg-ia-key') ? document.getElementById('cfg-ia-key').value.trim() : '';
   if(sh) cfg.sheets = sh;
   if(df) cfg.demanda = df;
+  if(iaKey) cfg.iaKey = iaKey;
   localStorage.setItem('v1_cfg', JSON.stringify(cfg));
   bloquearIntegracoes();
   toast('URLs salvas e bloqueadas! ✅');
@@ -2330,18 +2334,49 @@ async function iaChamarClaude(prompt){
   el.style.display = 'none';
   loading.style.display = 'block';
 
+  // Verifica se tem chave de API ou URL do Apps Script configurada
+  var iaKey = cfg.iaKey || '';
+  var sheetsUrl = cfg.sheets || '';
+
+  if(!iaKey && !sheetsUrl){
+    loading.style.display = 'none';
+    el.style.display = 'block';
+    el.textContent = '⚠️ Configure sua chave de API da IA ou a URL do Apps Script na aba Config → Integrações.';
+    return;
+  }
+
   try{
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    var data = await resp.json();
-    var txt = (data.content||[]).map(function(c){ return c.text||''; }).join('');
+    var txt = '';
+    if(iaKey){
+      // Chamada direta com chave de API (precisa de chave válida)
+      var resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': iaKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-request-permissions': 'no-cors-check'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      var data = await resp.json();
+      txt = (data.content||[]).map(function(c){ return c.text||''; }).join('');
+    } else {
+      // Usa Apps Script como proxy (sem problemas de CORS)
+      var resp = await fetch(sheetsUrl + '?acao=ia', {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ prompt: prompt })
+      });
+      var raw = await resp.text();
+      try { var data = JSON.parse(raw); txt = data.resposta || data.text || raw; }
+      catch(pe){ txt = raw; }
+    }
     loading.style.display = 'none';
     el.style.display = 'block';
     el.textContent = txt || 'Sem resposta da IA.';
