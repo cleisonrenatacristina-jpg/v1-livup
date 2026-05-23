@@ -2348,14 +2348,13 @@ async function iaChamarClaude(prompt){
   try{
     var txt = '';
     if(iaKey){
-      // Chamada direta com chave de API (precisa de chave válida)
+      // Chamada direta com chave de API
       var resp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': iaKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-request-permissions': 'no-cors-check'
+          'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
@@ -2364,18 +2363,22 @@ async function iaChamarClaude(prompt){
         })
       });
       var data = await resp.json();
+      if(data.error){ throw new Error(data.error.message || 'Erro na API'); }
       txt = (data.content||[]).map(function(c){ return c.text||''; }).join('');
     } else {
-      // Usa Apps Script como proxy (sem problemas de CORS)
-      var resp = await fetch(sheetsUrl + '?acao=ia', {
+      // Usa Apps Script como proxy — sem problemas de CORS
+      var resp = await fetch(sheetsUrl, {
         method: 'POST',
         redirect: 'follow',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ prompt: prompt })
+        body: JSON.stringify({ tipo: 'ia', prompt: prompt })
       });
       var raw = await resp.text();
-      try { var data = JSON.parse(raw); txt = data.resposta || data.text || raw; }
-      catch(pe){ txt = raw; }
+      try {
+        var data = JSON.parse(raw);
+        if(data.status === 'erro'){ throw new Error(data.msg || 'Erro no proxy'); }
+        txt = data.resposta || '';
+      } catch(pe){ throw new Error('Resposta inválida do proxy: ' + raw.slice(0,100)); }
     }
     loading.style.display = 'none';
     el.style.display = 'block';
