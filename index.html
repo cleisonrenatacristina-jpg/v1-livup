@@ -2045,8 +2045,14 @@ async function buscarDoSheets(){
   var el = document.getElementById('hist-sync-status');
   if(el) el.textContent = '⏳ Buscando dados do Sheets...';
   try{
-    var resp = await fetch(cfg.sheets + '?acao=getHistorico');
-    var dados = await resp.json();
+    var resp = await fetch(cfg.sheets + '?acao=getHistorico', {
+      method: 'GET',
+      redirect: 'follow',
+    });
+    if(!resp.ok) throw new Error('HTTP ' + resp.status);
+    var texto = await resp.text();
+    var dados;
+    try { dados = JSON.parse(texto); } catch(pe){ throw new Error('Resposta inválida do Sheets: ' + texto.slice(0,100)); }
     if(!Array.isArray(dados) || !dados.length){
       if(el) el.textContent = 'Nenhum dado encontrado no Sheets.';
       toast('Nenhum dado encontrado!','w');
