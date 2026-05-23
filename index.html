@@ -2288,24 +2288,47 @@ function iaCalcularEquipCriticos(){
 function iaCalcularTendencias(){
   var el = document.getElementById('ia-tendencias');
   if(!el) return;
-  var d60 = new Date(); d60.setDate(d60.getDate()-60);
-  var d30 = new Date(); d30.setDate(d30.getDate()-30);
-  var d60str = d60.toISOString().slice(0,10);
-  var d30str = d30.toISOString().slice(0,10);
+
+  // Pega o range de datas disponíveis nos apontamentos
+  var todasDatas = apts.map(function(a){ return a.data; }).filter(Boolean).sort();
+  if(!todasDatas.length){
+    el.innerHTML = '<div class="es"><div class="ei">📈</div><p>Sem apontamentos para calcular tendências</p></div>';
+    return;
+  }
+
+  // Usa as datas reais dos dados — divide em duas metades
+  var dtMin = todasDatas[0];
+  var dtMax = todasDatas[todasDatas.length-1];
+  var tMin = new Date(dtMin+'T12:00:00').getTime();
+  var tMax = new Date(dtMax+'T12:00:00').getTime();
+  var tMeio = new Date((tMin+tMax)/2).toISOString().slice(0,10);
 
   var tends = [];
   setores.forEach(function(s){
-    var ant = apts.filter(function(a){ return a.sid===s.id && a.data>=d60str && a.data<d30str && a.efic!==null; });
-    var rec = apts.filter(function(a){ return a.sid===s.id && a.data>=d30str && a.efic!==null; });
-    if(ant.length < 3 || rec.length < 3) return;
-    var mAnt = ant.reduce(function(t,a){return t+a.efic;},0)/ant.length;
-    var mRec = rec.reduce(function(t,a){return t+a.efic;},0)/rec.length;
-    var delta = Math.round(mRec - mAnt);
-    tends.push({ nome: s.nome, mAnt: Math.round(mAnt), mRec: Math.round(mRec), delta: delta });
+    // Tenta usar efic primeiro, senão usa producao
+    var aptsSe = apts.filter(function(a){ return a.sid===s.id || a.setorNome===s.nome; });
+    var ant = aptsSe.filter(function(a){ return a.data>=dtMin && a.data<tMeio; });
+    var rec = aptsSe.filter(function(a){ return a.data>=tMeio && a.data<=dtMax; });
+    if(ant.length < 2 || rec.length < 2) return;
+
+    // Prefere efic, cai para prod se não tiver
+    var temEfic = ant.some(function(a){ return a.efic!==null && a.efic!==undefined; });
+    var campo = temEfic ? 'efic' : 'prod';
+    var label = temEfic ? '%' : ' un';
+
+    var antVals = ant.filter(function(a){ return a[campo]!==null && a[campo]!==undefined && a[campo]>0; });
+    var recVals = rec.filter(function(a){ return a[campo]!==null && a[campo]!==undefined && a[campo]>0; });
+    if(!antVals.length || !recVals.length) return;
+
+    var mAnt = antVals.reduce(function(t,a){return t+Number(a[campo]);},0)/antVals.length;
+    var mRec = recVals.reduce(function(t,a){return t+Number(a[campo]);},0)/recVals.length;
+    var delta = mRec - mAnt;
+    var deltaPct = mAnt > 0 ? Math.round((delta/mAnt)*100) : 0;
+    tends.push({ nome: s.nome, mAnt: Math.round(mAnt), mRec: Math.round(mRec), delta: deltaPct, label: label, campo: campo });
   });
 
   if(!tends.length){
-    el.innerHTML = '<div class="es"><div class="ei">📈</div><p>Dados insuficientes para calcular tendências</p></div>';
+    el.innerHTML = '<div class="es"><div class="ei">📈</div><p>Dados insuficientes — importe apontamentos pelo Histórico</p></div>';
     return;
   }
 
@@ -2316,13 +2339,15 @@ function iaCalcularTendencias(){
       var cor = t.delta > 5 ? 'var(--green)' : t.delta < -5 ? 'var(--red)' : 'var(--yellow)';
       var seta = t.delta > 0 ? '▲' : t.delta < 0 ? '▼' : '—';
       var pct = Math.abs(t.delta);
+      var lbl = t.label || '%';
+      var campoLabel = t.campo === 'prod' ? 'Produção média' : 'Eficiência média';
       return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:13px;font-weight:700;">'+t.nome+'</span>' +
         '<span style="font-size:14px;font-weight:700;color:'+cor+';">'+seta+' '+pct+'%</span>' +
         '</div>' +
         '<div style="font-size:10px;color:var(--text2);margin-top:3px;">' +
-        'Período anterior: '+t.mAnt+'% → Últimos 30 dias: '+t.mRec+'%' +
+        campoLabel+': '+t.mAnt+lbl+' → '+t.mRec+lbl+
         '</div></div>';
     }).join('') + '</div>';
 }
