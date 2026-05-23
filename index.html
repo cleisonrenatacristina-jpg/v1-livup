@@ -296,6 +296,7 @@ td{padding:9px 10px;font-size:13px;color:var(--text);vertical-align:middle;}
       <button class="btn btn-p btn-sm" onclick="filtHist()">Filtrar</button>
       <button class="btn btn-s btn-sm" onclick="limFilt()">Limpar</button>
       <button class="btn btn-w btn-sm" onclick="buscarDoSheets()" style="background:#1a4a1a;border-color:#00C853;color:#00C853;">☁ Buscar do Sheets</button>
+      <button class="btn btn-d btn-sm" onclick="limparDadosLocais()" title="Apaga dados locais e reimporta do Sheets">🗑 Limpar e Reimportar</button>
     </div>
     <div id="hist-sync-status" style="font-size:12px;color:var(--text2);margin-top:6px;"></div>
   </div>
@@ -2050,6 +2051,15 @@ async function criarDemandaFlow(parada, apt){
     console.error('Demanda Flow erro:',e);
     toast('Erro ao criar demanda: '+e.message,'e');
   }
+}
+
+function limparDadosLocais(){
+  if(!confirm('Apagar todos os apontamentos locais e reimportar do Sheets?')) return;
+  apts = [];
+  localStorage.removeItem('v1_apts');
+  renderHist([]);
+  toast('Dados locais apagados! Buscando do Sheets...', 'w');
+  setTimeout(function(){ buscarDoSheets(); }, 500);
 }
 
 async function buscarDoSheets(){
