@@ -2101,8 +2101,10 @@ async function buscarDoSheets(){
           var s = String(v).replace('%','').trim();
           var n = parseFloat(s);
           if(isNaN(n)) return null;
-          // Se vier como decimal (ex: 0.01 = 1%), converte para percentual
-          if(n > 0 && n < 1) n = Math.round(n * 100);
+          // Sheets armazena % como decimal internamente (ex: 254% = 2.54, 78% = 0.78)
+          // Se n <= 20, assume que é decimal e multiplica por 100
+          // Nenhuma eficiência real seria <= 20% (seria problema grave)
+          if(n > 0 && n <= 20) n = Math.round(n * 100);
           else n = Math.round(n);
           return n || null;
         })(),
