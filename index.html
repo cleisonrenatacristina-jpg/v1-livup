@@ -1379,7 +1379,7 @@ function popFiltSetor(){
 }
 
 function editarApt(id){
-  var a=apts.find(function(x){return x.id===id;});
+  var a=apts.find(function(x){return String(x.id)===String(id);});
   if(!a) return;
   // Navega para aba de apontamento
   var btn=document.querySelector('.nb:nth-child(2)');
@@ -1439,7 +1439,7 @@ function editarApt(id){
 }
 
 function verDet(id){
-  var a=apts.find(function(x){return x.id===id;}); if(!a) return;
+  var a=apts.find(function(x){return String(x.id)===String(id);}); if(!a) return;
   var ec2=a.efic==null?'var(--text2)':a.efic>=100?'var(--green)':a.efic>=80?'var(--yellow)':'var(--red)';
   var parH=(a.paradas||[]).map(function(p){
     return '<div style="background:var(--bg3);border-left:3px solid var(--orange);padding:9px;margin-bottom:7px;border-radius:2px;">'+
