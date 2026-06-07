@@ -1717,23 +1717,16 @@ function getPerfLocal(dataFim,dias){
 var PAINEL_AUTOREFRESH=null;
 var PAINEL_CELEBRADO=false;
 
-// Junta os apontamentos do mês corrente; se não houver nada ainda, usa o último mês com dados
+// Sempre usa o mês corrente (dia 01 ao último dia do mês), mesmo que ainda não haja apontamentos nele
 function painelDadosMes(){
   var hoje=new Date();
-  var ym=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0');
+  var ano=hoje.getFullYear(), mesIdx=hoje.getMonth();
+  var ym=ano+'-'+String(mesIdx+1).padStart(2,'0');
   var base=Array.isArray(DADOS_V1_PLANILHA)?DADOS_V1_PLANILHA:[];
   var doMes=base.filter(function(d){return d.data&&d.data.indexOf(ym)===0;});
-  var usandoUltimoDisponivel=false;
-  if(!doMes.length&&base.length){
-    var ultima=base[base.length-1].data;
-    ym=ultima.slice(0,7);
-    doMes=base.filter(function(d){return d.data&&d.data.indexOf(ym)===0;});
-    usandoUltimoDisponivel=true;
-  }
-  var ano=Number(ym.slice(0,4)), mesIdx=Number(ym.slice(5,7))-1;
   var nomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var diasNoMes=new Date(ano,mesIdx+1,0).getDate();
-  return{ym:ym,nomeMes:nomes[mesIdx],ano:ano,mesIdx:mesIdx,diasNoMes:diasNoMes,dias:doMes,usandoUltimoDisponivel:usandoUltimoDisponivel};
+  return{ym:ym,nomeMes:nomes[mesIdx],ano:ano,mesIdx:mesIdx,diasNoMes:diasNoMes,dias:doMes,diaHoje:hoje.getDate()};
 }
 
 // Soma os 4 setores (valores na planilha em kg) e converte para toneladas
@@ -1814,7 +1807,7 @@ function renderPainel(){
   var cor=corMeta(pct);
   var faltamT=Math.max(0,meta-tot.totalT);
   var hoje=new Date();
-  var diaAtual=info.usandoUltimoDisponivel?info.diasNoMes:Math.min(hoje.getDate(),info.diasNoMes);
+  var diaAtual=Math.min(info.diaHoje,info.diasNoMes);
   var diasRestantes=Math.max(0,info.diasNoMes-diaAtual);
   var mediaDiaria=diaAtual>0?tot.totalT/diaAtual:0;
   var projecao=mediaDiaria*info.diasNoMes;
@@ -1825,7 +1818,7 @@ function renderPainel(){
   if(!el)return;
   el.innerHTML=
     '<div class="card '+(bateu?'celebra':'')+'" style="text-align:center;padding:30px 18px;">'+
-      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-size:15px;">'+info.nomeMes+'/'+info.ano+(info.usandoUltimoDisponivel?' <span style="color:var(--text3);">(último mês com apontamentos)</span>':'')+'</div>'+
+      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-size:15px;">'+info.nomeMes+'/'+info.ano+' <span style="color:var(--text3);">· dia '+info.diaHoje+' de '+info.diasNoMes+'</span></div>'+
       '<div class="gauge-wrap">'+gaugeSVG(pct,cor,300)+
         '<div class="gauge-val"><div class="gv-pct" style="color:'+cor+'">'+pct.toFixed(0)+'%</div><div class="gv-lbl">da meta mensal</div></div>'+
       '</div>'+
