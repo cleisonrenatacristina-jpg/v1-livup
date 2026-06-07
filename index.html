@@ -1717,27 +1717,119 @@ function getPerfLocal(dataFim,dias){
 var PAINEL_AUTOREFRESH=null;
 var PAINEL_CELEBRADO=false;
 
+var PAINEL_MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var PAINEL_ICONES={'Resfriamento':'❄️','Congelamento':'🧊','FLV':'🥬','Açougue':'🥩','Acougue':'🥩','Coccao':'🍲','Cocção':'🍲','Porcionamento':'📦'};
+
+// Monta um mapa dia->kg mesclando o histórico da planilha original com os apontamentos reais
+// lançados no app (que têm prioridade — são a fonte mais atual). Evita contagem duplicada no mesmo dia.
+function painelDadosPorDia(){
+  var porDia={};
+  (Array.isArray(DADOS_V1_PLANILHA)?DADOS_V1_PLANILHA:[]).forEach(function(d){
+    if(!d.data)return;
+    var kg=(d.volResf||0)+(d.volCong||0)+(d.flv||0)+(d.acougue||0);
+    if(kg<=0)return;
+    porDia[d.data]={kg:kg,porSetor:{'Resfriamento':d.volResf||0,'Congelamento':d.volCong||0,'FLV':d.flv||0,'Açougue':d.acougue||0},fonte:'historico'};
+  });
+  var aptsPorDia={};
+  apts.forEach(function(a){
+    if(!a.data||a.unid!=='KG'||!(Number(a.prod)>0))return;
+    aptsPorDia[a.data]=aptsPorDia[a.data]||{kg:0,porSetor:{}};
+    aptsPorDia[a.data].kg+=Number(a.prod);
+    var nome=a.setorNome||a.sid;
+    aptsPorDia[a.data].porSetor[nome]=(aptsPorDia[a.data].porSetor[nome]||0)+Number(a.prod);
+  });
+  Object.keys(aptsPorDia).forEach(function(dt){
+    porDia[dt]={kg:aptsPorDia[dt].kg,porSetor:aptsPorDia[dt].porSetor,fonte:'apontamentos'};
+  });
+  return porDia;
+}
+
+// Agrega o mapa diário em totais por mês (AAAA-MM)
+function painelAgregaPorMes(porDia){
+  var porMes={};
+  Object.keys(porDia).forEach(function(dt){
+    var ym=dt.slice(0,7);
+    porMes[ym]=porMes[ym]||{kg:0,porSetor:{},dias:{}};
+    porMes[ym].kg+=porDia[dt].kg;
+    porMes[ym].dias[dt]=porDia[dt].kg;
+    Object.keys(porDia[dt].porSetor).forEach(function(s){
+      porMes[ym].porSetor[s]=(porMes[ym].porSetor[s]||0)+porDia[dt].porSetor[s];
+    });
+  });
+  return porMes;
+}
+
 // Sempre usa o mês corrente (dia 01 ao último dia do mês), mesmo que ainda não haja apontamentos nele
 function painelDadosMes(){
   var hoje=new Date();
   var ano=hoje.getFullYear(), mesIdx=hoje.getMonth();
   var ym=ano+'-'+String(mesIdx+1).padStart(2,'0');
-  var base=Array.isArray(DADOS_V1_PLANILHA)?DADOS_V1_PLANILHA:[];
-  var doMes=base.filter(function(d){return d.data&&d.data.indexOf(ym)===0;});
-  var nomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var diasNoMes=new Date(ano,mesIdx+1,0).getDate();
-  return{ym:ym,nomeMes:nomes[mesIdx],ano:ano,mesIdx:mesIdx,diasNoMes:diasNoMes,dias:doMes,diaHoje:hoje.getDate()};
+  var porDia=painelDadosPorDia();
+  var porMes=painelAgregaPorMes(porDia);
+  return{ym:ym,nomeMes:PAINEL_MESES[mesIdx],ano:ano,mesIdx:mesIdx,diasNoMes:diasNoMes,diaHoje:hoje.getDate(),porDia:porDia,porMes:porMes};
 }
 
-// Soma os 4 setores (valores na planilha em kg) e converte para toneladas
-function painelTotais(dias){
-  var resf=0,cong=0,flv=0,ac=0,diasComApont=0;
-  dias.forEach(function(d){
-    var t=(d.volResf||0)+(d.volCong||0)+(d.flv||0)+(d.acougue||0);
-    if(t>0)diasComApont++;
-    resf+=d.volResf||0; cong+=d.volCong||0; flv+=d.flv||0; ac+=d.acougue||0;
+// Totais (em toneladas) do mês — kg/1000 — a partir do agregado mensal já mesclado
+function painelTotaisMes(porMes,ym){
+  var m=porMes[ym]||{kg:0,porSetor:{},dias:{}};
+  var diasComApont=Object.keys(m.dias).filter(function(dt){return m.dias[dt]>0;}).length;
+  return{totalT:m.kg/1000,porSetor:m.porSetor,diasComApont:diasComApont};
+}
+
+// Cards dinâmicos por setor (toneladas), ordenados do maior para o menor
+function painelCardsSetor(porSetorKg){
+  var classes=['g','b','y','o'];
+  var entradas=Object.keys(porSetorKg).map(function(k){return{nome:k,t:(porSetorKg[k]||0)/1000};}).filter(function(e){return e.t>0;});
+  entradas.sort(function(a,b){return b.t-a.t;});
+  if(!entradas.length)return'<div class="es" style="grid-column:1/-1;"><div class="ei">📋</div><p>Nenhum apontamento de setor (kg) lançado neste mês ainda</p></div>';
+  return entradas.map(function(e,i){
+    return '<div class="kpi '+classes[i%4]+'"><div class="kl">'+(PAINEL_ICONES[e.nome]||'📦')+' '+e.nome+'</div><div class="kv">'+e.t.toLocaleString('pt-BR',{maximumFractionDigits:1})+'</div><div class="ks">toneladas no mês</div></div>';
+  }).join('');
+}
+
+// Ranking dos meses por total de toneladas — "recordes" — com o mês atual sempre destacado
+function painelRanking(porMes,ymAtual){
+  var lista=Object.keys(porMes).map(function(k){
+    return{ym:k,totalT:porMes[k].kg/1000,atual:k===ymAtual};
   });
-  return{resf:resf/1000,cong:cong/1000,flv:flv/1000,ac:ac/1000,totalT:(resf+cong+flv+ac)/1000,diasComApont:diasComApont};
+  if(!lista.some(function(r){return r.ym===ymAtual;})) lista.push({ym:ymAtual,totalT:0,atual:true});
+  lista.sort(function(a,b){return b.totalT-a.totalT;});
+  var max=Math.max.apply(null,lista.map(function(r){return r.totalT;}).concat([0.001]));
+  return lista.map(function(r,i){
+    var w=Math.max(2,Math.round((r.totalT/max)*100));
+    var mi=Number(r.ym.slice(5,7))-1;
+    var label=PAINEL_MESES[mi].slice(0,3)+'/'+r.ym.slice(2,4);
+    return '<div style="display:flex;align-items:center;gap:10px;border-radius:4px;padding:7px 10px;'+(r.atual?'background:rgba(0,200,83,.08);border:1px solid var(--green);':'border:1px solid transparent;')+'">'+
+      '<div style="width:28px;font-size:12px;color:var(--text3);">#'+(i+1)+'</div>'+
+      '<div style="width:78px;font-size:12px;font-weight:'+(r.atual?'800':'600')+';color:'+(r.atual?'var(--green)':'var(--text2)')+';text-transform:uppercase;letter-spacing:1px;">'+label+(r.atual?' ★':'')+'</div>'+
+      '<div style="flex:1;background:var(--bg3);border-radius:2px;height:9px;overflow:hidden;"><div style="height:100%;width:'+w+'%;background:'+(r.atual?'var(--green)':'var(--blue)')+';border-radius:2px;"></div></div>'+
+      '<div style="width:92px;text-align:right;font-weight:700;font-size:13px;">'+r.totalT.toLocaleString('pt-BR',{maximumFractionDigits:1})+' T</div>'+
+    '</div>';
+  }).join('');
+}
+
+// Gráfico de barras dia a dia do mês corrente (até hoje em diante, mês inteiro)
+function painelDiaADia(info){
+  var maxH=104;
+  var hoje=info.diaHoje;
+  var barras=[];
+  for(var d=1; d<=info.diasNoMes; d++){
+    var dt=info.ym+'-'+String(d).padStart(2,'0');
+    var kg=(info.porDia[dt]&&info.porDia[dt].kg)||0;
+    barras.push({dia:d,t:kg/1000,ehHoje:d===hoje});
+  }
+  var max=Math.max.apply(null,barras.map(function(b){return b.t;}).concat([0.001]));
+  return '<div style="display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding-top:8px;">'+
+    barras.map(function(b){
+      var h=b.t>0?Math.max(3,Math.round((b.t/max)*maxH)):2;
+      var cor=b.ehHoje?'var(--green)':(b.t>0?'#2979FF':'var(--border2)');
+      return '<div style="flex:0 0 auto;width:17px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:'+(maxH+20)+'px;" title="Dia '+b.dia+': '+b.t.toLocaleString('pt-BR',{maximumFractionDigits:2})+' T">'+
+        '<div style="width:100%;height:'+h+'px;background:'+cor+';border-radius:2px 2px 0 0;"></div>'+
+        '<div style="font-size:9px;color:'+(b.ehHoje?'var(--green)':'var(--text3)')+';font-weight:'+(b.ehHoje?'800':'400')+';">'+b.dia+'</div>'+
+      '</div>';
+    }).join('')+
+  '</div>';
 }
 
 function corMeta(pct){
@@ -1762,7 +1854,7 @@ function gaugeSVG(pct,cor,size){
   var circ=2*Math.PI*r;
   var off=circ*(1-pctClamp/100);
   return'<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="transform:rotate(-90deg);">'+
-    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--bg3)" stroke-width="16"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--border2)" stroke-width="16"/>'+
     '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+cor+'" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+off+'" style="transition:stroke-dashoffset 1s ease, stroke 1s ease;"/>'+
     '</svg>';
 }
@@ -1802,7 +1894,7 @@ function renderPainel(){
   if(metaInput&&!metaInput.value&&meta)metaInput.value=meta;
 
   var info=painelDadosMes();
-  var tot=painelTotais(info.dias);
+  var tot=painelTotaisMes(info.porMes,info.ym);
   var pct=meta>0?(tot.totalT/meta*100):0;
   var cor=corMeta(pct);
   var faltamT=Math.max(0,meta-tot.totalT);
@@ -1825,11 +1917,8 @@ function renderPainel(){
       '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:30px;">'+tot.totalT.toLocaleString('pt-BR',{maximumFractionDigits:1})+' T <span style="color:var(--text3);font-size:18px;">/ '+(meta?meta.toLocaleString('pt-BR',{maximumFractionDigits:1}):'—')+' T</span></div>'+
       '<div style="font-size:14px;font-weight:700;color:'+cor+';margin-top:6px;">'+statusMeta(pct)+'</div>'+
     '</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">'+
-      '<div class="kpi g"><div class="kl">❄️ Resfriamento</div><div class="kv">'+tot.resf.toLocaleString('pt-BR',{maximumFractionDigits:1})+'</div><div class="ks">toneladas no mês</div></div>'+
-      '<div class="kpi b"><div class="kl">🧊 Congelamento</div><div class="kv">'+tot.cong.toLocaleString('pt-BR',{maximumFractionDigits:1})+'</div><div class="ks">toneladas no mês</div></div>'+
-      '<div class="kpi y"><div class="kl">🥬 FLV</div><div class="kv">'+tot.flv.toLocaleString('pt-BR',{maximumFractionDigits:1})+'</div><div class="ks">toneladas no mês</div></div>'+
-      '<div class="kpi o"><div class="kl">🥩 Açougue</div><div class="kv">'+tot.ac.toLocaleString('pt-BR',{maximumFractionDigits:1})+'</div><div class="ks">toneladas no mês</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">'+
+      painelCardsSetor(tot.porSetor)+
     '</div>'+
     '<div class="card">'+
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;text-align:center;">'+
@@ -1839,6 +1928,14 @@ function renderPainel(){
         '<div><div class="kl">Projeção p/ fim do mês</div><div class="kv" style="font-size:26px;color:'+(meta&&projecao>=meta?'var(--green)':'var(--orange)')+';">'+projecao.toLocaleString('pt-BR',{maximumFractionDigits:1})+' T</div></div>'+
         (diasRestantes>0?'<div><div class="kl">Necessário/dia p/ bater meta</div><div class="kv" style="font-size:26px;">'+medNecessaria.toLocaleString('pt-BR',{maximumFractionDigits:2})+' T</div></div>':'')+
       '</div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="stitle" style="font-size:14px;">📅 Produção dia a dia — '+info.nomeMes+'/'+info.ano+'</div>'+
+      painelDiaADia(info)+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="stitle" style="font-size:14px;">🏆 Ranking de meses — recordes de tonelagem</div>'+
+      '<div style="display:flex;flex-direction:column;gap:5px;">'+painelRanking(info.porMes,info.ym)+'</div>'+
     '</div>'+
     '<div style="text-align:center;color:var(--text3);font-size:11px;margin-top:6px;">Atualizado em '+hoje.toLocaleString('pt-BR')+' · atualização automática a cada 5 min</div>';
 
