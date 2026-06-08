@@ -1685,7 +1685,9 @@ async function renderPerf(){
         renderBlocoPerf('pResf',dc,'volResf','mmResf','limResf','#00C853');
         renderBlocoPerf('pCong',dc,'volCong','mmCong','limCong','#2979FF');
         renderBlocoPerf('pFLV',dc,'flv','mmFlv','limFlv','#FFD600');
-        renderBlocoPerf('pAc',dc,'acougue','mmAc','limAc','#FF6D00');
+        // Açougue: dados do Sheets não incluem Açougue — usa sempre a planilha local embutida
+        var dlAc=getPerfLocal(data,nsem*7);
+        renderBlocoPerf('pAc',dlAc,'acougue','mmAc','limAc','#FF6D00');
         renderTblPerf(dc);
         toast('Dados do Sheets carregados!');
         return;
